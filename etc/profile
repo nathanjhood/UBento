@@ -1,0 +1,72 @@
+# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+
+# To the extent possible under law, the author(s) have dedicated all
+# copyright and related and neighboring rights to this software to the
+# public domain worldwide. This software is distributed without any warranty.
+# You should have received a copy of the CC0 Public Domain Dedication along
+# with this software.
+# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+
+# Some resources...
+# Customizing Your Shell: http://www.dsl.org/cookbook/cookbook_5.html#SEC69
+# Consistent BackSpace and Delete Configuration:
+#   http://www.ibb.net/~anne/keyboard.html
+# The Linux Documentation Project: https://www.tldp.org/
+# The Linux Cookbook: https://www.tldp.org/LDP/linuxcookbook/html/
+# Greg's Wiki https://mywiki.wooledge.org/
+
+# System-wide profile file
+
+echo "$USER loading /etc/profile..."
+
+umask 022
+
+if [ "${PS1-}" ]; then
+  if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
+    # The file bash.bashrc already sets the default PS1.
+    # PS1='\h:\w\$ '
+    if [ -f "/etc/bash.bashrc" ]; then
+      source "/etc/bash.bashrc"
+    fi
+  else
+    if [ "$(id -u)" -eq 0 ]; then
+      PS1='# '
+    else
+      PS1='$ '
+    fi
+  fi
+fi
+
+if [ -d "/etc/profile.d" ]; then
+  for script in /etc/profile.d/*.sh; do
+    if [ -r $script ]; then
+      source $script
+    fi
+  done
+  unset script
+fi
+
+
+# Ensure base distro default paths are set if nothing filed up some
+# defaults yet.
+
+if [ -z "$PATH" ]; then
+  export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+fi
+
+if [ -z "$MANPATH" ]; then
+  export MANPATH="/usr/local/man:/usr/share/man:/usr/man:/share/man:$MANPATH"
+fi
+
+if [ -z "$INFOPATH" ]; then
+  export INFOPATH="/usr/local/info:/usr/share/info:/usr/info:/share/info:$INFOPATH"
+fi
+
+# Desktop files (used by desktop environments within both X11 and Wayland) are
+# looked for in XDG_DATA_DIRS;
+if [ -z "$XDG_DATA_DIRS" ]; then
+  export XDG_DATA_DIRS="/usr/local/share:/usr/share"
+fi
+
+echo "...$USER loaded /etc/profile"
