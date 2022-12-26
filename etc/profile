@@ -20,6 +20,11 @@
 
 echo "$USER loading /etc/profile..."
 
+# Umask
+# Set as 022 for removing write permissions to group + others.
+# Set as 027 for a more restrictive umask: i.e. no exec perms for others.
+# Set as 077 when paranoid: neither group nor others have any permissions.
+
 umask 022
 
 if [ "${PS1-}" ]; then
