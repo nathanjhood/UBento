@@ -336,3 +336,91 @@ cd_func()
 
   return 0
 }
+
+
+
+get_gith()
+{
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee /usr/share/keyrings/githubcli-archive-keyring.gpg >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list
+
+    apt update
+}
+
+get_node()
+{
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null
+
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list
+
+    echo "deb-src [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee -a /etc/apt/sources.list.d/nodesource.list
+
+    apt update
+
+    # apt install nodejs
+}
+
+get_yarn()
+{
+    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+    apt update
+
+    # apt install yarn
+}
+
+get_pgadmin()
+{
+    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+
+    echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list
+
+    apt update
+}
+
+get_cmake()
+{
+    # wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+
+    curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/kitware.list
+
+    apt update
+
+    # apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+}
+
+get_chrome()
+{
+    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+
+    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+}
+
+get_supabase()
+{
+    "curl https://github.com/supabase/cli/releases/download/v1.25.0/supabase_1.25.0_linux_amd64.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
+
+    apt install "$XDG_DOWNLOAD_DIR/supabase_1.25.0_linux_amd64.deb"
+}
+
+get_nvm()
+{
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
+}
+
+get_postman()
+{
+    curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
+}
+
+get_vcpkg_tool()
+{
+    . <(curl https://aka.ms/vcpkg-init.sh -L)
+
+    . ~/.vcpkg/vcpkg-init
+}
