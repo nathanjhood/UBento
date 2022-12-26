@@ -68,9 +68,55 @@ full restart to login as dev;
 
     shutdown now
     wsl -d UBento
+    
+option 1; symlink your Windows and UBento user folders
 
-Test docker interoperability (make sure the UBento option is checked Docker Desktop's settings > resources);
+    ln -s /mnt/c/Users/{username}/Desktop /home/dev/Desktop
+    ln -s /mnt/c/Users/{username}/Documents /home/dev/Documents
+    ln -s /mnt/c/Users/{username}/Downloads /home/dev/Downloads
+    ln -s /mnt/c/Users/{username}/Music /home/dev/Music
+    ln -s /mnt/c/Users/{username}/Pictures /home/dev/Pictures
+    ln -s /mnt/c/Users/{username}/Public /home/dev/Public
+    ln -s /mnt/c/Users/{username}/Template /home/dev/Template
+    ln -s /mnt/c/Users/{username}/Videos /home/dev/Videos
+    ln -s /mnt/c/Users/Public /home/dev/Public
+    
+    ln -s /mnt/c/Users/Administrator/Desktop /root/Desktop
+    ...
+    ln -s /mnt/c/Users/Administrator/Videos /root/Videos
+    
+option 2; create ne UBento user folders
+
+    mkdir $HOME/Desktop $HOME/Documents $HOME/Downloads $HOME/Music $HOME/Pictures $HOME/Templates $HOME/Videos
+    
+Test docker interoperability (make sure the UBento option is checked in Windows Docker Desktop's settings > resources);
 
     docker run hello-world
-
     docker run -it ubuntu bash
+
+
+# [TROUBLESHOOTING]
+
+Enabling Hyper-V on Windows.
+
+Get the required packages:
+
+    pushd "%~dp0"
+
+    dir /b %SystemRoot%\servicing\Packages\*Hyper-V*.mum >hv.txt
+
+    for /f %%i in ('findstr /i . hv.txt 2^>nul') do dism /online /norestart /add-package:"%SystemRoot%\servicing\Packages\%%i"
+
+    Dism /online /enable-feature /featurename:Microsoft-Hyper-V -All /LimitAccess /ALL
+
+    pause
+
+Enable the Windows features:
+
+    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+    dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
+
+    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    
+Restart your Windows machine once the above is complete. 
