@@ -3,7 +3,7 @@ Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake
 
 The Ubuntu distro that's available from the MS Store is invoked via a snap called "install RELEASE" which provides the Ubuntu.exe on the Windows-side. This is a nice interoperability, but the snap requirements are quite costly in both storage and performance.
 
-Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running 'service --status-all'...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint and in many cases, improved runtime performances.
+Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running 'service --status-all'...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint, and in many cases, improved runtime performances.
 
 This will hopefully get compiled into an interactive bash script, if time permits. Meanwhile check /etc/profile.d/ubento_helpers.sh (credit to X410 for the original scripts - see refs) and /etc/skel/.profile and .bashrc files to get the idea.
 
@@ -11,17 +11,21 @@ Requirements:
 
 - Windows 11 22h2 or greater
 - WSL2 (Windows Subsystem for Linux) with a working Linux kernel/distro
-- X-Server for Windows such as VcXsrv or X410
+- Docker Desktop for Windows using the WSL2 backend, used for obtaining and running developer environment images
 
 Optional:
 
-- Docker Desktop for Windows using the WSL2 backend, used for obtaining and running developer environment images
 - VSCode with Remote Development Extensions, used for editing your code hosted on the WSL2 backend
+- X-Server for Windows such as VcXsrv or X410 for GUI/desktop support if desired
 
 Todo:
 
 - Use the shared WSLENV variable to link the distro user to the Windows user as a soft default
 - Implement as a shell script
+
+Notes:
+
+- It's a good idea to use 'localhost' or at least something different to your Windows Machine Name (this is set in /etc/wsl.conf) as your hostname. The unfortunate current default is to simply copy the Win name over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient" browser (i.e., your net browser for Windows) and differentiate the network addresses you are provided for "localhost", for example. this is very useful when configuring the X-server, especially.
 
 Run the below in your current WSL2 distro's terminal
 
@@ -30,8 +34,13 @@ Run the below in your current WSL2 distro's terminal
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
     docker run -t ubuntu bash
-    dockerContainerID=$(docker container ls -a | grep -i ubuntu | awk '{print $1}')
-    docker export $dockerContainerID > /mnt/c/Users/{username}/ubuntu.tar
+    docker container ls -a
+
+Take a note of the distro number of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly).
+
+    docker export $dockerContainerID > C:\Users\{username}\ubuntu.tar
+
+We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives.
 
 option 1; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', while storing a backup .vhdx of 'Ubuntu'
 
@@ -42,45 +51,67 @@ option 1; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', while storin
     wsl --unregister Ubuntu
     wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
 
-(Note that we imported Ubuntu as a .tar, exported it as a resizeable .vhdx, then re-imported the .vhdx under a new name.
-Thus, the 'unregister Ubuntu' step is optional - you can keep both distro's on your WSL if you like.)
+Note that we imported Ubuntu as a .tar, exported it as a resizeable .vhdx, then re-imported the .vhdx under a new name.
+Thus, the 'unregister Ubuntu' step is optional - you can keep both distro's on your WSL if you like.
+
 The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may place the files anywhere you like.
 
 option 2; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', without storing a backup;
 
     wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
 
+Backing up and restarting with a clean slate;
+
+It turns out to be handy to run the
+
+    wsl --export <myPerfectDistro> "D:\Backup\my_perfect_distro.vhdx" --vhd
+
+argument around this stage or whenever you feel you have a good starting point, because if/when we srew anything up and want to start over, can then simply;
+
+    wsl --unregister <myBadDistro>
+
+    wsl --import <myPerfectDistro> "D:\My\Runtime\Folder" "D:\Backup\my_perfect_distro.vhdx"
+
+Note that the --vhd flag tells WSL to export as either a .vhd (static volume size) or a .vhdx (dynamic volume size), but you can also drop this flag and instead prepend the export location with ".tar", to store as a Tar file. As mentioned eariler, WSL can import a .tar distro directly, without needing to be converted to any .vhd extension, but it provides a handy additional layer of control over the distro size.
+
 Check UBento is installed and launch it (as root);
 
     wsl -l -v
     wsl -d UBento
 
+The above line can also be used in a Windows Terminal profile as a launch command, if you append '.exe' to the WSL invocation. Going deeper, we could make a desktop icon launcher that invokes our Windows Shell and runs the above command.... (possibly coming soon)
+
 # [POST-INSTALL]
 
-set permission for root folder, restore server packages, and install wsl dependencies;
+set permission for root folder, restore server packages, and install basic dependencies;
 
-    chmod 755 / && yes | unminimize
+    chmod 755 /
     apt update && apt install apt-utils dialog
+    yes | unminimize
     apt install less manpages sudo openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
 
-create user named 'dev' with the required uid (you will be prompted to create a secure login password);
+create user named '{userName}' (could use $WSLENV to pull your Win user name here) with the required uid (you will be prompted to create a secure login password);
 
-    adduser --home=/home/dev --shell=/usr/bin/bash --gecos="WSL Developer" --uid=1000 dev
-    usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev dev
+    export userName=stoneydsp
 
-make 'dev@localhost' and expose default wsl settings, mount the windows drive in '/mnt', and set the required OS interoperabilities;
+    adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<"Full Name">" --uid=1000 dev
+    usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
+
+make '$userName@localhost' and expose default wsl settings, mount the windows drive in '/mnt', and set the required OS interoperabilities;
 
     echo -e "[automount]\nenabled=true\nroot=/mnt/\nmountFsTab=true\noptions='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\ncrossDistro=true\nldconfig=true\n" >> /etc/wsl.conf
     echo -e "[network]\nhostname=localhost\ngenerateHosts=true\ngenerateResolvConf=true\n" >> /etc/wsl.conf
     echo -e "[interop]\nenabled=true\nappendWindowsPath=true\n" >> /etc/wsl.conf
-    echo -e "[user]\ndefault=dev\n" >> /etc/wsl.conf
+    echo -e "[user]\ndefault=$userName\n" >> /etc/wsl.conf
     echo -e "[boot]\nsystemd=true\n" >> /etc/wsl.conf
 
-full restart to login as dev;
+full restart to login as $userName;
 
     shutdown now
     wsl -d UBento
     sudo apt install systemd dbus at-spi2-core
+
+There is also a very large APT package suite named 'ubuntu-wsl' that we can instead break down into smaller dependency cycles, as and where required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. Note that the package 'wsl-setup' attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
 
 [COPY .PROFILE .BASHRC INTO HOME FOLDERS AND /ETC/SKEL...]
 
@@ -298,6 +329,14 @@ As sudo...
         . ~/.vcpkg/vcpkg-init
     }
 
+Optional packages;
+
+    sudo apt install ubuntu-wsl snapd
+    sudo snap refresh
+    sudo snap list
+
+No default snaps (cool!), but all the "/snapd" folder locations should be appended to the $PATH variable - make sure to check /etc/profile and the troubleshooting tips below :)
+
 # [TROUBLESHOOTING]
 
 Enabling Hyper-V on Windows.
@@ -324,13 +363,33 @@ Enable the Windows features:
 
 Restart your Windows machine once the above is complete.
 
-Optional;
+Making the most of your $PATHS variable:
 
-    sudo apt install ubuntu-wsl snapd
-    sudo snap refresh
-    sudo snap list
+In "ubento_helpers.sh", we have a useful bash logic to check if a directory is present, and if so, to append it to a given variable, such as;
 
-No snaps, but they should be in the $PATH - make sure to check /etc/profile :)
+    if [ -d "/usr/bin" ] ; then
+        PATH="/usr/bin:$PATH"
+    fi
+
+    if [ -d "/usr/local/games" ] ; then
+        PATH="/usr/local/games:$PATH"
+    fi
+
+    if [ -d "$HOME/.local/bin" ] ; then
+        PATH="$HOME/.local/bin:$PATH"
+    fi
+
+    export PATH
+
+Make sure that you always append for example ":$PATH" in these cases, to retain the previously-set values on this variable. The PATH variable on particular should also contain your full Windows PATH variable, when explanded;
+
+    echo $PATH
+
+If you don't see your Windows paths in the terminal on calling the above, check all of your $PATH calls and the /etc/wsl.conf interoperability settings.
+
+Shutting down:
+
+Note that if you choose not to 'unminimize', not install systemd, or otherwise have no real shutdown strategy in your distro, you can always make an alias to ```wsl.exe -d <myDistro> --shutdown```.
 
 References and sources:
 
