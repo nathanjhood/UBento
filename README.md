@@ -5,10 +5,11 @@ Requirements:
 
 - Windows 11 22h2 or greater
 - WSL2 (Windows Subsystem for Linux) with a working Linux kernel/distro
-- Docker Desktop for Windows using WSL2 backend
+- X-Server for Windows such as VcXsrv or X410
 
 Optional:
 
+- Docker Desktop for Windows using the WSL2 backend, used for obtaining and running developer environment images
 - VSCode with Remote Development Extensions, used for editing your code hosted on the WSL2 backend
 
 Run the below in your current WSL2 distro's terminal
@@ -68,6 +69,7 @@ full restart to login as dev;
 
     shutdown now
     wsl -d UBento
+    sudo apt install systemd dbus at-spi2-core
     
 option 1; symlink your Windows and UBento user folders
 
@@ -85,7 +87,7 @@ option 1; symlink your Windows and UBento user folders
     ...
     ln -s /mnt/c/Users/Administrator/Videos /root/Videos
     
-option 2; create ne UBento user folders
+option 2; create new UBento user folders
 
     mkdir $HOME/Desktop $HOME/Documents $HOME/Downloads $HOME/Music $HOME/Pictures $HOME/Templates $HOME/Videos
     
@@ -94,6 +96,9 @@ Test docker interoperability (make sure the UBento option is checked in Windows 
     docker run hello-world
     docker run -it ubuntu bash
 
+# [Configuring encrypted X-Server sessions]
+
+(tbc)
 
 # [TROUBLESHOOTING]
 
