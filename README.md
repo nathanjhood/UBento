@@ -23,9 +23,14 @@ This will hopefully get compiled into an interactive bash script... if time perm
 
 ## Todo:
 
-- Finish X-Server helper
-- Use the shared WSLENV variable to link the distro user to the Windows user and '.Xauthority' keypath
-- Implement as a shell script
+- Finish X-Server encryption helper function
+- Use the shared WSLENV variable to link the distro userspace, to the Windows userspace
+- Use WSLENV to share a single, translatable '.Xauthority' keypath between both userspaces (this works for SSH keys and symlinks...)
+- Investigate usage of user-login password as an MIT-encrypted env variable (like github.SECRETs) for Git control, intializing DBus with as sudo during startup routine, and authenticating the X-Server encryption layer step 
+- Implement as a shell-scripted front-end for a fast, flexible, potentially CI-capable* Ubuntu-Minimal deployment 
+ 
+*where the ```unmaximize``` command and other rehydrations can be averted from use cases. 
+
 
 ## Notes:
 
