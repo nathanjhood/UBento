@@ -1,6 +1,8 @@
 # UBento
 Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
+## About
+
 The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called "ubuntu-wsl". The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install and which are still updated regularly (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?) and does not provide other common developer packages (e.g., Yarn) by default. 
 
 Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running 'service --status-all'...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
@@ -30,7 +32,7 @@ Notes:
 
 To get started, run the below in either your Windows Powershell, or your current WSL2 distro's terminal;
 
-# [PRE-INSTALL]
+## [PRE-INSTALL]
 
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
@@ -85,7 +87,7 @@ Check UBento is installed and launch it (as root);
 
 The above line can also be used in a Windows Terminal profile as a launch command, if you append '.exe' to the WSL invocation. Going deeper, we could make a desktop icon launcher that invokes our Windows Shell and runs the above command.... (possibly coming soon)
 
-# [POST-INSTALL]
+## [POST-INSTALL]
 
 The below steps are to be run from within your new Ubuntu-based bash terminal in WSL.
 
@@ -113,13 +115,13 @@ Make '$userName@localhost' and expose default wsl settings, mount the windows dr
     
 A much clearer method is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on.
 
-[COPY .PROFILE .BASHRC /ETC/SKEL...]
+## [COPY .PROFILE .BASHRC /ETC/SKEL...]
 
-[COPY BASH.BASHRC AND PROFILE INTO /ETC...]
+## [COPY BASH.BASHRC AND PROFILE INTO /ETC...]
 
-[COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D...]
+## [COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D...]
 
-[OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT...]
+## [OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT...]
 
 Make sure the following two functions from the x410 cookbook are defined in '/etc/profile.d/ubento_helpers.sh' and are present/called in $HOME/.profile for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
 
@@ -145,7 +147,7 @@ It is CRITICAL that the above steps (as a minimum) are taken in the order presen
 
 *this sequence ensures that when the user account is finally accessed, it has the UID of 1000 assigned, and calls the "set_runtime_dir" and "set_session_bus" functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at '/run/user/1000' during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT call these functions during init (they should not be present at all in /root/.profile).
 
-[DESKTOP SETTINGS]
+## [DESKTOP SETTINGS]
 
 The user-local '$HOME/.profile' file will contain several pointers for our desktop environment, including additional bin and man paths, as well as linkage to our home folders - we don't need to set these ourselves as they will have been pulled in from '/etc/skel' when we created our user (see previous steps!), but these are useful to be aware of when setting up our desktop;
 
@@ -221,7 +223,7 @@ Import your Windows fonts by adding the below to /etc/fonts/local.conf;
         <dir>/mnt/c/Windows/Fonts</dir>
     </fontconfig>
 
-[DEVTOOLS KEYRING]
+## [DEVTOOLS KEYRING]
 
 As sudo...
 
@@ -347,7 +349,7 @@ Here are some more common tools for development;
         . ~/.vcpkg/vcpkg-init
     }
 
-[OPTIONAL PACKAGES]
+## [OPTIONAL PACKAGES]
 
 These are a few that ship with WSL Ubuntu from the MS Store;
 
@@ -388,11 +390,11 @@ Don't forget to test out VSCode with the Remote Development extension, of course
     # Will run an installation step for 'vscode-server-remote' on first run....
     # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
 
-# [Configuring encrypted X-Server sessions]
+## [Configuring encrypted X-Server sessions]
 
 (tbc)
 
-# [TROUBLESHOOTING]
+## [TROUBLESHOOTING]
 
 Enabling Hyper-V on Windows.
 
@@ -448,7 +450,7 @@ Shutting down:
 
 Note that if you choose not to 'unminimize', not install systemd, or otherwise have no real shutdown strategy in your distro, you can always make an alias to ```wsl.exe -d <myDistro> --shutdown```.
 
-References and sources:
+## [REFERENCES AND SOURCES]
 
 Microsoft WSL docs ...
 Docker Desktop for Win/WSL2 docs ...
