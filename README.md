@@ -28,7 +28,7 @@ Todo:
 
 Notes:
 
-- It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
+- Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
 
 To get started, run the below in either your Windows Powershell, or your current WSL2 distro's terminal;
 
@@ -65,14 +65,13 @@ This is because if/when we screw anything up and want to start our distro over, 
 
     wsl --import <myPerfectDistro> "D:\My\Install\Folder" "D:\My\Backup\Folder\my_perfect_distro.vhdx"
 
-Please see the [TIPS] section for much more advice :)
+Please see the [TIPS] section for much more advice on distro importing, exporting, and storage.
 
-Check UBento is installed and launch it (as root);
+Check UBento is installed and launch it;
 
     wsl -l -v
     wsl -d UBento
 
-The above line can also be used in a Windows Terminal profile as a launch command, if you append '.exe' to the WSL invocation. Going deeper, we could make a desktop icon launcher that invokes our Windows Shell and runs the above command.... (possibly coming soon)
 
 ## [POST-INSTALL]
 
@@ -121,7 +120,7 @@ Setup systemd/dbus and accessibility bus, full restart to login as user;
     wsl -d UBento --shutdown
     wsl -d UBento
     
-From now on, you can ```sudo``` from your new user login, and will have access to useful commands like ```shutdown now``` via systemd.
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd.
 
 It is CRITICAL that these steps (as a minimum) are taken in the order presented above: 
 - launch as root
@@ -134,7 +133,9 @@ It is CRITICAL that these steps (as a minimum) are taken in the order presented 
 
 *this sequence ensures that when the user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT call these functions during init (they should not be present at all in ```/root/.profile```).
 
-At this point, the distro is well-configured to continue as you please. But, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento into either/both a fully-configured desktop environment, and/or a fully-configured development environment, by following the steps below.
+At this point, the distro is well-configured to continue as you please. 
+
+But, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento into either/both a fully-configured desktop environment, and/or a fully-configured development environment, by following the steps below.
 
 ## [DESKTOP SETTINGS]
 
@@ -185,7 +186,7 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       
       "$HOME\Downloads = C:\Users\{username}\Downloads = \\wsl.localhost\UBento\home\{username}\Downloads"
       
-  All of the above are one and the same...!
+  All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same address.
 
 
 - option 2; create new UBento user folders with these commands;
@@ -547,7 +548,15 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
     
       # etc...
-   
+
+## Windows Terminal and launcher
+
+It's easy to launch UBento from the excellent new Windows Terminal app, by simply creating a new profile named "UBento" and with the following command line invocation;
+
+    C:\WINDOWS\system32\wsl.exe -d UBento
+
+Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon)
+
 ## Git tip from microsoft WSL docs
 
 When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. They suggest adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
@@ -558,7 +567,7 @@ When handling a single repo on both your Windows and Linux file systems, it's a 
 
 ## Shutting down
 
-Note that if you choose not to ```unminimize```, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always 
+Note that if you choose not to ```unminimize``` your distro, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always 
     
     alias shutdown=wsl.exe -d <myDistro> --shutdown && logout
 
