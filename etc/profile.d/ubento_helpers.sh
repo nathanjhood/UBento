@@ -131,10 +131,22 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 
 # WSLg helpers
 
-export DISPLAY_NUMBER="0"
-export magiccookie="$(echo '{vcxsrv}'|tr -d '\n\r'|md5sum|gawk '{print $1}')"
-# export DISPLAY="$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}' ):$DISPLAY_NUMBER.$magiccookie
-export DISPLAY="$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}' ):$DISPLAY_NUMBER.0"
+# Screen number
+export DISPLAY_NUMBER="0" 
+
+# Auth key
+export DISPLAY_TOKEN="$(echo '{sudo_autopasswd | sudo_resetpasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" 
+
+# Server address
+export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" 
+
+# Encrypted X session address
+export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+
+# Unencrypted X session address (if authentication fails, swap the above for this...)
+# export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
+
+#GL rendering
 export LIBGL_ALWAYS_INDIRECT=1
 
 # Set user-defined locale
@@ -162,7 +174,7 @@ export XDG_SESSION_CLASS=user
 # Commonly referenced environment variables for X11 sessions
 # https://specifications.freedesktop.org/basedir-spec/latest/
 
-export DISTRO="$(lsb_release -s -c)"
+export DISTRO="$(lsb_release -cs)"
 export ARCH="$(dpkg --print-architecture)"
 
 # colored GCC warnings and errors
@@ -175,26 +187,32 @@ export DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
 
 # Aliases
 
+# WSL
 alias wsl="/mnt/c/Windows/System32/wsl.exe"
 
-alias colortool="/mnt/c/Users/Nathan/.colortool/colortool.exe"
-
-alias vcx_srv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe"
-
-alias x_launch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe"
-
-alias x_auth="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f 'C:\Users\Nathan\.Xauthority'"
-
+# Notepad
 alias notepad="/mnt/c/Windows/System32/notepad.exe"
 
+# WinRAR
 alias winrar="/mnt/c/'Program Files'/WinRAR/WinRAR.exe"
 
-# alias launch_x="vcxsrv -multiwindow -clipboard -wgl -auth 'C:\Users\Nathan\.Xauthority' -logfile 'C:\Users\Nathan\VcXSrv.log' -log>
+# MS Colortool
+alias colortool="/mnt/c/Users/{username}/.colortool/colortool.exe"
 
+# VcXsrv
+alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
+
+# XLaunch
+alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
+
+# XAuth
+alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//{username}//.Xauthority"
+alias xauth_lin="xauth"
+
+
+# UBento Init programs
 alias at-spi-bus-launcher='/usr/libexec/at-spi-bus-launcher'
 alias dbus-daemon='/usr/bin/dbus-daemon'
-
-# 2>/dev>null &
 
 
 # Functions
@@ -209,12 +227,22 @@ sudo_autopasswd()
   # in a Bash script cannot be empty; comment lines are ignored.
   # A function should at least have a ':' (null command).
   # https://tldp.org/LDP/abs/html/functions.html#EMPTYFUNC
+  
+  # StoneyDSP EDIT: I'd like to find a way to capture our password using an 
+  # ecryption routine here to store our pwd into some kind of cookie file for 
+  # local re-use (xauth?)
+  
+  # Function courtesy of the X410 cookbook;
+  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 }
 
 sudo_resetpasswd()
 {
   # Clears cached password for sudo
   sudo -k
+      
+  # Function courtesy of the X410 cookbook;
+  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 }
 
 settitle()
@@ -229,11 +257,12 @@ set_runtime_dir()
   if [ ! -d "$XDG_RUNTIME_DIR" ]; then
     echo "XDG Runtime Dir not found..."
     {
+      sudo_autopasswd
       # Create user runtime directories
-      mkdir $XDG_RUNTIME_DIR && chmod 700 $XDG_RUNTIME_DIR && chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
+      sudo mkdir $XDG_RUNTIME_DIR && sudo chmod 700 $XDG_RUNTIME_DIR && sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
 
       # System D-Bus
-      # service dbus start
+      sudo service dbus start
 
       # --------------------
       # Start additional services as they are needed.
@@ -242,9 +271,13 @@ set_runtime_dir()
       # session 'dbus-daemon' is started.
       # --------------------
 
-      # service network-manager start
-      # service mysql start
-      # service postgresql start
+      # sudo service network-manager start
+      # sudo service mysql start
+      # sudo service postgresql start
+      # ...
+      
+      # Function courtesy of the X410 cookbook;
+      # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
     }
     echo "Created new XDG Runtime Dir at $XDG_RUNTIME_DIR"
   else
@@ -263,7 +296,7 @@ set_session_bus()
   if [ ! -e "$bus_file_path" ]; then
     echo "Session D-Bus not found..."
     {
-      /usr/bin/dbus-daemon --session --address=$DBUS_SESSION_BUS_ADDRESS --nofork --nopidfile --syslog-only &
+      dbus-daemon --session --address=$DBUS_SESSION_BUS_ADDRESS --nofork --nopidfile --syslog-only &
 
       # --------------------
       # More background processes can be added here.
@@ -271,7 +304,10 @@ set_session_bus()
       # where the 'dbus' service is started.
       # --------------------
 
-      /usr/libexec/at-spi-bus-launcher --launch-immediately &
+      at-spi-bus-launcher --launch-immediately &
+      
+      # Function courtesy of the X410 cookbook;
+      # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 
     }
     echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
@@ -337,86 +373,153 @@ cd_func()
   return 0
 }
 
-
+auth_x()
+{
+    echo "$DISPLAY" 
+    # Will print your encrypted X address...
+    
+    vcxsrv
+    # Will launch your X-Server Windows executable...
+    
+    echo "Linux X Server keys:" && xauth_lin list
+    
+    echo "Windows X Server keys:" && xauth_win list
+    
+    # Authorize key on Linux side and pass to Windows
+    xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+    cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
+    xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+    
+    # Vice-versa...
+    xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+    cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+    xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+    
+    cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority" # For backup/restoration...
+    
+    echo "Linux X Server keys:" && xauth_lin list
+    
+    echo "Windows X Server keys:" && xauth_win list
+    
+    # Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
+    # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
+}
 
 get_gith()
 {
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee /usr/share/keyrings/githubcli-archive-keyring.gpg >/dev/null
+    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
 
-    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | sudo tee $GH_KEY >/dev/null
 
-    apt update
+    echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | sudo tee $APT_SOURCES/github-cli.list
+
+    sudo apt update
+    
+    sudo apt install gh
 }
+
 
 get_node()
 {
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee /usr/share/keyrings/nodesource.gpg >/dev/null
+    export NODEJS_KEY="usr/share/keyrings/nodesource.gpg"
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list
+    sudo curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee $NODEJS_KEY >/dev/null
 
-    echo "deb-src [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee -a /etc/apt/sources.list.d/nodesource.list
+    echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO main" | sudo tee $APT_SOURCES/nodesource.list
 
-    apt update
+    echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO main" | sudo tee -a $APT_SOURCES/nodesource.list
 
-    # apt install nodejs
+    sudo apt update
+    
+    sudo apt install nodejs
+
+    npm --global install npm@latest
 }
+
 
 get_yarn()
 {
-    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+    export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
 
-    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
+    sudo curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee $YARN_KEY >/dev/null
 
-    apt update
+    echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | sudo tee $APT_SOURCES/yarn.list
 
-    # apt install yarn
+    sudo apt update
+    
+    sudo apt install yarn
+    
+    yarn global add npm@latest
 }
+
 
 get_pgadmin()
 {
-    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+    export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
+  
+    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
 
-    echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list
+    echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
 
-    apt update
+    sudo apt update
+    
+    # Install for both desktop and web modes:
+    sudo apt install pgadmin4
+
+    # Install for desktop mode only:
+    # apt install pgadmin4-desktop
+
+    # Install for web mode only:
+    # apt install pgadmin4-web
+
+    # Configure the webserver, if you installed pgadmin4-web:
+    sudo /usr/pgadmin4/bin/setup-web.sh
 }
+
 
 get_cmake()
 {
-    # wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+  
+    wget -O - "https://apt.kitware.com/keys/kitware-archive-latest.asc" 2>/dev/null | gpg --dearmor - | sudo tee $KITWARE_KEY >/dev/null
 
-    curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-
-    echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/kitware.list
+    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | sudo tee $APT_SOURCES/kitware.list
 
     apt update
-
-    # apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+    
+    sudo apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
 }
+
 
 get_chrome()
 {
     curl "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
-    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+    sudo apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
 }
+
 
 get_supabase()
 {
     "curl https://github.com/supabase/cli/releases/download/v1.25.0/supabase_1.25.0_linux_amd64.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
-    apt install "$XDG_DOWNLOAD_DIR/supabase_1.25.0_linux_amd64.deb"
+    sudo apt install "$XDG_DOWNLOAD_DIR/supabase_1.25.0_linux_amd64.deb"
 }
+
 
 get_nvm()
 {
     curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
 }
 
+
 get_postman()
 {
     curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
+    
+    postman login
 }
+
 
 get_vcpkg_tool()
 {
