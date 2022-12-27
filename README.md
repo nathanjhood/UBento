@@ -485,17 +485,17 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       docker run -it ubuntu bash
 
 
-- We can set Linux-side aliases to our Windows executables in ```/etc/ubento_helpers.sh``` like this;
+- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/ubento_helpers.sh``` like this;
 
       alias wsl='/mnt/c/Windows/System32/wsl.exe'
 
       wsl --list --verbose
       # Will list all of WSL's installed distros and statuses
     
-      alias notepad='/mnt/c/Windows/Systems/notepad.exe'
+      alias notepad='/mnt/c/Windows/System32/notepad.exe'
 
       notepad .
-      # Will launch Notepad - careful with those line endings!
+      # Will launch Notepad - careful with those line ending settings!
     
     
 - Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
@@ -546,7 +546,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
     export DISPLAY_NUMBER="0" 
     
     # Auth key
-    export DISPLAY_TOKEN="$(echo '{sudo_autopasswd | sudo_resetpasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" 
+    export DISPLAY_TOKEN="$(echo '{sudo_autopasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" 
     
     # Server address
     export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" 
