@@ -154,7 +154,9 @@ Now we should start making ourselves at home in the home folder. One excellent t
 
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly open it from your WSL user's downloads folder, for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either (or a mix) of the following;
 
-- option 1; symlink your Windows and UBento user folders with these commands;
+- option 1; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
+
+      # Logged in as user, NOT root(!);
 
       ln -s /mnt/c/Users/{username}/Desktop /home/{username}/Desktop && \
       ln -s /mnt/c/Users/{username}/Documents /home/{username}/Documents && \
@@ -164,14 +166,27 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       ln -s /mnt/c/Users/{username}/Templates /home/{username}/Templates && \
       ln -s /mnt/c/Users/{username}/Videos /home/{username}/Videos
 
+      # optional - logged in as root;
+
       ln -s /mnt/c/Users/Administrator/Desktop /root/Desktop
       ...
       ln -s /mnt/c/Users/Administrator/Videos /root/Videos
     
-      # 'public' shared folder...
+      # optional - 'public' shared folder...
     
       ln -s /mnt/c/Users/Public /home/{username}/Public
       ln -s /mnt/c/Users/Public /root/Public
+      
+  let's expand our $XDG_DOWNLOAD_DIR variable out...
+      
+      XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{username}/Downloads = /mnt/c/{username}/Downloads"
+      
+  The exact same directory (and it's contents) on the Windows side...
+      
+      "$HOME\Downloads = C:\Users\{username}\Downloads = \\wsl.localhost\UBento\home\{username}\Downloads"
+      
+  All of the above are one and the same...!
+
 
 - option 2; create new UBento user folders with these commands;
 
@@ -183,6 +198,7 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       $HOME/Pictures \
       $HOME/Templates \
       $HOME/Videos \
+
 
 We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). We can set bookmark tabs for our chosen Linux desktop browser as follows;
 
@@ -227,7 +243,7 @@ then
 
 ## [DEVTOOLS KEYRING]
 
-First run ```sudo -s```, then;
+First, do ```sudo -s```, then;
 
     export DISTRO="$(lsb_release -s -c)"
     export ARCH="$(dpkg --print-architecture)"
@@ -257,7 +273,7 @@ Following the above, you can ```exit``` back to your user account, then
 Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager... :)
 
 
-Here are some more common tools for development, again as ```sudo -s```;
+Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - Node (latest)
     
