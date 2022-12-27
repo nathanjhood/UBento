@@ -737,7 +737,55 @@ It's easy to launch UBento from the excellent new Windows Terminal app, by simpl
 
 Launching this profile should place you directly in your home folder as your user, which in turn will also call the initialization routines we have set up so far.
 
-Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon)
+Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon). Meanwhile, you're welcome to copy my UBento launcher settings (this Windows Terminal profile launches you directly into your user home directory, with the init steps taken care of) into your "Windows Terminal > Settings > Open JSON File" by adding the following;
+
+    {
+        "$help": "https://aka.ms/terminal-documentation",
+        "$schema": "https://aka.ms/terminal-profiles-schema",
+        "profiles": 
+        {
+            "defaults": {},
+            "list": 
+            [
+                {
+                    "colorScheme": "StoneyDSP",
+                    "guid": "{0b1af041-64fe-58fa-9cc2-a6c18bd72de4}",
+                    "hidden": false,
+                    "icon": "C:\\Users\\{username}\\repos\\ubento\\ubento.png",
+                    "name": "UBento",
+                    "source": "Windows.Terminal.Wsl"
+                }
+            ]
+        },
+        "schemes": 
+        [
+            {
+                "background": "#300A24",
+                "black": "#000000",
+                "blue": "#0000CC",
+                "brightBlack": "#000000",
+                "brightBlue": "#0000FF",
+                "brightCyan": "#00FFFF",
+                "brightGreen": "#00FF00",
+                "brightPurple": "#FF00FF",
+                "brightRed": "#FF0000",
+                "brightWhite": "#FFFFFF",
+                "brightYellow": "#FFFF00",
+                "cursorColor": "#FFFFFF",
+                "cyan": "#00CCCC",
+                "foreground": "#FFFFFF",
+                "green": "#00CC00",
+                "name": "StoneyDSP",
+                "purple": "#CC00CC",
+                "red": "#CC0000",
+                "selectionBackground": "#FFFFFF",
+                "white": "#FFFFFF",
+                "yellow": "#CCCC00"
+            },
+        ]
+    }
+
+The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.exe -d UBento``` - you can also append ```--user {username}``` if you like.
 
 
 ## Git tip from microsoft WSL docs
