@@ -157,8 +157,8 @@ Make sure the following two functions from the x410 cookbook are defined in ```/
 Setup systemd/dbus and accessibility bus, full restart to login as user;
 
     apt install systemd dbus at-spi2-core
-    wsl -d UBento --shutdown
-    wsl -d UBento
+    wsl.exe -d UBento --shutdown
+    wsl.exe -d UBento # This last one in PowerShell, of course (my bad)
     
 From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd.
 
@@ -291,7 +291,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
 
 - Import your Windows fonts by adding the below to ```/etc/fonts```;
 
-      sudo nano /etc/local.conf
+      sudo nano /etc/fonts/local.conf
 
   add the following:
 
@@ -522,6 +522,10 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         # in a Bash script cannot be empty; comment lines are ignored.
         # A function should at least have a ':' (null command).
         # https://tldp.org/LDP/abs/html/functions.html#EMPTYFUNC
+        
+        # StoneyDSP EDIT: I'd like to find a way to capture our password using an 
+        # ecryption routine here to store our pwd into some kind of cookie file for 
+        # local re-use (xauth?)
     }
 
     sudo_resetpasswd()
