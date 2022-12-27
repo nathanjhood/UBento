@@ -29,7 +29,7 @@ This will hopefully get compiled into an interactive bash script... if time perm
 - Investigate usage of user-login password as an MIT-encrypted env variable (like github.SECRETs) for Git control, intializing DBus with as sudo during startup routine, and authenticating the X-Server encryption layer step 
 - Implement as a shell-scripted front-end for a fast, flexible, potentially CI-capable* Ubuntu-Minimal deployment 
  
-*where the ```unmaximize``` command and other rehydrations can be averted from use cases. 
+*where the ```unminimize``` command and other rehydrations can be averted from use cases. 
 
 
 ## Notes:
@@ -117,34 +117,34 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
 
 - Make ```/etc/wsl.conf``` to export our 'userName@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
-      echo -e "[automount]\nenabled=true\nroot=/mnt/\nmountFsTab=true\noptions='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\ncrossDistro=true\nldconfig=true\n" >> /etc/wsl.conf
-      echo -e "[network]\nhostname=localhost\ngenerateHosts=true\ngenerateResolvConf=true\n" >> /etc/wsl.conf
-      echo -e "[interop]\nenabled=true\nappendWindowsPath=true\n" >> /etc/wsl.conf
-      echo -e "[user]\ndefault=$userName\n" >> /etc/wsl.conf
-      echo -e "[boot]\nsystemd=true\n" >> /etc/wsl.conf
+      echo -e "[automount]\n enabled=true\n root=/mnt/\n mountFsTab=true\n options='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\n crossDistro=true\n ldconfig=true\n" >> /etc/wsl.conf
+      echo -e "[network]\n hostname=localhost\n generateHosts=true\n generateResolvConf=true\n" >> /etc/wsl.conf
+      echo -e "[interop]\n enabled=true\n appendWindowsPath=true\n" >> /etc/wsl.conf
+      echo -e "[user]\n default=$userName\n" >> /etc/wsl.conf
+      echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
     
-(A much clearer method of the last step is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on...)
+(A much clearer method of this last step is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on... this option is presented in the next step*)
 
 
-## [COPY .PROFILE .BASHRC /ETC/SKEL...]
-
-(tbc)
-
-
-## [COPY BASH.BASHRC AND PROFILE INTO /ETC...]
+## [COPY UBENTO FILES OVER USING CURL/WGET/GIT]
 
 (tbc)
 
+    # Clone UBento somewhere locally... here's an example where we've git cloned it to our Windows home folder;
 
-## [COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D...]
-
-(tbc)
-
-
-## [OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT...]
-
-(tbc)
-
+    export UBENTO_WIN_REPO="/mnt/c/Users/{username}/repos/ubento"
+    
+    yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh"
+    yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile" "/etc/skel/.profile"
+    yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bashrc" "/etc/skel/.bashrc"
+    yes | cp -f "$UBENTO_WIN_REPO/etc/bash.bashrc" "/etc/bash.bashrc"
+    yes | cp -f "$UBENTO_WIN_REPO/etc/profile" "/etc/profile"
+    yes | cp -f "$UBENTO_WIN_REPO/root/.bashrc" "/root/.bashrc"
+    yes | cp -f "$UBENTO_WIN_REPO/root/.profile" "/root/.profile"
+    
+    # *optional, see previous post-install step (this file MUST contain your username in the correct field before we reboot!)
+    yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
+    
 
 [DEFINING RUNTIME BEHAVIOUR]
 
@@ -251,9 +251,9 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       $HOME/Music \
       $HOME/Pictures \
       $HOME/Templates \
-      $HOME/Videos \
+      $HOME/Videos
 
-With this option, no linkage is created to your Windows user folders; all storage remains local to your distro's vhd.
+With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd.
 
 
 We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
@@ -272,6 +272,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
       file:///home/{username}/Pictures
       file:///home/{username}/Videos
 
+  These locations will appear in the tab bar of your desktop browser, as they should.
 
 - We can also connect our Linux desktop browser to remote servers;
 
@@ -287,7 +288,8 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
             <title>GNOME FTP</title>
         </bookmark>
       </xbel>
-
+  
+  Check your desktop browser's "other locations" or network options to discover this connection.
 
 - Import your Windows fonts by adding the below to ```/etc/fonts```;
 
@@ -301,8 +303,12 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
           <dir>/mnt/c/Windows/Fonts</dir>
       </fontconfig>
 
+  Slick.
+
 
 ## [DEVTOOLS KEYRING]
+
+*NOTE: These are all defined in "ubento_helpers.sh" with the correct calls to ```sudo``` where needed, reproduced here in altered form for convenience. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
 
 First, do ```sudo -s```, then;
 
@@ -732,7 +738,7 @@ When handling a single repo on both your Windows and Linux file systems, it's a 
 
 Note that if you choose not to ```unminimize``` your distro, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always 
     
-    alias shutdown=wsl.exe -d <myDistro> --shutdown && logout
+    alias shutdown="wsl.exe -d <myDistro> --shutdown && logout"
 
 then
     
