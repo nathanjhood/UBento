@@ -498,17 +498,43 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 (tbc)
 
-    sudo apt install xauth # Just in case...
+    sudo apt install xauth
+    # Just in case...!
     
+    # Set some easy names...
     alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
     alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
     alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//{username}//.Xauthority"
     alias xauth_lin="xauth"
 
-    export DISPLAY_NUMBER="0" # Screen number
-    export DISPLAY_TOKEN="$(echo '{somepassword}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" # Auth key
-    export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" # Server address
+    sudo_autopasswd()
+    {
+        echo "<your_user_password>" | sudo -Svp ""
+        # Default timeout for caching your sudo password: 15 minutes
+
+        # If you're uncomfortable entering your password here,
+        # you can comment out the line above. But keep in mind that functions
+        # in a Bash script cannot be empty; comment lines are ignored.
+        # A function should at least have a ':' (null command).
+        # https://tldp.org/LDP/abs/html/functions.html#EMPTYFUNC
+    }
+
+    sudo_resetpasswd()
+    {
+        # Clears cached password for sudo
+        sudo -k
+    }
+
+    # Screen number
+    export DISPLAY_NUMBER="0" 
     
+    # Auth key
+    export DISPLAY_TOKEN="$(echo '{sudo_autopasswd | sudo_resetpasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" 
+    
+    # Server address
+    export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" 
+    
+    # Encrypted X session address
     export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
     
     
@@ -520,9 +546,9 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         vcxsrv
         # Will launch your X-Server Windows executable...
         
-        xauth_lin list
+        echo "Linux X Server keys:" && xauth_lin list
         
-        xauth_win list
+        echo "Windows X Server keys:" && xauth_win list
         
         # Authorize key on Linux side and pass to Windows
         xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
@@ -536,11 +562,11 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         
         cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority" # For backup/restoration...
         
-        xauth_lin list
+        echo "Linux X Server keys:" && xauth_lin list
         
-        xauth_win list
+        echo "Windows X Server keys:" && xauth_win list
         
-        # Could be a WSLENV translatable path?
+        # Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
         # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
     }
     
@@ -708,6 +734,6 @@ then
 
 - Microsoft WSL docs ...
 - Docker Desktop for Win/WSL2 docs ...
-- X410 cookbook ...
+- X410 cookbook; https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 - SO thread about X server encryption ...
 - Package keys; please see respective repos on GH ...
