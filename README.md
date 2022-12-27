@@ -494,7 +494,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
 
 
-## [Configuring encrypted X-Server sessions]
+## [X-SERVER DISPLAY]
 
 (tbc)
 
@@ -597,7 +597,7 @@ To get back to the MS Store version from here, you can
     sudo wsl-setup
 
 
-## - [TIPS]
+## [TIPS]
 
 ## Making the most of your $PATHS variable:
 
@@ -644,10 +644,14 @@ Note that we imported Ubuntu as a ```.tar```, exported it as a resizeable ```.vh
 Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep both distros on your WSL simultaneously if you like; simply point the ```wsl --import``` argument at a destination folder, and a distro-containing ```.tar``` or ```.vhd/x```, using whatever name you like (i.e., 'UBento').
 
 
-- option 2; Convert from .tar-based backup named to .vhdx-based distro named 'UBento', without storing a backup;
+- option 2; Convert from ```.tar``` backup file, to a ```.vhdx```-stored distro, name our distro 'UBento', without storing a backup;
 
       wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
     
+- option 3; Just import a ```.vhd``` storage directly;
+
+      wsl --import-in-place "C:\my\install\folder\ubuntu.vhd"
+
 
 - Docker desktop and data storage can be managed in the exact same way;
     
