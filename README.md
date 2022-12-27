@@ -7,7 +7,7 @@ The Ubuntu distro that is available from the MS Store is initialized via a snap 
 
 Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
 
-This will hopefully get compiled into an interactive bash script, if time permits. Meanwhile, check /etc/profile.d/ubento_helpers.sh (credit to X410 for the functions - see refs) and /etc/skel/.profile and /etc/skel/.bashrc files to get the idea.
+This will hopefully get compiled into an interactive bash script, if time permits. Meanwhile, you check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal distro and installing/running a few standard packages is all that is required to achieve the above goals.
 
 Requirements:
 
