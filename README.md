@@ -148,21 +148,26 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
     yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
     
 
-[DEFINING RUNTIME BEHAVIOUR]
+## [DEFINING RUNTIME BEHAVIOUR]
 
 Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
 
     set_runtime_dir
     set_session_bus
 
+    # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 
-Setup systemd/dbus and accessibility bus, full restart to login as user;
+Setup systemd/dbus and accessibility bus, full shutdown;
 
     apt install systemd dbus at-spi2-core
     wsl.exe -d UBento --shutdown
-    wsl.exe -d UBento # This last one in PowerShell, of course (my bad)
+
+Back in Powershell, we can now login as out user (the ```--user``` argument shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on first re-launch, as this ensures we run the initialization step correctly!)
     
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd.
+    wsl -d UBento --user "{username}"
+
+
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for using as a Windows Terminal profile, for example (see [TIPS]).
 
 
 ## It is CRITICAL that these steps (as a minimum) are taken in the order presented above: 
@@ -205,7 +210,7 @@ Now we should start making ourselves at home in the ```$HOME``` folder. One exce
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly open it from your WSL user's downloads folder, for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either (or a mix) of the following;
 
 
-- option 1; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
+- option 1 - linked storage; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
       # Logged in as user, NOT root(!);
 
@@ -242,7 +247,7 @@ By providing symbolic links to our Windows user folders, we can get some huge be
   All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
-- option 2; create new UBento user folders with these commands;
+- option 2 - local storage; create new UBento user folders with these commands;
 
       # Run this once as the user, then once as root...
       
@@ -554,6 +559,12 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
     # Encrypted X session address
     export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
     
+    # Unencrypted X session address (if authentication fails, swap the above for this...)
+    # export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
+
+    #GL rendering
+    export LIBGL_ALWAYS_INDIRECT=1
+    
     
     auth_x()
     {
@@ -587,6 +598,8 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
     }
     
+Call the authentication function (this still needs some work - stay tuned!);
+
     auth_x
 
 
