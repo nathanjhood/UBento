@@ -178,19 +178,21 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       ln -s /mnt/c/Users/Public /home/{username}/Public
       ln -s /mnt/c/Users/Public /root/Public
       
-  let's expand our $XDG_DOWNLOAD_DIR variable out...
+  Let's expand our $XDG_DOWNLOAD_DIR variable out (this is NOT a terminal command!)...
       
       XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{username}/Downloads = /mnt/c/{username}/Downloads"
       
   The exact same directory (and it's contents) on the Windows side...
       
-      "$HOME\Downloads = C:\Users\{username}\Downloads = \\wsl.localhost\UBento\home\{username}\Downloads"
+      "$HOME\Downloads" = "C:\Users\{username}\Downloads" = "\\wsl.localhost\UBento\home\{username}\Downloads"
       
-  All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same address.
+  All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
 - option 2; create new UBento user folders with these commands;
 
+      # Run this once as the user, then once as root...
+      
       mkdir \
       $HOME/Desktop \
       $HOME/Documents \
@@ -199,6 +201,8 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       $HOME/Pictures \
       $HOME/Templates \
       $HOME/Videos \
+
+With this option, no linkage is created to your Windows user folders; all storage remains local to your distro/.vhd file.
 
 
 We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). We can set bookmark tabs for our chosen Linux desktop browser as follows;
@@ -403,38 +407,42 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
           . ~/.vcpkg/vcpkg-init
       }
 
+
 ## [INTEROPERABILITY]
 
-Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
+- Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
 
-    # make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
+      # make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
     
-    docker run hello-world
-    docker run -it ubuntu bash
+      docker run hello-world
+      docker run -it ubuntu bash
 
-We can set Linux-side aliases to our Windows executables in ```/etc/ubento_helpers.sh``` like this;
 
-    alias wsl='/mnt/c/Windows/wsl.exe'
+- We can set Linux-side aliases to our Windows executables in ```/etc/ubento_helpers.sh``` like this;
 
-    wsl --list --verbose
-    # Will list all of WSL's installed distros and statuses
+      alias wsl='/mnt/c/Windows/wsl.exe'
+
+      wsl --list --verbose
+      # Will list all of WSL's installed distros and statuses
     
-    alias notepad='/mnt/c/Windows/notepad.exe'
+      alias notepad='/mnt/c/Windows/notepad.exe'
 
-    notepad .
-    # Will launch Notepad - careful with those line endings!
+      notepad .
+      # Will launch Notepad - careful with those line endings!
     
-Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
+- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
 
-    cd $HOME
-    code .
+      cd $HOME
+      code .
     
-    # Will run an installation step for 'vscode-server-remote' on first run....
-    # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
+      # Will run an installation step for 'vscode-server-remote' on first run....
+      # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
+
 
 ## [Configuring encrypted X-Server sessions]
 
 (tbc)
+
 
 ## [TROUBLESHOOTING]
 
@@ -554,6 +562,8 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
 It's easy to launch UBento from the excellent new Windows Terminal app, by simply creating a new profile named "UBento" and with the following command line invocation;
 
     C:\WINDOWS\system32\wsl.exe -d UBento
+
+Launching this profile should place you directly in your home folder as your user, which in turn will also call the initialization routines we have set up so far.
 
 Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon)
 
