@@ -485,12 +485,12 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - We can set Linux-side aliases to our Windows executables in ```/etc/ubento_helpers.sh``` like this;
 
-      alias wsl='/mnt/c/Windows/wsl.exe'
+      alias wsl='/mnt/c/Windows/System32/wsl.exe'
 
       wsl --list --verbose
       # Will list all of WSL's installed distros and statuses
     
-      alias notepad='/mnt/c/Windows/notepad.exe'
+      alias notepad='/mnt/c/Windows/Systems/notepad.exe'
 
       notepad .
       # Will launch Notepad - careful with those line endings!
@@ -592,7 +592,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 ## Enabling Hyper-V, Virtual Machine Platform, and WSL on Windows.
 
-- Get the required packages (in PowerShell):
+- Get the required packages (save as "HyperV.bat" and launch in PowerShell):
 
       pushd "%~dp0"
 
@@ -607,7 +607,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 Restart your Windows machine once the above is complete.
 
 
-- Enable the Windows features (in PowerShell):
+- Enable the Windows features (run each command in PowerShell):
 
       dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 
@@ -707,7 +707,7 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
 
 - All of the above can also be run from another WSL distro's terminal by creating an alias;
 
-      alias wsl='/mnt/c/Windows/wsl.exe'
+      alias wsl='/mnt/c/Windows/System32/wsl.exe'
     
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
     
