@@ -94,7 +94,7 @@ create user named '{userName}' (could use $WSLENV to pull your Win user name her
 
     export userName=stoneydsp
 
-    adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<"Full Name">" --uid=1000 dev
+    adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<"Full Name">" --uid=1000 $userName
     usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
 
 make '$userName@localhost' and expose default wsl settings, mount the windows drive in '/mnt', and set the required OS interoperabilities;
