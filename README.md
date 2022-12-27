@@ -3,46 +3,56 @@ Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake
 
 ## About
 
-The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install and which are still updated regularly (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?) and does not provide other common developer packages (e.g., Yarn) by default. 
+The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
-Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
+Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the "unminimize" command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```...) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
 
-This will hopefully get compiled into an interactive bash script, if time permits. Meanwhile, you check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal distro and installing/running a few standard packages is all that is required to achieve the above goals.
+This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
-Requirements:
+
+## System Requirements:
 
 - Windows 11 22h2 or greater
 - WSL2 (Windows Subsystem for Linux), optionally with a working Linux kernel/distro
 - Docker Desktop for Windows using the WSL2 backend, used for obtaining and running developer environment images
 
-Optional:
+## Optional:
 
 - VSCode with Remote Development Extensions, used for editing your code hosted on the WSL2 backend
 - X-Server for Windows such as VcXsrv or X410 for GUI/desktop support if desired
 
-Todo:
+## Todo:
 
-- X-Server helper
-- Use the shared WSLENV variable to link the distro user to the Windows user as a soft default
+- Finish X-Server helper
+- Use the shared WSLENV variable to link the distro user to the Windows user and '.Xauthority' keypath
 - Implement as a shell script
 
-Notes:
+## Notes:
 
 - Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
 
+- Check the [TIPS] and [TROUBLESHOOTING] sections for helpful insights.
+
+- Try it with other Linux flavours and goals.
+
+
 To get started, run the below in either your Windows Powershell, or your current WSL2 distro's terminal;
 
+
 ## [PRE-INSTALL]
+
 
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
     docker run -t ubuntu bash
     exit
 
+
 Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
 
     docker container ls -a
     docker export "<UbuntuContainerID>" > "C:\Users\<username>\ubuntu_minimal.tar"
+
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives.
 
@@ -50,14 +60,17 @@ We then have a few options for how we wish to store UBento, such as using the dy
     wsl --export Ubuntu "D:\My\Backup\Folder\ubuntu_minimal.tar"
     wsl --unregister Ubuntu
     wsl --import UBento "C:\My\Install\Folder" "D:\My\Backup\Folder\ubuntu.tar"
-    
-The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more!).
 
-Backing up and restarting with a clean slate;
+The above example stores a backup in the 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more!).
+
+
+## Backing up and restarting with a clean slate;
+
 
 It turns out to be handy to run the following argument around this stage or whenever you feel you have a good starting point, 
 
     wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
+
 
 This is because if/when we screw anything up and want to start our distro over, we can then simply;
 
@@ -65,9 +78,11 @@ This is because if/when we screw anything up and want to start our distro over, 
 
     wsl --import <myPerfectDistro> "D:\My\Install\Folder" "D:\My\Backup\Folder\my_perfect_distro.vhdx"
 
+
 Please see the [TIPS] section for much more advice on distro importing, exporting, and storage.
 
-Check UBento is installed and launch it;
+
+## Check UBento is installed and launch it;
 
     wsl -l -v
     wsl -d UBento
@@ -75,7 +90,9 @@ Check UBento is installed and launch it;
 
 ## [POST-INSTALL]
 
+
 The below steps are to be run from within your new Ubuntu-based bash terminal in WSL.
+
 
 - set permission for root folder, restore server packages, and install basic dependencies;
 
@@ -83,13 +100,15 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
       apt update && apt install apt-utils dialog
       yes | unminimize
       apt install less manpages sudo openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
-    
+
+
 - Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
 
       export userName="<username>"
 
       adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<Full Name>" --uid=1000 $userName
       usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
+
 
 - Make ```/etc/wsl.conf``` to export our 'userName@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
@@ -101,18 +120,34 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
     
 (A much clearer method of the last step is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on...)
 
+
 ## [COPY .PROFILE .BASHRC /ETC/SKEL...]
+
+(tbc)
+
 
 ## [COPY BASH.BASHRC AND PROFILE INTO /ETC...]
 
+(tbc)
+
+
 ## [COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D...]
 
+(tbc)
+
+
 ## [OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT...]
+
+(tbc)
+
+
+[DEFINING RUNTIME BEHAVIOUR]
 
 Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
 
     set_runtime_dir
     set_session_bus
+
 
 Setup systemd/dbus and accessibility bus, full restart to login as user;
 
@@ -122,7 +157,9 @@ Setup systemd/dbus and accessibility bus, full restart to login as user;
     
 From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd.
 
-It is CRITICAL that these steps (as a minimum) are taken in the order presented above: 
+
+## It is CRITICAL that these steps (as a minimum) are taken in the order presented above: 
+
 - launch as root
 - install apt-utils, dialog, and sudo
 - add new user
@@ -131,13 +168,17 @@ It is CRITICAL that these steps (as a minimum) are taken in the order presented 
 - install systemd/dbus/at-spi2-core
 - shutdown and reboot into new user account*
 
+
 *this sequence ensures that when the user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT call these functions during init (they should not be present at all in ```/root/.profile```).
 
-At this point, the distro is well-configured to continue as you please. 
 
-But, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento into either/both a fully-configured desktop environment, and/or a fully-configured development environment, by following the steps below.
+## At this point, the distro is well-configured to continue as you please...
+
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento into either/both a fully-configured desktop environment, and/or a fully-configured development environment, by following the steps below.
+
 
 ## [DESKTOP SETTINGS]
+
 
 The user-local ```$HOME/.profile``` file will contain several pointers for our desktop environment, including additional bin and man paths, as well as linkage to our home folders - we don't need to set these ourselves as they will have been pulled in from ```/etc/skel``` when we created our user (see previous steps!), but these are useful to be aware of when setting up our desktop;
 
@@ -151,9 +192,11 @@ The user-local ```$HOME/.profile``` file will contain several pointers for our d
     export XDG_VIDEOS_DIR="$HOME/Videos"
     export XDG_CONFIG_HOME="$HOME/.config"
     
-Now we should start making ourselves at home in the home folder. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
+
+Now we should start making ourselves at home in the ```$HOME``` folder. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
 
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly open it from your WSL user's downloads folder, for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either (or a mix) of the following;
+
 
 - option 1; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
@@ -177,15 +220,18 @@ By providing symbolic links to our Windows user folders, we can get some huge be
     
       ln -s /mnt/c/Users/Public /home/{username}/Public
       ln -s /mnt/c/Users/Public /root/Public
-      
+
+
   Let's expand our $XDG_DOWNLOAD_DIR variable out (this is NOT a terminal command!)...
       
       XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{username}/Downloads = /mnt/c/{username}/Downloads"
-      
+
+
   The exact same directory (and it's contents) on the Windows side...
       
       "$HOME\Downloads" = "C:\Users\{username}\Downloads" = "\\wsl.localhost\UBento\home\{username}\Downloads"
       
+
   All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
@@ -202,28 +248,31 @@ By providing symbolic links to our Windows user folders, we can get some huge be
       $HOME/Templates \
       $HOME/Videos \
 
-With this option, no linkage is created to your Windows user folders; all storage remains local to your distro/.vhd file.
+With this option, no linkage is created to your Windows user folders; all storage remains local to your distro's vhd.
 
 
-We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). We can set bookmark tabs for our chosen Linux desktop browser as follows;
+We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
 
-    nano $HOME/.config/gtk-3.0/bookmarks
+
+- We can set bookmark tabs for our chosen Linux desktop browser;
+
+      nano $HOME/.config/gtk-3.0/bookmarks
     
-then
+  add the following:
     
-    file:///home/{username}/Desktop
-    file:///home/{username}/Documents
-    file:///home/{username}/Downloads
-    file:///home/{username}/Music
-    file:///home/{username}/Pictures
-    file:///home/{username}/Videos
+      file:///home/{username}/Desktop
+      file:///home/{username}/Documents
+      file:///home/{username}/Downloads
+      file:///home/{username}/Music
+      file:///home/{username}/Pictures
+      file:///home/{username}/Videos
 
 
-- We can also connect our Linux desktop browser to remote servers like this;
+- We can also connect our Linux desktop browser to remote servers;
 
       nano $HOME/.config/gtk-3.0/servers
     
-  then
+  add the following:
     
       <?xml version="1.0" encoding="UTF-8"?>
       <xbel version="1.0"
@@ -238,6 +287,8 @@ then
 - Import your Windows fonts by adding the below to ```/etc/fonts```;
 
       sudo nano /etc/local.conf
+
+  add the following:
 
       <?xml version="1.0"?>
       <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
@@ -279,6 +330,7 @@ Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitH
 
 
 Here are some more common tools for development - again, do ```sudo -s``` first;
+
 
 - Node (latest)
     
@@ -389,6 +441,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
           # nvm use system... or as preferred
       }
 
+
 - Postman (will save your login key to your home folsder)
     
       get_postman()
@@ -397,6 +450,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
           postman login
       }
+
 
 - vcpkg-tool (still working on this, note that you can get vcpkg itself quite easily too)
     
@@ -430,6 +484,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       notepad .
       # Will launch Notepad - careful with those line endings!
     
+    
 - Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
 
       cd $HOME
@@ -442,6 +497,54 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 ## [Configuring encrypted X-Server sessions]
 
 (tbc)
+
+    sudo apt install xauth # Just in case...
+    
+    alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
+    alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
+    alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//{username}//.Xauthority"
+    alias xauth_lin="xauth"
+
+    export DISPLAY_NUMBER="0" # Screen number
+    export DISPLAY_TOKEN="$(echo '{somepassword}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" # Auth key
+    export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" # Server address
+    
+    export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+    
+    
+    auth_x()
+    {
+        echo "$DISPLAY" 
+        # Will print your encrypted X address...
+        
+        vcxsrv
+        # Will launch your X-Server Windows executable...
+        
+        xauth_lin list
+        
+        xauth_win list
+        
+        # Authorize key on Linux side and pass to Windows
+        xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+        cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
+        xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+        
+        # Vice-versa...
+        xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+        cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+        xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+        
+        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority" # For backup/restoration...
+        
+        xauth_lin list
+        
+        xauth_win list
+        
+        # Could be a WSLENV translatable path?
+        # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
+    }
+    
+    auth_x
 
 
 ## [TROUBLESHOOTING]
@@ -461,7 +564,8 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       pause
 
 Restart your Windows machine once the above is complete.
-    
+
+
 - Enable the Windows features (in PowerShell):
 
       dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
@@ -471,6 +575,7 @@ Restart your Windows machine once the above is complete.
       dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 
 Restart your Windows machine once the above is complete.
+
 
 ## Still having package/service dependency issues?
     
@@ -490,6 +595,7 @@ To get back to the MS Store version from here, you can
 
     sudo snap install ubuntu-desktop-installer --classic
     sudo wsl-setup
+
 
 ## - [TIPS]
 
@@ -518,12 +624,14 @@ Make sure that you always append (for example) ```":$PATH"``` in these cases, in
 
 If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings.
 
+
 ## Storage
 
 As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized mount drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted between various storage and virtual hard drive formats.
     
 Let's look at a few things we can do.
     
+
 - option 1; Convert from ```docker export``` .tar-based distro named 'Ubuntu' to .vhdx-based one named 'UBento', while storing a backup .vhdx of 'Ubuntu' along the way;
 
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
@@ -535,10 +643,12 @@ Note that we imported Ubuntu as a ```.tar```, exported it as a resizeable ```.vh
 
 Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep both distros on your WSL simultaneously if you like; simply point the ```wsl --import``` argument at a destination folder, and a distro-containing ```.tar``` or ```.vhd/x```, using whatever name you like (i.e., 'UBento').
 
+
 - option 2; Convert from .tar-based backup named to .vhdx-based distro named 'UBento', without storing a backup;
 
       wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
     
+
 - Docker desktop and data storage can be managed in the exact same way;
     
       wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
@@ -549,6 +659,7 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
       wsl --unregister docker-desktop-data
       wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
     
+
 - All of the above can also be run from another WSL distro's terminal by creating an alias;
 
       alias wsl='/mnt/c/Windows/wsl.exe'
@@ -556,6 +667,7 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
     
       # etc...
+
 
 ## Windows Terminal and launcher
 
@@ -567,6 +679,7 @@ Launching this profile should place you directly in your home folder as your use
 
 Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon)
 
+
 ## Git tip from microsoft WSL docs
 
 When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. They suggest adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
@@ -574,6 +687,7 @@ When handling a single repo on both your Windows and Linux file systems, it's a 
     * text=auto eol=lf
     *.{cmd,[cC][mM][dD]} text eol=crlf
     *.{bat,[bB][aA][tT]} text eol=crlf
+
 
 ## Shutting down
 
@@ -584,6 +698,7 @@ Note that if you choose not to ```unminimize``` your distro, not install systemd
 then
     
     shutdown
+
 
 ## [REFERENCES AND SOURCES]
 
