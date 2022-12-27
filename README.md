@@ -737,7 +737,7 @@ It's easy to launch UBento from the excellent new Windows Terminal app, by simpl
 
 Launching this profile should place you directly in your home folder as your user, which in turn will also call the initialization routines we have set up so far.
 
-Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon). Meanwhile, you're welcome to copy my UBento launcher settings into your "Windows Terminal > Settings > Open JSON File" by adding the following;
+Going deeper, we could make a simple desktop-icon launcher that simply invokes our Windows Shell and runs the above command.... (possibly coming soon). Meanwhile, you're welcome to copy my UBento launcher settings (this Windows Terminal profile launches you directly into your user home directory, with the init steps taken care of) into your "Windows Terminal > Settings > Open JSON File" by adding the following;
 
     {
         "$help": "https://aka.ms/terminal-documentation",
