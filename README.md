@@ -1,6 +1,8 @@
 # UBento
 Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
 ## About
 
 The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
@@ -485,12 +487,12 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - We can set Linux-side aliases to our Windows executables in ```/etc/ubento_helpers.sh``` like this;
 
-      alias wsl='/mnt/c/Windows/wsl.exe'
+      alias wsl='/mnt/c/Windows/System32/wsl.exe'
 
       wsl --list --verbose
       # Will list all of WSL's installed distros and statuses
     
-      alias notepad='/mnt/c/Windows/notepad.exe'
+      alias notepad='/mnt/c/Windows/Systems/notepad.exe'
 
       notepad .
       # Will launch Notepad - careful with those line endings!
@@ -592,7 +594,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 ## Enabling Hyper-V, Virtual Machine Platform, and WSL on Windows.
 
-- Get the required packages (in PowerShell):
+- Get the required packages (save as "HyperV.bat" and launch in PowerShell):
 
       pushd "%~dp0"
 
@@ -607,7 +609,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 Restart your Windows machine once the above is complete.
 
 
-- Enable the Windows features (in PowerShell):
+- Enable the Windows features (run each command in PowerShell):
 
       dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 
@@ -707,7 +709,7 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
 
 - All of the above can also be run from another WSL distro's terminal by creating an alias;
 
-      alias wsl='/mnt/c/Windows/wsl.exe'
+      alias wsl='/mnt/c/Windows/System32/wsl.exe'
     
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
     
