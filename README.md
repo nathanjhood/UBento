@@ -431,6 +431,27 @@ Enable the Windows features (in PowerShell):
 
 Restart your Windows machine once the above is complete.
 
+## Still having package/service dependency issues?
+    
+The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. 
+    
+    sudo apt install ubuntu-wsl 
+  
+Note that the package ```wsl-setup``` attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
+
+    sudo apt install snapd
+    sudo snap refresh
+    sudo snap list
+
+No default snaps (cool!), but all the ```/snapd/bin``` folder locations should be appended to the $PATH variable - make sure to check ```/etc/profile``` and the troubleshooting tips below :)
+
+To get back to the MS Store version from here, you can
+
+    sudo snap install ubuntu-desktop-installer --classic
+    sudo wsl-setup
+
+## - [TIPS]
+
 ## Making the most of your $PATHS variable:
 
 In "ubento_helpers.sh", we have a useful bash logic to check if a directory is present, and if so, to append it to a given variable, such as;
@@ -455,27 +476,6 @@ Make sure that you always append for example ```":$PATH"``` in these cases, to r
 
 If you don't see your Windows paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings.
 
-## Still having package/service dependency issues?
-    
-The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. 
-    
-    sudo apt install ubuntu-wsl 
-  
-Note that the package ```wsl-setup``` attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
-
-    sudo apt install snapd
-    sudo snap refresh
-    sudo snap list
-
-No default snaps (cool!), but all the ```/snapd/bin``` folder locations should be appended to the $PATH variable - make sure to check ```/etc/profile``` and the troubleshooting tips below :)
-
-To get back to the MS Store version from here, you can
-
-    sudo snap install ubuntu-desktop-installer --classic
-    sudo wsl-setup
-
-## - [TIPS]
-
 ## Storage
 
 As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized mount drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted between various storage and virtual hard drive formats.
@@ -489,7 +489,6 @@ option 1; Convert from ```docker export``` .tar-based distro named 'Ubuntu' to .
     wsl --unregister Ubuntu
     wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
    
-
 Note that we imported Ubuntu as a ```.tar```, exported it as a resizeable ```.vhdx```, then re-imported the ```.vhdx``` under a new distro name.
 
 Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep both distros on your WSL simultaneously if you like; simply point the ```wsl --import``` argument at a destination folder, and a distro-containing ```.tar``` or ```.vhd/x```, using whatever name you like (i.e., 'UBento').
@@ -498,7 +497,7 @@ option 2; Convert from .tar-based backup named to .vhdx-based distro named 'UBen
 
     wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
     
-Docker desktop and data storage can be managed in the exact same way ;)
+Docker desktop and data storage can be managed in the exact same way;
     
     wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
     wsl --unregister docker-desktop
@@ -514,7 +513,7 @@ All of the above can also be run from another WSL distro's terminal by creating 
     
     wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
     
-    # etc... :)
+    # etc...
    
 ## Git tip from microsoft WSL docs
 
