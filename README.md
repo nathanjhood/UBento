@@ -42,43 +42,30 @@ Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
 
     docker container ls -a
-    docker export "<dockerContainerID>" > C:\Users\"<username>"\ubuntu.tar
+    docker export "<UbuntuContainerID>" > "C:\Users\<username>\ubuntu_minimal.tar"
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives.
 
-option 1; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', while storing a backup .vhdx of 'Ubuntu'
-
-    wsl --import Ubuntu "D:\Ubuntu" "C:\Users\"<username>"\ubuntu.tar"
-    wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+    wsl --import Ubuntu "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
+    wsl --export Ubuntu "D:\My\Backup\Folder\ubuntu_minimal.tar"
     wsl --unregister Ubuntu
-    wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+    wsl --import UBento "C:\My\Install\Folder" "D:\My\Backup\Folder\ubuntu.tar"
     
-The above can also be run from another WSL distro by creating an alias;
-
-    alias wsl='/mnt/c/Windows/wsl.exe'
-
-Note that we imported Ubuntu as a .tar, exported it as a resizeable .vhdx, then re-imported the .vhdx under a new name.
-Thus, the 'export/unregister Ubuntu' step is optional - you can keep both distro's on your WSL if you like, simply point the ```wsl --import``` argument at a destination folder and a distro-containing .tar or .vhd/x, using whatever name you like (i.e., 'UBento').
-
-The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like.
-
-option 2; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', without storing a backup;
-
-    wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
+The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more!).
 
 Backing up and restarting with a clean slate;
 
-It turns out to be handy to run the
+It turns out to be handy to run the following argument around this stage or whenever you feel you have a good starting point, 
 
-    wsl --export <myPerfectDistro> "D:\Backup\my_perfect_distro.vhdx" --vhd
+    wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
 
-argument around this stage or whenever you feel you have a good starting point, because if/when we screw anything up and want to start our distro over, we can then simply;
+This is because if/when we screw anything up and want to start our distro over, we can then simply;
 
     wsl --unregister <myBadDistro>
 
-    wsl --import <myPerfectDistro> "D:\My\Runtime\Folder" "D:\Backup\my_perfect_distro.vhdx"
+    wsl --import <myPerfectDistro> "D:\My\Install\Folder" "D:\My\Backup\Folder\my_perfect_distro.vhdx"
 
-Note that the ```--vhd``` flag tells WSL to export as either a .vhd (static volume size) or a .vhdx (dynamic volume size), but you can also drop this flag and instead prepend the export location with ```".tar"```, to store as a Tar file. As mentioned eariler, WSL can import a ```.tar``` distro directly (We could even simply ```wsl --import-in-place "<DistroName>" "C:\location\of\distro.tar"```), without needing to be converted to any ```.vhd/x``` extension, but this provides a handy additional layer of control over the distro size.
+Please see the [TIPS] section for much more advice :)
 
 Check UBento is installed and launch it (as root);
 
@@ -97,15 +84,15 @@ set permission for root folder, restore server packages, and install basic depen
     apt update && apt install apt-utils dialog
     yes | unminimize
     apt install less manpages sudo openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
-
-Create user named "<username>" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
+    
+Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
 
     export userName="<username>"
 
     adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<Full Name>" --uid=1000 $userName
     usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
 
-Make ```/etc/wsl.conf``` to export our '<userName>@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
+Make ```/etc/wsl.conf``` to export our 'userName@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
     echo -e "[automount]\nenabled=true\nroot=/mnt/\nmountFsTab=true\noptions='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\ncrossDistro=true\nldconfig=true\n" >> /etc/wsl.conf
     echo -e "[network]\nhostname=localhost\ngenerateHosts=true\ngenerateResolvConf=true\n" >> /etc/wsl.conf
@@ -165,7 +152,7 @@ Now we should start making ourselves at home in the home folder. One excellent t
 
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly open it from your WSL user's downloads folder, for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either (or a mix) of the following;
 
-option 1; symlink your Windows and UBento user folders
+option 1; symlink your Windows and UBento user folders with these commands
 
     ln -s /mnt/c/Users/{username}/Desktop /home/{username}/Desktop
     ln -s /mnt/c/Users/{username}/Documents /home/{username}/Documents
@@ -184,7 +171,7 @@ option 1; symlink your Windows and UBento user folders
     ln -s /mnt/c/Users/Public /home/{username}/Public
     ln -s /mnt/c/Users/Public /root/Public
 
-option 2; create new UBento user folders
+option 2; create new UBento user folders with these commands
 
     mkdir \
     $HOME/Desktop \
@@ -385,21 +372,7 @@ vcpkg (still working on this, note you can get vcpkg-tool quite easily too)
         . ~/.vcpkg/vcpkg-init
     }
 
-## [OPTIONAL PACKAGES]
-
-These are a few that ship with WSL Ubuntu from the MS Store;
-
-    sudo apt install ubuntu-wsl 
-    sudo apt install snapd
-    sudo snap refresh
-    sudo snap list
-
-No default snaps (cool!), but all the ```/snapd/bin``` folder locations should be appended to the $PATH variable - make sure to check ```/etc/profile``` and the troubleshooting tips below :)
-
-To get back to the MS Store version from here, you can
-
-    sudo snap install ubuntu-desktop-installer --classic
-    sudo wsl-setup
+## [INTEROPERABILITY]
 
 Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
 
@@ -482,16 +455,89 @@ Make sure that you always append for example ```":$PATH"``` in these cases, to r
 
 If you don't see your Windows paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings.
 
-There is also a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. Note that the package 'wsl-setup' attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
+## Still having package/service dependency issues?
+    
+The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. 
+    
+    sudo apt install ubuntu-wsl 
+  
+Note that the package ```wsl-setup``` attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
 
-Shutting down:
+    sudo apt install snapd
+    sudo snap refresh
+    sudo snap list
 
-Note that if you choose not to ```unminimize```, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always ```alias shutdown=wsl.exe -d <myDistro> --shutdown && logout``` then ```shutdown```.
+No default snaps (cool!), but all the ```/snapd/bin``` folder locations should be appended to the $PATH variable - make sure to check ```/etc/profile``` and the troubleshooting tips below :)
+
+To get back to the MS Store version from here, you can
+
+    sudo snap install ubuntu-desktop-installer --classic
+    sudo wsl-setup
+
+## - [TIPS]
+
+## Storage
+
+As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized mount drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted between various storage and virtual hard drive formats.
+    
+Let's look at a few things we can do.
+    
+option 1; Convert from ```docker export``` .tar-based distro named 'Ubuntu' to .vhdx-based one named 'UBento', while storing a backup .vhdx of 'Ubuntu' along the way;
+
+    wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
+    wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+    wsl --unregister Ubuntu
+    wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+   
+
+Note that we imported Ubuntu as a ```.tar```, exported it as a resizeable ```.vhdx```, then re-imported the ```.vhdx``` under a new distro name.
+
+Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep both distros on your WSL simultaneously if you like; simply point the ```wsl --import``` argument at a destination folder, and a distro-containing ```.tar``` or ```.vhd/x```, using whatever name you like (i.e., 'UBento').
+
+option 2; Convert from .tar-based backup named to .vhdx-based distro named 'UBento', without storing a backup;
+
+    wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
+    
+Docker desktop and data storage can be managed in the exact same way ;)
+    
+    wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
+    wsl --unregister docker-desktop
+    wsl --import docker-desktop "D:\Docker" "D:\Backup\Docker_desktop.vhdx" --vhd
+
+    wsl --export docker-desktop-data "D:\Backup\Docker_desktop_data.vhdx" --vhd
+    wsl --unregister docker-desktop-data
+    wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
+    
+All of the above can also be run from another WSL distro's terminal by creating an alias;
+
+    alias wsl='/mnt/c/Windows/wsl.exe'
+    
+    wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
+    
+    # etc... :)
+   
+## Git tip from microsoft WSL docs
+
+When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. They suggest adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
+
+    * text=auto eol=lf
+    *.{cmd,[cC][mM][dD]} text eol=crlf
+    *.{bat,[bB][aA][tT]} text eol=crlf
+
+## Shutting down
+
+Note that if you choose not to ```unminimize```, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always 
+    
+    alias shutdown=wsl.exe -d <myDistro> --shutdown && logout
+
+then
+    
+    shutdown
 
 ## [REFERENCES AND SOURCES]
 
-Microsoft WSL docs ...
-Docker Desktop for Win/WSL2 docs ...
-X410 cookbook ...
-SO thread about X server encryption ...
-Package keys; please see respective repos on GH ...
+- Microsoft WSL docs ...
+- Docker Desktop for Win/WSL2 docs ...
+- X410 cookbook ...
+- SO thread about X server encryption ...
+- Package keys; please see respective repos on GH ...
