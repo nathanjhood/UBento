@@ -811,27 +811,40 @@ then
 
 ## [REFERENCES AND SOURCES]
 
-- Microsoft WSL docs 
-https://learn.microsoft.com/en-us/windows/wsl/
+## Microsoft WSL docs 
 
-- Docker Desktop for Win/WSL2 docs ...
-https://docs.docker.com/desktop/windows/wsl/
+- https://learn.microsoft.com/en-us/windows/wsl/
 
-- Microsoft VSCode WSl & Remote Development Extension docs...
-https://code.visualstudio.com/docs/remote/troubleshooting#_wsl-tips
-https://code.visualstudio.com/docs/remote/wsl
-https://learn.microsoft.com/en-us/cpp/build/walkthrough-build-debug-wsl2?view=msvc-170
 
-- X410 cookbook; 
-https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
+## Docker Desktop for Win/WSL2 docs
 
-- SO thread about X server encryption ...
-https://stackoverflow.com/questions/61110603/how-to-set-up-working-x11-forwarding-on-wsl2?noredirect=1&lq=1
+- https://docs.docker.com/desktop/windows/wsl/
 
-- Sharing environment variables between Windows and Linux;
-https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
-https://superuser.com/questions/1745166/verify-that-config-value-applied-in-wsl
 
-- Package keys; 
-Please see respective repos on GH, and study the "get key" routine as found here and elsewhere...
-https://apt.kitware.com/
+## Microsoft VSCode WSl & Remote Development Extension docs
+
+- https://code.visualstudio.com/docs/remote/troubleshooting#_wsl-tips
+- https://code.visualstudio.com/docs/remote/wsl
+- https://learn.microsoft.com/en-us/cpp/build/walkthrough-build-debug-wsl2?view=msvc-170
+
+
+## X410 cookbook
+
+- https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
+
+
+## SO thread about X server encryption
+
+- https://stackoverflow.com/questions/61110603/how-to-set-up-working-x11-forwarding-on-wsl2?noredirect=1&lq=1
+
+
+## Sharing environment variables between Windows and Linux;
+
+- https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
+- https://superuser.com/questions/1745166/verify-that-config-value-applied-in-wsl
+
+
+## Package keys; 
+
+- Please see respective repos on GH, and study the "get key" routine as found here and elsewhere;
+- https://apt.kitware.com/
