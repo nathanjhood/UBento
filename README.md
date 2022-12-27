@@ -1,7 +1,7 @@
 # UBento
 Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms
 
-The Ubuntu distro that's available from the MS Store is invoked via a snap called "install RELEASE" which provides the Ubuntu.exe on the Windows-side. This is a nice interoperability, but the snap requirements are quite costly in both storage and performance.
+The Ubuntu distro that's available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called "ubuntu-wsl". The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance.
 
 Instead, we can pull Ubuntu-Minimal (Approx. 74mb) from a Docker container, and launch that in WSL. Ubuntu-Minimal has the "unminimize" command which rehydrates the install into the full server version of Ubuntu, and from there we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running 'service --status-all'...) and tailor the environment towards a full-powered development environment (with full GUI/desktop support via an encrypted Windows X-Server) with a much reduced footprint, and in many cases, improved runtime performances.
 
@@ -10,7 +10,7 @@ This will hopefully get compiled into an interactive bash script, if time permit
 Requirements:
 
 - Windows 11 22h2 or greater
-- WSL2 (Windows Subsystem for Linux) with a working Linux kernel/distro
+- WSL2 (Windows Subsystem for Linux), optionally with a working Linux kernel/distro
 - Docker Desktop for Windows using the WSL2 backend, used for obtaining and running developer environment images
 
 Optional:
@@ -20,41 +20,45 @@ Optional:
 
 Todo:
 
+- X-Server helper
 - Use the shared WSLENV variable to link the distro user to the Windows user as a soft default
 - Implement as a shell script
 
 Notes:
 
-- It's a good idea to use 'localhost' or at least something different to your Windows Machine Name (this is set in /etc/wsl.conf) as your hostname. The unfortunate current default is to simply copy the Win name over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient" browser (i.e., your net browser for Windows) and differentiate the network addresses you are provided for "localhost", for example. this is very useful when configuring the X-server, especially.
+- It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in /etc/wsl.conf). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient" browser (i.e., your net browser for Windows) and differentiate the network addresses you are provided for "localhost", for example. This is also very useful when configuring the X-server, especially, when keys might be exchanged both ways.
 
-Run the below in your current WSL2 distro's terminal
+To get started, run the below in either your Windows Powershell, or your current WSL2 distro's terminal;
 
 # [PRE-INSTALL]
 
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
     docker run -t ubuntu bash
+    exit
+
+Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
+
     docker container ls -a
-
-Take a note of the distro number of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly).
-
-    docker export $dockerContainerID > C:\Users\{username}\ubuntu.tar
+    docker export "<dockerContainerID>" > C:\Users\"<username>"\ubuntu.tar
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives.
 
 option 1; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', while storing a backup .vhdx of 'Ubuntu'
 
-    alias wsl='/mnt/c/Windows/wsl.exe'
-
-    wsl --import Ubuntu "D:\Ubuntu" "C:\Users\{username}\ubuntu.tar"
+    wsl --import Ubuntu "D:\Ubuntu" "C:\Users\"<username>"\ubuntu.tar"
     wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
     wsl --unregister Ubuntu
     wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+    
+The above can also be run from another WSL distro by creating an alias;
+
+    alias wsl='/mnt/c/Windows/wsl.exe'
 
 Note that we imported Ubuntu as a .tar, exported it as a resizeable .vhdx, then re-imported the .vhdx under a new name.
-Thus, the 'unregister Ubuntu' step is optional - you can keep both distro's on your WSL if you like.
+Thus, the 'export/unregister Ubuntu' step is optional - you can keep both distro's on your WSL if you like, simply point the ```wsl --import``` argument at a destination folder and a distro-containing .tar or .vhd/x, using whatever name you like (i.e., 'UBento').
 
-The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may place the files anywhere you like.
+The above example stores a backup in 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like.
 
 option 2; Convert from .tar named 'Ubuntu' to .vhdx named 'UBento', without storing a backup;
 
@@ -66,13 +70,13 @@ It turns out to be handy to run the
 
     wsl --export <myPerfectDistro> "D:\Backup\my_perfect_distro.vhdx" --vhd
 
-argument around this stage or whenever you feel you have a good starting point, because if/when we srew anything up and want to start over, can then simply;
+argument around this stage or whenever you feel you have a good starting point, because if/when we screw anything up and want to start our distro over, we can then simply;
 
     wsl --unregister <myBadDistro>
 
     wsl --import <myPerfectDistro> "D:\My\Runtime\Folder" "D:\Backup\my_perfect_distro.vhdx"
 
-Note that the --vhd flag tells WSL to export as either a .vhd (static volume size) or a .vhdx (dynamic volume size), but you can also drop this flag and instead prepend the export location with ".tar", to store as a Tar file. As mentioned eariler, WSL can import a .tar distro directly, without needing to be converted to any .vhd extension, but it provides a handy additional layer of control over the distro size.
+Note that the --vhd flag tells WSL to export as either a .vhd (static volume size) or a .vhdx (dynamic volume size), but you can also drop this flag and instead prepend the export location with ".tar", to store as a Tar file. As mentioned eariler, WSL can import a .tar distro directly (We could even simply ```wsl --import-in-place "<DistroName>" "C:\location\of\distro.tar"```), without needing to be converted to any .vhd/x extension, but this provides a handy additional layer of control over the distro size.
 
 Check UBento is installed and launch it (as root);
 
@@ -90,11 +94,11 @@ set permission for root folder, restore server packages, and install basic depen
     yes | unminimize
     apt install less manpages sudo openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
 
-create user named '{userName}' (could use $WSLENV to pull your Win user name here) with the required uid (you will be prompted to create a secure login password);
+create user named "<username>" (could use $WSLENV to pull your Win user name here) with the required uid. You will be prompted to create a secure login password;
 
-    export userName=stoneydsp
+    export userName="<username>"
 
-    adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<"Full Name">" --uid=1000 $userName
+    adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<Full Name>" --uid=1000 $userName
     usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
 
 make '$userName@localhost' and expose default wsl settings, mount the windows drive in '/mnt', and set the required OS interoperabilities;
@@ -105,21 +109,37 @@ make '$userName@localhost' and expose default wsl settings, mount the windows dr
     echo -e "[user]\ndefault=$userName\n" >> /etc/wsl.conf
     echo -e "[boot]\nsystemd=true\n" >> /etc/wsl.conf
 
-full restart to login as $userName;
-
-    shutdown now
-    wsl -d UBento
-    sudo apt install systemd dbus at-spi2-core
-
-There is also a very large APT package suite named 'ubuntu-wsl' that we can instead break down into smaller dependency cycles, as and where required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. Note that the package 'wsl-setup' attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
-
 [COPY .PROFILE .BASHRC INTO HOME FOLDERS AND /ETC/SKEL...]
 
 [COPY BASH.BASHRC AND PROFILE INTO /ETC...]
 
-[OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT]
+[COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D...]
 
-[COPY UBENTO_HELPERS.SH INTO /ETC.PROFILE.D AND REBOOT...]
+[OPTIONAL - COPY .PROFILE AND .BASHRC FOR ROOT...]
+
+Make sure the following two functions from the x410 cookbook are defined in '/etc/profile.d/ubento_helpers.sh' and are present/called in $HOME/.profile for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
+
+    set_runtime_dir
+    set_session_bus
+
+Setup systemd/dbus and accessibility bus,  full restart to login as user;
+
+    apt install systemd dbus at-spi2-core
+    wsl -d UBento --shutdown
+    wsl -d UBento
+    
+From now on, you can ```sudo``` from your new user login, and will have access to useful commands like ```shutdown now``` via systemd.
+
+It is CRITICAL that the above steps are taken in the order presented: 
+- launch as root
+- install sudo
+- add new user
+- copy wsl.conf
+- copy ubuntu-helpers/profile/bashrc files
+- install systemd/dbus/at-spi2-core
+- shutdown and reboot into new user account*
+
+*this sequence ensures that when the user account is finally accessed, it has the UID of 1000 assigned, and calls the "set_runtime_dir" and "set_session_bus" functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at '/run/user/1000' during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT call these functions during init (they should not be present at all in /root/.profile).
 
 [DESKTOP SETTINGS]
 
@@ -196,12 +216,11 @@ We can sent aliases to our Windows executables in /etc/ubento_helpers.sh like th
 
 Don't forget VSCode with the Remote Development extension, of course... No Linux/server-side install required;
 
+    cd $HOME
     code .
+    
+    # Will run an installation step for 'vscode-server-remote' on first run....
 
-Make sure the following two functions from the x410 cookbook are present/called in $HOME/.profile for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
-
-    set_runtime_dir
-    set_session_bus
 
 # [Configuring encrypted X-Server sessions]
 
@@ -211,9 +230,9 @@ Make sure the following two functions from the x410 cookbook are present/called 
 
 As sudo...
 
-    export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
     export DISTRO="$(lsb_release -s -c)"
     export ARCH="$(dpkg --print-architecture)"
+    export APT_SOURCES="/etc/apt/sources.list.d"
 
     get_gith()
     {
@@ -221,16 +240,14 @@ As sudo...
 
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
 
-        echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list
+        echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
 
         apt update
 
         apt install gh
-
-        gh auth login
     }
-
-    Your Git SSH key is now available at $PUBKEYPATH...
+    
+    Following the above, you can ```export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"``` and then ```gh auth login``` from your user account. Your Git SSH key is now available at $PUBKEYPATH... :)
 
     get_node()
     {
@@ -238,9 +255,9 @@ As sudo...
 
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list
+        echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO -cs) main" | tee $APT_SOURCES/nodesource.list
 
-        echo "deb-src [arch=$(dpkg --print-architecture) signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $(lsb_release -cs) main" | tee -a /etc/apt/sources.list.d/nodesource.list
+        echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO main" | tee -a $APT_SOURCES/nodesource.list
 
         apt update
 
@@ -253,7 +270,7 @@ As sudo...
 
         curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee $YARN_KEY >/dev/null
 
-        echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
+        echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | tee $APT_SOURCES/yarn.list
 
         apt update
 
@@ -262,9 +279,11 @@ As sudo...
 
     get_pgadmin()
     {
-        curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+        export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
+        
+        curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
 
-        echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list
+        echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
 
         apt update
 
@@ -283,9 +302,11 @@ As sudo...
 
     get_cmake()
     {
-        # wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+        export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+        
+        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
 
-        echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/kitware.list
+        echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
 
         apt update
 
@@ -303,7 +324,7 @@ As sudo...
     {
         # Check repo for latest release, these outdate quickly...
 
-        "curl https://github.com/supabase/cli/releases/download/v1.25.0/supabase_1.25.0_linux_amd64.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
+        curl "https://github.com/supabase/cli/releases/download/v1.25.0/supabase_1.25.0_linux_amd64.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
         apt install "$XDG_DOWNLOAD_DIR/supabase_1.25.0_linux_amd64.deb"
     }
@@ -331,7 +352,8 @@ As sudo...
 
 Optional packages;
 
-    sudo apt install ubuntu-wsl snapd
+    sudo apt install ubuntu-wsl 
+    sudo apt install snapd
     sudo snap refresh
     sudo snap list
 
@@ -386,6 +408,8 @@ Make sure that you always append for example ":$PATH" in these cases, to retain 
     echo $PATH
 
 If you don't see your Windows paths in the terminal on calling the above, check all of your $PATH calls and the /etc/wsl.conf interoperability settings.
+
+There is also a very large APT package suite named 'ubuntu-wsl' that we can instead break down into smaller dependency cycles, as and where required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. Note that the package 'wsl-setup' attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
 
 Shutting down:
 
