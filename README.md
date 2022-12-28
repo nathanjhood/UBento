@@ -591,42 +591,48 @@ https://en.wikipedia.org/wiki/X_Window_authorization
     #GL rendering
     export LIBGL_ALWAYS_INDIRECT=1
     
-    
+
     auth_x()
     {
-        echo "$DISPLAY" 
-        # Will print your encrypted X address...
+        if [ -z "$DISPLAY" ]; then
+            echo "Error: DISPLAY environment variable is not set."
+        else
         
-        vcxsrv
-        # Will launch your X-Server Windows executable...
+            echo "$DISPLAY" 
+            # Will print your encrypted X address...
+
+            vcxsrv
+            # Will launch your X-Server Windows executable...
+
+            echo "Linux X Server keys:" && xauth_lin list
+
+            echo "Windows X Server keys:" && xauth_win list
+
+            # Authorize key on Linux side and pass to Windows
+            xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+
+            cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
+
+            xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+
+
+            # Vice-versa...
+            xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+
+            cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+
+            xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+
+
+            # For backup/restoration...
+            cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
+
+
+            echo "Linux X Server keys:" && xauth_lin list
+
+            echo "Windows X Server keys:" && xauth_win list
         
-        echo "Linux X Server keys:" && xauth_lin list
-        
-        echo "Windows X Server keys:" && xauth_win list
-        
-        # Authorize key on Linux side and pass to Windows
-        xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-        
-        cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
-        
-        xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
-        
-        
-        # Vice-versa...
-        xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-        
-        cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
-        
-        xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
-        
-        
-        # For backup/restoration...
-        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
-        
-        
-        echo "Linux X Server keys:" && xauth_lin list
-        
-        echo "Windows X Server keys:" && xauth_win list
+        fi
         
         # Notes;
         # Useage of cp should be substituted for scp, possibly via SSH...?
