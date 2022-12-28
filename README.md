@@ -734,49 +734,45 @@ Many, perhaps most, modern CLI applications also ship with completion scripts. T
 
 ## Storage
 
-As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized mount drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted between various storage and virtual hard drive formats.
+As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
     
 Let's look at a few things we can do.
     
 
-- option 1; Convert from ```docker export``` .tar-based distro named 'Ubuntu' to .vhdx-based one named 'UBento', while storing a backup .vhdx of 'Ubuntu' along the way;
+- option 1; Convert from ```docker export``` .tar-format distro named 'Ubuntu' to .vhdx-format distro named 'UBento', while storing a mountable backup (.vhdx) of 'Ubuntu' along the way;
 
       wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
       wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
       wsl --unregister Ubuntu
       wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
    
-Note that we imported Ubuntu as a ```.tar```, exported it as a resizeable ```.vhdx```, then re-imported the ```.vhdx``` under a new distro name.
+Note that we imported Ubuntu from a ```.tar``` file, exported it into a resizeable ```.vhdx```, then re-imported that ```.vhdx``` under a new distro name.
 
-Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep both distros on your WSL simultaneously if you like; simply point the ```wsl --import``` argument at a destination folder, and a distro-containing ```.tar``` or ```.vhd/x```, using whatever name you like (i.e., 'UBento').
+So in fact, the ```wsl --export/unregister Ubuntu``` steps above are *optional* - you can keep *both* distros on your WSL simultaneously, if you like; simply point the ```wsl --import``` argument at *any* destination folder, followed by *any* Linux distro (stored in .tar or .vhd/x format), using whatever unique distro name you like (i.e., 'Ubuntu', 'UBento'...).
 
 
-- option 2; Convert from ```.tar``` backup file, to a ```.vhdx```-stored distro, name our distro 'UBento', without storing a backup;
+- option 2; Convert an ```ubuntu.tar``` backup file, to a mounted ```.vhdx``` containing distro named 'UBento', without storing a backup;
 
       wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
     
-- option 3; Just import a ```.vhd``` storage directly;
+- option 3; Just import a ```.vhd/x``` from storage directly;
 
-      wsl --import-in-place "C:\my\install\folder\ubuntu.vhd"
+      wsl --import-in-place "C:\my\install\folder\ubuntu.vhdx"
 
 
-- Docker desktop and data storage can be managed in the exact same way;
+- Docker desktop and data storage (including images) can be managed in the exact same way;
     
       # Front end storage...
       
       wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
-     
       wsl --unregister docker-desktop
-      
       wsl --import docker-desktop "D:\Docker" "D:\Backup\Docker_desktop.vhdx" --vhd
 
       
       # Back end storage...
       
       wsl --export docker-desktop-data "D:\Backup\Docker_desktop_data.vhdx" --vhd
-      
       wsl --unregister docker-desktop-data
-      
       wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
     
 
