@@ -9,7 +9,7 @@ The Ubuntu distro that is available from the MS Store is initialized via a snap 
 
 Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the "unminimize" command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```...) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
 
-This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
+This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
 
 ## System Requirements:
@@ -345,7 +345,15 @@ Following the above, you can ```exit``` back to your user account, then
     
     # Choose .ssh option...
     
-Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager... :)
+Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager. You can now invoke your SSH key with an expanded set of Git commands;
+
+    alias g="git"
+
+    g clone git@github.com:StoneyDSP/ubento.git
+    
+    # Or....
+    
+    gh repo clone git@github.com:StoneyDSP/ubento.git
 
 
 Here are some more common tools for development - again, do ```sudo -s``` first;
@@ -530,22 +538,10 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
     {
         echo "<your_user_password>" | sudo -Svp ""
         # Default timeout for caching your sudo password: 15 minutes
-
-        # If you're uncomfortable entering your password here,
-        # you can comment out the line above. But keep in mind that functions
-        # in a Bash script cannot be empty; comment lines are ignored.
-        # A function should at least have a ':' (null command).
-        # https://tldp.org/LDP/abs/html/functions.html#EMPTYFUNC
         
-        # StoneyDSP EDIT: I'd like to find a way to capture our password using an 
+        # TBC: I'd like to find a way to capture our password using an 
         # ecryption routine here to store our pwd into some kind of cookie file for 
         # local re-use (xauth?)
-    }
-
-    sudo_resetpasswd()
-    {
-        # Clears cached password for sudo
-        sudo -k
     }
 
     # Screen number
@@ -597,6 +593,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         
         # Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
         # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
+        # Furthermore, would be ideal to store cookie in /run/user/1000...!
     }
     
 Call the authentication function (this still needs some work - stay tuned!);
@@ -791,7 +788,7 @@ The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.
 
 ## Git tip from microsoft WSL docs
 
-When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. They suggest adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
+When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. Microsoft suggests adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
 
     * text=auto eol=lf
     *.{cmd,[cC][mM][dD]} text eol=crlf
