@@ -134,11 +134,16 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
 
 ## [COPY UBENTO FILES OVER USING CURL/WGET/GIT]
 
-(tbc)
+(tbc - just place a bash script and use curl/wget/git to fetch everything...)
 
-    # Clone UBento somewhere locally... here's an example where we've git cloned it to our Windows home folder;
+    # Git-clone UBento somewhere locally... you could store it Linux-side
+    # directory, such as '$HOME/Development/ubento' and adjust this step
+    # accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas. 
+    # Here's an example where we've git cloned it to our Windows home folder;
 
     export UBENTO_WIN_REPO="/mnt/c/Users/{$username}/repos/ubento"
+    
+    git clone "https://github.com/StoneyDSP/ubento.git" "$UBENTO_WIN_REPO"
     
     yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh"
     yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile" "/etc/skel/.profile"
@@ -154,7 +159,7 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
 
 ## [DEFINING RUNTIME BEHAVIOUR]
 
-Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but NOT for root (IMPORTANT!) - they should be at the end after the exports;
+Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
 
     set_runtime_dir
     set_session_bus
@@ -166,15 +171,15 @@ Setup systemd/dbus and accessibility bus, full shutdown;
     apt install systemd dbus at-spi2-core
     wsl.exe -d UBento --shutdown
 
-Back in Powershell, we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on this first re-launch, as this ensures we run the initialization step correctly!)
+Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on this first re-launch, as this ensures we run the initialization step correctly!)
     
     wsl -d UBento --user "{$username}"
 
 
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for using as a Windows Terminal profile, for example (see [TIPS]).
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
 
 
-## It is CRITICAL that these steps (as a minimum) are taken in the order presented above: 
+## It is *CRITICAL* that the previous steps (as a minimum) are taken in the correct order: 
 
 - launch as root
 - install apt-utils, dialog, and sudo
@@ -190,7 +195,7 @@ From now on, you can use ```sudo``` invocations from your new user login shell, 
 
 ## At this point, the distro is well-configured to continue as you please...
 
-...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento into either/both a fully-configured desktop environment, and/or a fully-configured development environment, by following the steps below.
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines, with tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
 
 
 ## [DESKTOP SETTINGS]
@@ -272,7 +277,7 @@ With this option, no linkage is created to your Windows user folders or hard dis
 We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
 
 
-- We can set bookmark tabs for our chosen Linux desktop browser;
+- We can set bookmark tabs for our chosen Linux-side desktop explorer;
 
       nano $HOME/.config/gtk-3.0/bookmarks
     
@@ -285,9 +290,9 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
       file:///home/{$username}/Pictures
       file:///home/{$username}/Videos
 
-  These locations will appear in the tab bar of your desktop browser, as they should.
+  These locations will now appear in the tab bar of your Linux-side desktop explorer, as they should.
 
-- We can also connect our Linux desktop browser to remote servers;
+- We can also connect our Linux-side desktop explorer to remote servers;
 
       nano $HOME/.config/gtk-3.0/servers
     
@@ -302,7 +307,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
         </bookmark>
       </xbel>
   
-  Check your desktop browser's "other locations" or network options to discover this connection.
+  Check your Linux-side desktop explorer's "other locations" or network options to discover this connection.
 
 - Import your Windows fonts by adding the below to ```/etc/fonts```;
 
