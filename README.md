@@ -43,7 +43,7 @@ This will hopefully get compiled into an interactive bash script... if time perm
 - Try it with other Linux flavours and goals.
 
 
-To get started, run the below in either your Windows Powershell, or your current WSL2 distro's terminal;
+To get started, run the below in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```);
 
 
 ## [PRE-INSTALL]
@@ -71,12 +71,12 @@ We then have a few options for how we wish to store UBento, such as using the dy
 ## Backing up and restarting with a clean slate;
 
 
-It turns out to be handy to run the following argument around this stage or whenever you feel you have a good starting point, 
+It turns out to be handy to run the following argument around this stage, or whenever you feel you have a good starting point; 
 
     wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
 
 
-This is because if/when we screw anything up in our distro and want to start distro over from scratch, we can then simply;
+This is because if/when we screw anything up in our distro and want to start over from scratch, we can then simply;
 
     wsl --unregister <myBadDistro>
 
@@ -93,13 +93,13 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
     
     
     wsl -d UBento
-    # The docker Ubuntu Minimal image we pulled earlier will launch in the terminal...
+    # The docker Ubuntu Minimal image we pulled earlier will now launch in the terminal...
 
 
 ## [POST-INSTALL]
 
 
-The below steps are to be run from within your new Ubuntu-based bash terminal in WSL.
+The below steps are to be run from within your new WSL Ubuntu-based bash terminal (```$```).
 
 
 - set permission for root folder, restore server packages, and install basic dependencies;
@@ -114,7 +114,7 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
 
 - Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
 
-      export $username="<username>"
+      export username="<Your Username Name>"
 
       adduser --home=/home/$username --shell=/usr/bin/bash --gecos="<Your Full Name>" --uid=1000 $username
       
@@ -728,6 +728,10 @@ Make sure that you always append (for example) ```":$PATH"``` in these cases, in
 If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings. Furthermore, when installing new software on the Linux-side, these occasionally attempt to add further values to certain variables such as ```$PATH```, so try to keep a check on it's output behaviour.
 
 
+## Bash Completion
+
+Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please (and update accordingly). Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
+
 ## Storage
 
 As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized mount drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted between various storage and virtual hard drive formats.
@@ -851,6 +855,18 @@ When handling a single repo on both your Windows and Linux file systems, it's a 
     * text=auto eol=lf
     *.{cmd,[cC][mM][dD]} text eol=crlf
     *.{bat,[bB][aA][tT]} text eol=crlf
+
+
+## Make yourself a local-storage "~/Development" directory, and do cool stuff in there
+
+    mkdir "$HOME/Development"
+    export DEV_DIR="$HOME/Development"
+    cd "$DEV_DIR"
+    
+    git clone git@github.com:StoneyDSP/ubento.git
+    
+    # If you're cd-'ing around between NodeJs-based repo's, consider checking out
+    # nvm-sh's 'cd_nvm' function.
 
 
 ## Shutting down
