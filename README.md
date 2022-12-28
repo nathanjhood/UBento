@@ -1,5 +1,5 @@
 # UBento
-Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
+Minimal Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
@@ -431,6 +431,9 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
           apt update
       }
+      
+      # Might be needed - make sure to generate the bash completion scripts!
+      apt install postgresql postgresql-contrib apache2 apache2-doc
     
       # Install for both desktop and web modes:
       apt install pgadmin4
@@ -445,7 +448,7 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       /usr/pgadmin4/bin/setup-web.sh
 
 
-- CMake (Make sure you have Make or other build tools, and check out Visual Studio Remote with WSL!)
+- CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
     
       export DISTRO="$(lsb_release -cs)"
       export ARCH="$(dpkg --print-architecture)"
