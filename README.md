@@ -93,7 +93,7 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
     
     
     wsl -d UBento
-    # The docker Ubuntu Minimal image we pulled earlier will now launch in the terminal...
+    # The docker Ubuntu Minimal image we pulled earlier - now named 'UBento' - will now launch in the terminal...
 
 
 ## [POST-INSTALL]
