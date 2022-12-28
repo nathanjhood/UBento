@@ -177,7 +177,7 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
 
 
-## It is *CRITICAL* that the previous steps (as a minimum) are taken in the correct order, as summarized; 
+## It is *CRITICAL* that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
 
 - launch distro as root to install apt-utils, dialog, and sudo
 - copy ubuntu-helpers/profile/bashrc/wsl.conf files
@@ -191,7 +191,7 @@ From now on, you can use ```sudo``` invocations from your new user login shell, 
 
 ## At this point, the distro remains minimal yet fully scalable, and is well-configured to continue on as you please...
 
-...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines, with tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
 
 
 ## [DESKTOP SETTINGS]
