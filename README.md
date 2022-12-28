@@ -110,6 +110,9 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
       # If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
       yes | unminimize
       apt install sudo less manpages openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
+      
+      # Clear the APT cache if you like...
+      rm -rf /var/lib/apt/lists/*
 
 
 - Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
@@ -333,6 +336,8 @@ First, do ```sudo -s```, then;
     export DISTRO="$(lsb_release -s -c)"
     export ARCH="$(dpkg --print-architecture)"
     export APT_SOURCES="/etc/apt/sources.list.d"
+    
+    alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
     get_gith()
     {
