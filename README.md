@@ -7,9 +7,9 @@ Minimal Ubuntu-based WSL distro ideal for targeting Linux-style NodeJs and CMake
 
 The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
-Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the "unminimize" command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```...) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
+Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
 
-This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
+This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
 
 ## System Requirements:
@@ -61,14 +61,11 @@ Take a note of the container ID of the Ubuntu image that was just running, then 
     docker export "<UbuntuContainerID>" > "C:\Users\<username>\ubuntu_minimal.tar"
 
 
-We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives.
+We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives. The ```--export``` command in the below example stores a backup mountable image in the 'D:\' drive (which can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more storage examples).
 
-    wsl --import Ubuntu "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
-    wsl --export Ubuntu "D:\My\Backup\Folder\ubuntu_minimal.tar"
-    wsl --unregister Ubuntu
-    wsl --import UBento "C:\My\Install\Folder" "D:\My\Backup\Folder\ubuntu.tar"
-
-The above example stores a backup in the 'D:\' drive (can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more!).
+    wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
+    
+    wsl --export UBento "D:\My\Backup\Folder\ubento.vhdx" --vhd
 
 
 ## Backing up and restarting with a clean slate;
@@ -79,20 +76,24 @@ It turns out to be handy to run the following argument around this stage or when
     wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
 
 
-This is because if/when we screw anything up and want to start our distro over, we can then simply;
+This is because if/when we screw anything up in our distro and want to start distro over from scratch, we can then simply;
 
     wsl --unregister <myBadDistro>
 
     wsl --import <myPerfectDistro> "D:\My\Install\Folder" "D:\My\Backup\Folder\my_perfect_distro.vhdx"
 
 
-Please see the [TIPS] section for much more advice on distro importing, exporting, and storage.
+And that puts us back to exactly where we last ran the ```--export``` command. Please see the [TIPS] section for much more advice on distro importing, exporting, and storage.
 
 
 ## Check UBento is installed and launch it;
 
     wsl -l -v
+    # UBento should be listed amongst your WSL distros...
+    
+    
     wsl -d UBento
+    # The docker Ubuntu Minimal image we pulled earlier will launch in the terminal...
 
 
 ## [POST-INSTALL]
@@ -105,25 +106,27 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
 
       chmod 755 /
       apt update && apt install apt-utils dialog
+      
+      # If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
       yes | unminimize
-      apt install less manpages sudo openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
+      apt install sudo less manpages openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
 
 
 - Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
 
-      export userName="<username>"
-      # https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
+      export $username="<username>"
 
-      adduser --home=/home/$userName --shell=/usr/bin/bash --gecos="<Full Name>" --uid=1000 $userName
-      usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $userName
+      adduser --home=/home/$username --shell=/usr/bin/bash --gecos="<Your Full Name>" --uid=1000 $username
+      
+      usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
 
 
-- Make ```/etc/wsl.conf``` to export our 'userName@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
+- Make ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
       echo -e "[automount]\n enabled=true\n root=/mnt/\n mountFsTab=true\n options='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\n crossDistro=true\n ldconfig=true\n" >> /etc/wsl.conf
       echo -e "[network]\n hostname=localhost\n generateHosts=true\n generateResolvConf=true\n" >> /etc/wsl.conf
       echo -e "[interop]\n enabled=true\n appendWindowsPath=true\n" >> /etc/wsl.conf
-      echo -e "[user]\n default=$userName\n" >> /etc/wsl.conf
+      echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
       echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
     
 (A much clearer method of this last step is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on... this option is presented in the next step*)
@@ -135,7 +138,7 @@ The below steps are to be run from within your new Ubuntu-based bash terminal in
 
     # Clone UBento somewhere locally... here's an example where we've git cloned it to our Windows home folder;
 
-    export UBENTO_WIN_REPO="/mnt/c/Users/{username}/repos/ubento"
+    export UBENTO_WIN_REPO="/mnt/c/Users/{$username}/repos/ubento"
     
     yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh"
     yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile" "/etc/skel/.profile"
@@ -163,9 +166,9 @@ Setup systemd/dbus and accessibility bus, full shutdown;
     apt install systemd dbus at-spi2-core
     wsl.exe -d UBento --shutdown
 
-Back in Powershell, we can now login as out user (the ```--user``` argument shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on first re-launch, as this ensures we run the initialization step correctly!)
+Back in Powershell, we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on this first re-launch, as this ensures we run the initialization step correctly!)
     
-    wsl -d UBento --user "{username}"
+    wsl -d UBento --user "{$username}"
 
 
 From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for using as a Windows Terminal profile, for example (see [TIPS]).
@@ -215,34 +218,36 @@ By providing symbolic links to our Windows user folders, we can get some huge be
 
       # Logged in as user, NOT root(!);
 
-      ln -s /mnt/c/Users/{username}/Desktop /home/{username}/Desktop && \
-      ln -s /mnt/c/Users/{username}/Documents /home/{username}/Documents && \
-      ln -s /mnt/c/Users/{username}/Downloads /home/{username}/Downloads && \
-      ln -s /mnt/c/Users/{username}/Music /home/{username}/Music && \
-      ln -s /mnt/c/Users/{username}/Pictures /home/{username}/Pictures && \
-      ln -s /mnt/c/Users/{username}/Templates /home/{username}/Templates && \
-      ln -s /mnt/c/Users/{username}/Videos /home/{username}/Videos
+      ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop" && \
+      ln -s "/mnt/c/Users/{$username}/Documents"  "/home/{$username}/Documents" && \
+      ln -s "/mnt/c/Users/{$username}/Downloads"  "/home/{$username}/Downloads" && \
+      ln -s "/mnt/c/Users/{$username}/Music"      "/home/{$username}/Music" && \
+      ln -s "/mnt/c/Users/{$username}/Pictures"   "/home/{$username}/Pictures" && \
+      ln -s "/mnt/c/Users/{$username}/Templates"  "/home/{$username}/Templates" && \
+      ln -s "/mnt/c/Users/{$username}/Videos"     "/home/{$username}/Videos"
 
       # optional - logged in as root;
 
-      ln -s /mnt/c/Users/Administrator/Desktop /root/Desktop
+      ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
       ...
-      ln -s /mnt/c/Users/Administrator/Videos /root/Videos
+      ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
     
       # optional - 'public' shared folder...
     
-      ln -s /mnt/c/Users/Public /home/{username}/Public
-      ln -s /mnt/c/Users/Public /root/Public
+      ln -s "/mnt/c/Users/Public" "/home/{$username}/Public"
+      ln -s "/mnt/c/Users/Public" "/root/Public"
 
 
-  Let's expand our $XDG_DOWNLOAD_DIR variable out (this is NOT a terminal command!)...
+  Let's expand our $XDG_DOWNLOAD_DIR variable out...
       
-      XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{username}/Downloads = /mnt/c/{username}/Downloads"
+      # (this is NOT a terminal command!!!)
+      XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{$username}/Downloads = /mnt/c/{$username}/Downloads"
 
 
   The exact same directory (and it's contents) on the Windows side...
       
-      "$HOME\Downloads" = "C:\Users\{username}\Downloads" = "\\wsl.localhost\UBento\home\{username}\Downloads"
+      # (this is NOT a terminal command!!!)
+      "$HOME\Downloads" = "C:\Users\{$username}\Downloads" = "\\wsl.localhost\UBento\home\{$username}\Downloads"
       
 
   All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
@@ -273,12 +278,12 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
     
   add the following:
     
-      file:///home/{username}/Desktop
-      file:///home/{username}/Documents
-      file:///home/{username}/Downloads
-      file:///home/{username}/Music
-      file:///home/{username}/Pictures
-      file:///home/{username}/Videos
+      file:///home/{$username}/Desktop
+      file:///home/{$username}/Documents
+      file:///home/{$username}/Downloads
+      file:///home/{$username}/Music
+      file:///home/{$username}/Pictures
+      file:///home/{$username}/Videos
 
   These locations will appear in the tab bar of your desktop browser, as they should.
 
@@ -345,7 +350,15 @@ Following the above, you can ```exit``` back to your user account, then
     
     # Choose .ssh option...
     
-Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager... :)
+Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager. You can now invoke your SSH key with an expanded set of Git commands;
+
+    alias g="git"
+
+    g clone git@github.com:StoneyDSP/ubento.git
+    
+    # Or....
+    
+    gh repo clone git@github.com:StoneyDSP/ubento.git
 
 
 Here are some more common tools for development - again, do ```sudo -s``` first;
@@ -353,15 +366,21 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - Node (latest)
     
+      export DISTRO="$(lsb_release -cs)"
+      export ARCH="$(dpkg --print-architecture)"
+      export APT_SOURCES="/etc/apt/sources.list.d"
+      
+      export SYS_NODE_V="node_19.x"
+      
       get_node()
       {
           export NODEJS_KEY="usr/share/keyrings/nodesource.gpg"
 
           curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
-          echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO main" | tee $APT_SOURCES/nodesource.list
+          echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee $APT_SOURCES/nodesource.list
 
-          echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/node_19.x $DISTRO main" | tee -a $APT_SOURCES/nodesource.list
+          echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee -a $APT_SOURCES/nodesource.list
 
           apt update
       }
@@ -373,6 +392,9 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - Yarn (latest)
     
+      export ARCH="$(dpkg --print-architecture)"
+      export APT_SOURCES="/etc/apt/sources.list.d"
+
       get_yarn()
       {
           export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
@@ -391,6 +413,9 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - PGAdmin (for PostgreSQL)
     
+      export DISTRO="$(lsb_release -cs)"
+      export APT_SOURCES="/etc/apt/sources.list.d"
+      
       get_pgadmin()
       {
           export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
@@ -417,6 +442,10 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - CMake (Make sure you have Make or other build tools, and check out Visual Studio Remote with WSL!)
     
+      export DISTRO="$(lsb_release -cs)"
+      export ARCH="$(dpkg --print-architecture)"
+      export APT_SOURCES="/etc/apt/sources.list.d"
+      
       get_cmake()
       {
           export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
@@ -433,9 +462,11 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - Google Chrome (latest stable)
     
+      export ARCH="$(dpkg --print-architecture)"
+      
       get_chrome()
       {
-          curl "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+          curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
           apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
       }
@@ -443,11 +474,15 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 - Supabase (check repo for latest release version number, these outdate quickly...)
     
+      export ARCH="$(dpkg --print-architecture)"
+      
+      export SYS_SUPABASE_V="1.27.0"
+      
       get_supabase()
       {
-          curl "https://github.com/supabase/cli/releases/download/v1.25.0/supabase_1.25.0_linux_amd64.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
+          curl "https://github.com/supabase/cli/releases/download/v$SYS_SUPABASE_V/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
-          apt install "$XDG_DOWNLOAD_DIR/supabase_1.25.0_linux_amd64.deb"
+          apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
       }
 
 
@@ -515,9 +550,11 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
 ## [X-SERVER DISPLAY]
 
+https://en.wikipedia.org/wiki/X_Window_authorization
+
 (tbc)
 
-    sudo apt install xauth
+    sudo apt install xauth resolveconf scp
     # Just in case...!
     
     # Set some easy names...
@@ -530,22 +567,10 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
     {
         echo "<your_user_password>" | sudo -Svp ""
         # Default timeout for caching your sudo password: 15 minutes
-
-        # If you're uncomfortable entering your password here,
-        # you can comment out the line above. But keep in mind that functions
-        # in a Bash script cannot be empty; comment lines are ignored.
-        # A function should at least have a ':' (null command).
-        # https://tldp.org/LDP/abs/html/functions.html#EMPTYFUNC
         
-        # StoneyDSP EDIT: I'd like to find a way to capture our password using an 
+        # TBC: I'd like to find a way to capture our password using an 
         # ecryption routine here to store our pwd into some kind of cookie file for 
         # local re-use (xauth?)
-    }
-
-    sudo_resetpasswd()
-    {
-        # Clears cached password for sudo
-        sudo -k
     }
 
     # Screen number
@@ -581,22 +606,33 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
         
         # Authorize key on Linux side and pass to Windows
         xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+        
         cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
+        
         xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+        
         
         # Vice-versa...
         xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+        
         cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+        
         xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
         
-        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority" # For backup/restoration...
+        
+        # For backup/restoration...
+        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
+        
         
         echo "Linux X Server keys:" && xauth_lin list
         
         echo "Windows X Server keys:" && xauth_win list
         
-        # Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
+        # Notes;
+        # Useage of cp should be substituted for scp, possibly via SSH...?
         # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
+        # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
+        # Furthermore, would be ideal to store cookie in /run/user/1000...!
     }
     
 Call the authentication function (this still needs some work - stay tuned!);
@@ -625,11 +661,21 @@ Restart your Windows machine once the above is complete.
 
 - Enable the Windows features (run each command in PowerShell):
 
+
+Virtual Machine Platform;
+
       dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+
+Hyper Virtualization;
 
       dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
 
+
+Windows Subsystem for Linux;
+
       dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+
 
 Restart your Windows machine once the above is complete.
 
@@ -679,7 +725,7 @@ Make sure that you always append (for example) ```":$PATH"``` in these cases, in
     echo $PATH
     # This list should contain all your Windows PATH entries as well as your distro's...
 
-If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings.
+If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings. Furthermore, when installing new software on the Linux-side, these occasionally attempt to add further values to certain variables such as ```$PATH```, so try to keep a check on it's output behaviour.
 
 
 ## Storage
@@ -712,12 +758,21 @@ Thus, the ```wsl export/unregister Ubuntu``` steps are optional - you can keep b
 
 - Docker desktop and data storage can be managed in the exact same way;
     
+      # Front end storage...
+      
       wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
+     
       wsl --unregister docker-desktop
+      
       wsl --import docker-desktop "D:\Docker" "D:\Backup\Docker_desktop.vhdx" --vhd
 
+      
+      # Back end storage...
+      
       wsl --export docker-desktop-data "D:\Backup\Docker_desktop_data.vhdx" --vhd
+      
       wsl --unregister docker-desktop-data
+      
       wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
     
 
@@ -791,7 +846,7 @@ The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.
 
 ## Git tip from microsoft WSL docs
 
-When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. They suggest adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
+When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. Microsoft suggests adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
 
     * text=auto eol=lf
     *.{cmd,[cC][mM][dD]} text eol=crlf
