@@ -114,30 +114,9 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
       # Clear the APT cache if you like...
       rm -rf /var/lib/apt/lists/*
 
+- copy UBento files over with curl/wget/git]
 
-- Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
-
-      export username="<Your Username Name>"
-
-      adduser --home=/home/$username --shell=/usr/bin/bash --gecos="<Your Full Name>" --uid=1000 $username
-      
-      usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
-
-
-- Make ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
-
-      echo -e "[automount]\n enabled=true\n root=/mnt/\n mountFsTab=true\n options='uid=1000,gid=1000,metadata,umask=000,fmask=000,dmask=000,case=off'\n crossDistro=true\n ldconfig=true\n" >> /etc/wsl.conf
-      echo -e "[network]\n hostname=localhost\n generateHosts=true\n generateResolvConf=true\n" >> /etc/wsl.conf
-      echo -e "[interop]\n enabled=true\n appendWindowsPath=true\n" >> /etc/wsl.conf
-      echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
-      echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
-    
-(A much clearer method of this last step is to copy the fully-annoted '/etc/wsl.conf' file from this repo to your distro, with the ```[user] default=``` section containing your username to ensure we boot into this profile later on... this option is presented in the next step*)
-
-
-## [COPY UBENTO FILES OVER USING CURL/WGET/GIT]
-
-(tbc - just place a bash script and use curl/wget/git to fetch everything...)
+(tbc - could just place a bash script and use curl/wget/git to fetch everything...)
 
     # Git-clone UBento somewhere locally... you could store it Linux-side
     # directory, such as '$HOME/Development/ubento' and adjust this step
@@ -156,9 +135,25 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
     yes | cp -f "$UBENTO_WIN_REPO/root/.bashrc" "/root/.bashrc"
     yes | cp -f "$UBENTO_WIN_REPO/root/.profile" "/root/.profile"
     
-    # *optional, see previous post-install step (this file MUST contain your username in the correct field before we reboot!)
+    # *optional, see final post-install step (this file MUST contain your username in the correct field before we reboot!)
     yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
     
+
+- Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password;
+
+      export username="<Your Username Name>"
+
+      adduser --home=/home/$username --shell=/usr/bin/bash --gecos="<Your Full Name>" --uid=1000 $username
+      
+      usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
+
+
+- Make ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
+
+      echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
+    
+*The purpose of this last step is so that the ```[user] default=``` section of your ```/etc/wsl.conf``` contains your username, to ensure we boot into this profile later on our next launch... see next step)
+
 
 ## [DEFINING RUNTIME BEHAVIOUR]
 
@@ -169,12 +164,12 @@ Make sure the following two functions from the x410 cookbook are defined in ```/
 
     # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 
-Setup systemd/dbus and accessibility bus, full shutdown;
+Setup systemd/dbus and accessibility bus, do a full shutdown;
 
     apt install systemd dbus at-spi2-core
     wsl.exe -d UBento --shutdown
 
-Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure on this first re-launch, as this ensures we run the initialization step correctly!)
+Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure here on this first re-launch, as this *ensures* we run finish critical initialization procedure correctly!)
     
     wsl -d UBento --user "{$username}"
 
@@ -182,21 +177,19 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
 
 
-## It is *CRITICAL* that the previous steps (as a minimum) are taken in the correct order: 
+## It is *CRITICAL* that the previous steps (as a minimum) are taken in the correct order, as summarized; 
 
-- launch as root
-- install apt-utils, dialog, and sudo
-- add new user
-- copy wsl.conf
-- copy ubuntu-helpers/profile/bashrc files
+- launch distro as root to install apt-utils, dialog, and sudo
+- copy ubuntu-helpers/profile/bashrc/wsl.conf files
+- add new user and password
 - install systemd/dbus/at-spi2-core
-- shutdown and reboot into new user account*
+- shutdown distro and reboot as new user
 
 
-*this sequence ensures that when the user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT call these functions during init (they should not be present at all in ```/root/.profile```).
+*this sequence ensures that when the distro default user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT have access to these functions (they should not be present at all in ```/root/.profile```).
 
 
-## At this point, the distro is well-configured to continue as you please...
+## At this point, the distro remains minimal yet fully scalable, and is well-configured to continue on as you please...
 
 ...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines, with tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
 
