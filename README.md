@@ -93,7 +93,7 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
     
     
     wsl -d UBento
-    # The docker Ubuntu Minimal image we pulled earlier will now launch in the terminal...
+    # The docker Ubuntu Minimal image we pulled earlier - now named 'UBento' - will now launch in the terminal...
 
 
 ## [POST-INSTALL]
@@ -322,7 +322,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
 
 ## [DEVTOOLS KEYRING]
 
-*NOTE: These are all defined in "ubento_helpers.sh" with the correct calls to ```sudo``` where needed, reproduced here in altered form for convenience. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
+*NOTE: These are all defined in "ubento_helpers.sh" with the correct calls to ```sudo``` where needed, reproduced here in altered form for convenience and testing. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
 
 First, do ```sudo -s```, then;
 
@@ -331,6 +331,13 @@ First, do ```sudo -s```, then;
     export APT_SOURCES="/etc/apt/sources.list.d"
     
     alias apt_cln='rm -rf /var/lib/apt/lists/*'
+    
+    get_chrome()
+    {
+        curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+
+        apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+    }
 
     get_gith()
     {
@@ -343,28 +350,37 @@ First, do ```sudo -s```, then;
         apt update
     }
     
+    get_chrome # Optional!!! Note that the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)
+    get_gith
     apt install gh
     
 Following the above, you can ```exit``` back to your user account, then 
     
     export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
     
-    gh auth login
-    
-    # Choose .ssh option...
-    
-Your Git SSH key is now available at ```$PUBKEYPATH```, and you can use the GitHub CLI commands and credential manager. You can now invoke your SSH key with an expanded set of Git commands;
-
     alias g="git"
+    
+    g -g config user.name "<Your Git Name>"
+    g -g config user.email "<Your Git Email>"
+    
+    gh auth login
+    # Choose .ssh option... then;
+    
+    nano $HOME/.gitconfig
 
-    g clone git@github.com:StoneyDSP/ubento.git
+
+Your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
+
+    export DEV_DIR="$HOME/Development"
+    
+    g clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
     
     # Or....
     
-    gh repo clone git@github.com:StoneyDSP/ubento.git
+    gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
 
 
-Here are some more common tools for development - again, do ```sudo -s``` first;
+Here are some other common tools for development - again, do ```sudo -s``` first (if you are running these commands directly from this README.md file);
 
 
 - Node (latest)
@@ -444,6 +460,24 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
       # Configure the webserver, if you installed pgadmin4-web:
       /usr/pgadmin4/bin/setup-web.sh
+      
+      # Postgres also has some well-used bash completion scripts such as 'createdb'.
+      # We can give our user(s) the correct priviliges to access these commands.
+      
+      # create a password, for example 'postgres'...
+      passwd postgres 
+      
+      # enter psql shell as user 'postgres'...
+      psql -u postgres 
+      
+      # in the psql shell, list our users, create two more, and list again before exiting...
+      \du
+      CREATE ROLE root CREATEDB CREATEROLE SUPERUSER; 
+      CREATE ROLE {username} CREATEDB CREATEROLE SUPERUSER;
+      \du
+      \q
+      
+      # Now your user can use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
 
 
 - CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
@@ -490,6 +524,9 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
 
           apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
       }
+      
+      # as user...
+      supabase login
 
 
 - Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```) 
@@ -497,19 +534,24 @@ Here are some more common tools for development - again, do ```sudo -s``` first;
       get_nvm()
       {
           curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
-
-          # nvm use system... or as preferred
       }
+      
+      # Choose as preferred...
+      
+      # nvm install --lts
+      # nvm install node
+      nvm use system
 
 
-- Postman (will save your login key to your home folsder)
+- Postman (will save your login key to your home folder)
     
       get_postman()
       {
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
-
-          postman login
       }
+      
+      # as user...
+      postman login
 
 
 - vcpkg-tool (still working on this, note that you can get vcpkg itself quite easily too)
