@@ -781,6 +781,30 @@ Make sure that you always append (for example) ```":$PATH"``` in these cases, in
 
 If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings. Furthermore, when installing new software on the Linux-side, these occasionally attempt to add further values to certain variables such as ```$PATH```, so try to keep a check on it's output behaviour.
 
+You could adapt a tidy function like the one below, if you prefer (note that the logic differs, though);
+
+    # Append "$1" to $PATH when not already in.
+    # Copied from Arch Linux, see #12803 for details.
+    append_path () {
+          case ":$PATH:" in
+                  *:"$1":*)
+                          ;;
+                  *)
+                          PATH="${PATH:+$PATH:}$1"
+                          ;;
+          esac
+    }
+
+    append_path "/usr/local/sbin"
+    append_path "/usr/local/bin"
+    append_path "/usr/sbin"
+    append_path "/usr/bin"
+    append_path "/sbin"
+    append_path "/bin"
+    unset -f append_path
+
+    export PATH
+
 
 ## Bash Completion
 
