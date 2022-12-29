@@ -51,7 +51,7 @@ To get started, run the below in either your Windows Powershell (```>```), or yo
 
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
-    docker run -t ubuntu bash
+    docker run -it ubuntu bash
     exit
 
 
