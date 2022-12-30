@@ -11,18 +11,22 @@ Quick usage (see 'requirements');
 # swap bash env, profile, and WSL files and reboot the distro - done!
 ```
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
-
 ## About
 
 The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. 
 
 It also contains a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
-Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
+Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and in many cases, highly improved runtime performances.
 
-This will hopefully get compiled into an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
+## Customisation and tailoring your build to focus only on your needs
+
+A lot of the latest Linux releases of popular coding tools, like NodeJs and CMake, don't have any additional package dependencies in order to be installed and used. WSL-integrated Windows apps like VSCode and Docker Desktop also "just work" straight from the box. Dependencies aside, most Linux GUI apps will happily launch from their Windows icons - or bash shell commands - without any additional self-configuring of, or even launching of, the X-Server. The requirements to run a full visual desktop environment are where the majority of the costs lie; and with otherwise such low runtime integration requirements and portability, the benefits of having a secondary visual desktop environment *on your native visual desktop environment* don't necessarily outweight the performance costs when you really need it most, IME. If your main interest is in getting critical work done, you likely don't need much more than to ```unminimize``` and add a few packages to the keyring, if that. But if what you want is to have a deep and performant Linux experience integrated directly within your Windows environment, you can have that too.
+
+This will hopefully all get compiled into some sort of an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 ## System Requirements:
 
@@ -38,9 +42,9 @@ This will hopefully get compiled into an interactive bash script... if time perm
 ## Todo:
 
 - Finish X-Server encryption helper function
-- Use the shared WSLENV variable to link the distro userspace, to the Windows userspace
-- Use WSLENV to share a single, translatable '.Xauthority' keypath between both userspaces (this works for SSH keys and symlinks...)
-- Investigate usage of user-login password as an MIT-encrypted env variable (like github.SECRETs) for Git control, intializing DBus with as sudo during startup routine, and authenticating the X-Server encryption layer step 
+- Use the shared ```$WSLENV``` variable to optionally link the distro userspace, to the Windows userspace
+- Try ```$WSLENV``` for sharing a single, translatable path to an '.Xauthority' key between both userspaces (this works for SSH keys and symlinks...)
+- Investigate usage of user-login password as an MIT-encrypted env variable (like ```{{ git.SECRET }}``` ) for use with Git control, intializing DBus with as sudo during startup routine, authenticating the X-Server encryption layer step, and so on 
 - Implement as a shell-scripted front-end for a fast, flexible, potentially CI-capable* Ubuntu-Minimal deployment 
  
 *where the ```unminimize``` command and other rehydrations can be averted from use cases. 
@@ -48,7 +52,13 @@ This will hopefully get compiled into an interactive bash script... if time perm
 
 ## Notes:
 
-- Run the below in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but ignore comment lines (```#```). 
+- Run the suggested instructions in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but obviously don't bother entering the comment lines (```#```).
+
+- You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will roughly double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
+
+- Systemd is a big investment beyond the original minimized state of the distro, but is key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid it for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```. 
+
+- Neither ```unminimize``` nor systemd are really required for most developing purposes - see [TIPS]. 
 
 - Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
 
@@ -163,7 +173,9 @@ yes | cp -f "$UBENTO_WIN_REPO/root/.profile"                     "/root/.profile
 $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 ```
 
-## Create user named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password for your new user;
+## Create user 
+
+- named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password for your new user;
 
 ```
 $ export username="<Your Username Name>"
@@ -174,18 +186,75 @@ $ adduser --home=/home/$username --shell=/usr/bin/bash --gecos=$fullname --uid=1
 $ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
 ```
 
-## Make ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
+- Modify ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
 ```
+$ echo -e "[network]\n hostname=localhost\n" >> /etc/wsl.conf
 $ echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
+$ "/mnt/c/windows/wsl.exe" -t UBento
 ```
 
 *The purpose of this last step is so that the ```[user] default=``` section of your ```/etc/wsl.conf``` contains your username, to ensure we boot into this profile later on our next launch... see next step)
 
 
+Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure here on this first re-launch, as this *ensures* we run finish critical initialization procedure correctly!)
+
+```
+> wsl -d UBento --user "{$username}"
+```
+
+## [INTEROPERABILITY]
+
+- Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
+
+```
+# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
+
+$ docker run hello-world
+$ docker run -it ubuntu bash
+```
+
+- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/ubento_helpers.sh``` like this;
+
+```
+alias wsl='/mnt/c/Windows/System32/wsl.exe'
+
+wsl --list --verbose
+# Will list all of WSL's installed distros and statuses
+
+alias notepad='/mnt/c/Windows/System32/notepad.exe'
+
+notepad .
+# Will launch Notepad - careful with those line ending settings!
+```
+
+    
+- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
+
+```
+cd $HOME
+code .
+
+# Will run an installation step for 'vscode-server-remote' on first run....
+# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
+```
+
+
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
+
+## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
+
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
 ## [DEFINING RUNTIME BEHAVIOUR]
 
-This step need not apply if you are happy running Linux GUI apps (with excellent performance) but aren't looking to explore the desktop capabilities of your distro. GUI apps will already be working smoothly at this stage, directly from their Windows launchers. But if you're doing anything that requires systemd, then it is quite important provide some control over certain system-level runtime behaviours; particularly, for the first launch of our new user.
+This step need not apply if you are happy running Linux GUI apps (with excellent performance) but aren't looking to explore the desktop capabilities of your distro. GUI apps will already be working smoothly at this stage, directly from their Windows launchers. But if you're doing anything that requires systemd to be installed, then it is quite important provide some control over certain system-level runtime behaviours; particularly, for our user's first launch into systemd.
+
+```
+$ echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
+```
 
 Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
 
@@ -203,16 +272,7 @@ $ apt install systemd dbus at-spi2-core
 $ wsl.exe -d UBento --shutdown
 ```
 
-Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure here on this first re-launch, as this *ensures* we run finish critical initialization procedure correctly!)
-
-```
-> wsl -d UBento --user "{$username}"
-```
-
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```shutdown now``` via systemd. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
-
-
-## It is *CRITICAL* that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
+## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
 
 - launch distro as root to install apt-utils, dialog, and sudo
 - copy ubuntu-helpers/profile/bashrc/wsl.conf files
@@ -222,11 +282,6 @@ From now on, you can use ```sudo``` invocations from your new user login shell, 
 
 
 *this sequence ensures that when the distro default user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT have access to these functions (they should not be present at all in ```/root/.profile```).
-
-
-## At this point, the distro remains minimal yet fully scalable, and is well-configured to continue on as you please...
-
-...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
 
 
 ## [DESKTOP SETTINGS]
@@ -255,13 +310,13 @@ By providing symbolic links to our Windows user folders, we can get some huge be
 
 ```
 # Logged in as user, NOT root(!);
-$ ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop" && \
-$ ln -s "/mnt/c/Users/{$username}/Documents"  "/home/{$username}/Documents" && \
-$ ln -s "/mnt/c/Users/{$username}/Downloads"  "/home/{$username}/Downloads" && \
-$ ln -s "/mnt/c/Users/{$username}/Music"      "/home/{$username}/Music" && \
-$ ln -s "/mnt/c/Users/{$username}/Pictures"   "/home/{$username}/Pictures" && \
-$ ln -s "/mnt/c/Users/{$username}/Templates"  "/home/{$username}/Templates" && \
-$ ln -s "/mnt/c/Users/{$username}/Videos"     "/home/{$username}/Videos"
+$ ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop"   && \
+ln -s "/mnt/c/Users/{$username}/Documents"    "/home/{$username}/Documents" && \
+ln -s "/mnt/c/Users/{$username}/Downloads"    "/home/{$username}/Downloads" && \
+ln -s "/mnt/c/Users/{$username}/Music"        "/home/{$username}/Music"     && \
+ln -s "/mnt/c/Users/{$username}/Pictures"     "/home/{$username}/Pictures"  && \
+ln -s "/mnt/c/Users/{$username}/Templates"    "/home/{$username}/Templates" && \
+ln -s "/mnt/c/Users/{$username}/Videos"       "/home/{$username}/Videos"
 
 # optional - logged in as root;
 $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
@@ -620,38 +675,6 @@ Here are some other common tools for development - again, do ```sudo -s``` first
       }
 
 
-## [INTEROPERABILITY]
-
-- Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
-
-      # make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
-    
-      docker run hello-world
-      docker run -it ubuntu bash
-
-
-- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/ubento_helpers.sh``` like this;
-
-      alias wsl='/mnt/c/Windows/System32/wsl.exe'
-
-      wsl --list --verbose
-      # Will list all of WSL's installed distros and statuses
-    
-      alias notepad='/mnt/c/Windows/System32/notepad.exe'
-
-      notepad .
-      # Will launch Notepad - careful with those line ending settings!
-    
-    
-- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
-
-      cd $HOME
-      code .
-    
-      # Will run an installation step for 'vscode-server-remote' on first run....
-      # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
-
-
 ## [X-SERVER DISPLAY]
 
 https://en.wikipedia.org/wiki/X_Window_authorization
@@ -811,6 +834,7 @@ To get back to the MS Store version from here, you can
 
 
 ## [TIPS]
+
 
 ## Making the most of your $PATHS variable:
 
