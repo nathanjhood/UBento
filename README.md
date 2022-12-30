@@ -62,7 +62,7 @@ To get started, run the below in either your Windows Powershell (```>```), or yo
 Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
 ```
-> docker run -it ubuntu bash
+> docker run -it ubuntu bash ls /
     
 $ exit
 ```
@@ -71,7 +71,7 @@ Take a note of the container ID of the Ubuntu image that was just running, then 
 
 ```
 > docker container ls -a
-> docker export "<UbuntuContainerID>" > "C:\Users\<username>\ubuntu_minimal.tar"
+> docker export -o "C:\Users\<username>\ubuntu_minimal.tar" "<UbuntuContainerID>"
 ```
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives. The ```--export``` command in the below example stores a backup mountable image in the 'D:\' drive (which can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more storage examples).
