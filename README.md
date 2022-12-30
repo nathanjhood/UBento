@@ -4,18 +4,20 @@ Minimal Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJ
 Quick usage (see 'requirements');
 
 ```
-$ docker run -it ubuntu bash ls /
-$ docker export -o "/mnt/c/Users/{$username}/ubuntu.tar"  <distronumber>
+> docker run -it ubuntu bash ls /
+> docker export -o "/mnt/c/Users/{$username}/ubuntu.tar"  <distronumber>
 > wsl --import UBento "C:\Users\{$username}" "C:\Users\{$username}\ubuntu.tar"
 > wsl -d Ubento
-# swap bash env, profile, and WSL files and reboot!
+# swap bash env, profile, and WSL files and reboot the distro - done!
 ```
 
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 ## About
 
-The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. There is also a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
+The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. 
+
+It also contains a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
 Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and background service requirements (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support (via an encrypted Windows X-Server) *and* with a much reduced footprint, a fully up-to-date package registry, and in many cases, improved runtime performances.
 
@@ -46,6 +48,8 @@ This will hopefully get compiled into an interactive bash script... if time perm
 
 ## Notes:
 
+- Run the below in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but ignore comment lines (```#```). 
+
 - Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
 
 - Check the [TIPS] and [TROUBLESHOOTING] sections for helpful insights.
@@ -53,7 +57,7 @@ This will hopefully get compiled into an interactive bash script... if time perm
 - Try it with other Linux flavours and goals.
 
 
-To get started, run the below in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```);
+To get started, run the below in either your Windows Powershell (```>```);
 
 
 ## [PRE-INSTALL]
@@ -63,8 +67,6 @@ Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
 
 ```
 > docker run -it ubuntu bash ls /
-    
-$ exit
 ```
 
 Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
@@ -127,7 +129,9 @@ $ apt update && apt install apt-utils dialog
       
 # If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
 $ yes | unminimize
-$ apt install sudo less manpages openssl ca-certificates bash-completion bash-doc libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs vim nano lsb-release git curl wget
+
+# Choose which base packages you need, I suggest these something like these...
+$ apt install sudo vim nano less manpages gawk grep bash-completion bash-doc git curl wget libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs openssl ca-certificates lsb-release xauth
       
 # Clear the APT cache if you like...
 $ rm -rf /var/lib/apt/lists/*
@@ -144,17 +148,17 @@ $ rm -rf /var/lib/apt/lists/*
 # Here's an example where we've git cloned it to our Windows home folder;
 
 $ export UBENTO_WIN_REPO="/mnt/c/Users/{$username}/repos/ubento"
-    
+
 $ git clone "https://github.com/StoneyDSP/ubento.git" "$UBENTO_WIN_REPO"
-    
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh"
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile"               "/etc/skel/.profile"
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bashrc"                "/etc/skel/.bashrc"
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/bash.bashrc"                 "/etc/bash.bashrc"
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/profile"                     "/etc/profile"
-$ yes | cp -f "$UBENTO_WIN_REPO/root/.bashrc"                    "/root/.bashrc"
-$ yes | cp -f "$UBENTO_WIN_REPO/root/.profile"                   "/root/.profile"
-    
+
+$ yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh" && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile"                 "/etc/skel/.profile"               && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bashrc"                  "/etc/skel/.bashrc"                && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/bash.bashrc"                   "/etc/bash.bashrc"                 && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/profile"                       "/etc/profile"                     && \
+yes | cp -f "$UBENTO_WIN_REPO/root/.bashrc"                      "/root/.bashrc"                    && \
+yes | cp -f "$UBENTO_WIN_REPO/root/.profile"                     "/root/.profile"
+
 # *optional, see final post-install step (this file MUST contain your username in the correct field before we reboot!)
 $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 ```
@@ -163,9 +167,10 @@ $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 
 ```
 $ export username="<Your Username Name>"
+$ export fullname="<Your Full Name>"
 
-$ adduser --home=/home/$username --shell=/usr/bin/bash --gecos="<Your Full Name>" --uid=1000 $username
-      
+$ adduser --home=/home/$username --shell=/usr/bin/bash --gecos=$fullname --uid=1000 $username
+
 $ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
 ```
 
@@ -179,6 +184,8 @@ $ echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
 
 
 ## [DEFINING RUNTIME BEHAVIOUR]
+
+This step need not apply if you are happy running Linux GUI apps (with excellent performance) but aren't looking to explore the desktop capabilities of your distro. GUI apps will already be working smoothly at this stage, directly from their Windows launchers. But if you're doing anything that requires systemd, then it is quite important provide some control over certain system-level runtime behaviours; particularly, for the first launch of our new user.
 
 Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
 
@@ -369,10 +376,10 @@ Slick.
 
 *NOTE: These are all defined in "ubento_helpers.sh" with the correct calls to ```sudo``` where needed, reproduced here in altered form for convenience and testing. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
 
-First, do ```sudo -s```, then;
+First you will of course need some of the basic packages from earlier; once prepared suitably, do ```sudo -s```, then;
 
 ```
-$ export DISTRO="$(lsb_release -s -c)"
+$ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
 
@@ -442,7 +449,7 @@ Here are some other common tools for development - again, do ```sudo -s``` first
       
       get_node()
       {
-          export NODEJS_KEY="usr/share/keyrings/nodesource.gpg"
+          export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
           curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
