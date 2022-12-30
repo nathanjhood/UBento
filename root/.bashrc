@@ -196,7 +196,7 @@ get_gith()
 
 get_node()
 {
-    export NODEJS_KEY="usr/share/keyrings/nodesource.gpg"
+    export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
@@ -227,12 +227,22 @@ get_yarn()
     # yarn global add npm@latest
 }
 
+get_postgres()
+{
+    curl "https://www.postgresql.org/media/keys/ACCC4CF8.asc" | gpg --dearmor | tee "/etc/apt/trusted.gpg.d/apt.postgresql.org.gpg" >/dev/null
+    
+    echo "deb http://apt.postgresql.org/pub/repos/apt $DISTRO-pgdg main" > $APT_SOURCES/pgdg.list
+    
+    apt update
+    
+    # apt install postgresql postgresql-contrib postgresql-client
+}
 
 get_pgadmin()
 {
     export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
   
-    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
+    curl -fsSL "https://www.pgadmin.org/static/packages_pgadmin_org.pub" | gpg --dearmor -o $PGADMIN_KEY
 
     echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
 
