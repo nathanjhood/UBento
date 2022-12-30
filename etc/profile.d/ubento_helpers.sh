@@ -343,4 +343,5 @@ export ARCH="$(dpkg --print-architecture)"
 export APT_SOURCES="/etc/apt/sources.list.d"
 
 # Runtime Dir
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+# export XDG_RUNTIME_DIR="/run/user/$(id -u)" # for systemd
+export XDG_RUNTIME_DIR="/mnt/wslg/runtime-dir" # no systemd
