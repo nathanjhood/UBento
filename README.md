@@ -254,6 +254,7 @@ $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
 # optional - 'public' shared folder...
 $ ln -s "/mnt/c/Users/Public" "/home/{$username}/Public"
 $ ln -s "/mnt/c/Users/Public" "/root/Public"
+```
 
 
 Let's expand our $XDG_DOWNLOAD_DIR variable out...
@@ -360,59 +361,63 @@ Slick.
 
 First, do ```sudo -s```, then;
 
-    export DISTRO="$(lsb_release -s -c)"
-    export ARCH="$(dpkg --print-architecture)"
-    export APT_SOURCES="/etc/apt/sources.list.d"
-    
-    alias apt_cln='rm -rf /var/lib/apt/lists/*'
-    
-    get_chrome()
-    {
-        curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+```
+$ export DISTRO="$(lsb_release -s -c)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-        apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
-    }
+$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
-    get_gith()
-    {
-        export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
+$ get_chrome()
+{
+    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
+    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+}
 
-        echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
+$ get_gith()
+{
+    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
 
-        apt update
-    }
-    
-    get_chrome # Optional!!! Note that the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)
-    get_gith
-    apt install gh
-    
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
+
+    apt update
+}
+
+$ get_chrome # Optional!!! Note that the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)
+$ get_gith
+$ apt install gh
+```
+
 Following the above, you can ```exit``` back to your user account, then 
-    
-    export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
-    
-    alias g="git"
-    
-    g -g config user.name "<Your Git Name>"
-    g -g config user.email "<Your Git Email>"
-    
-    gh auth login
-    # Choose .ssh option... then;
-    
-    nano $HOME/.gitconfig
 
+```
+$ export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
+
+$ alias g="git"
+
+$ g -g config user.name "<Your Git Name>"
+$ g -g config user.email "<Your Git Email>"
+
+$ gh auth login
+# Choose .ssh option... then;
+
+$ nano $HOME/.gitconfig
+```
 
 Your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
 
-    export DEV_DIR="$HOME/Development"
-    
-    g clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
-    
-    # Or....
-    
-    gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
+```
+$ export DEV_DIR="$HOME/Development"
 
+$ g clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
+
+# Or....
+
+$ gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
+```
 
 Here are some other common tools for development - again, do ```sudo -s``` first (if you are running these commands directly from this README.md file);
 
@@ -794,51 +799,56 @@ To get back to the MS Store version from here, you can
 
 In "ubento_helpers.sh", we have a useful bash logic to check if a directory is present, and if so, to append it to a given variable, such as;
 
-    if [ -d "/usr/bin" ] ; then
-        PATH="/usr/bin:$PATH"
-    fi
+```
+if [ -d "/usr/bin" ] ; then
+    PATH="/usr/bin:$PATH"
+fi
 
-    if [ -d "/usr/local/games" ] ; then
-        PATH="/usr/local/games:$PATH"
-    fi
+if [ -d "/usr/local/games" ] ; then
+    PATH="/usr/local/games:$PATH"
+fi
 
-    if [ -d "$HOME/.local/bin" ] ; then
-        PATH="$HOME/.local/bin:$PATH"
-    fi
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
 
-    export PATH
+export PATH
+```
 
 Make sure that you always append (for example) ```":$PATH"``` in these cases, in order to retain the previously-set values on this variable. The ```$PATH``` variable in particular *should* also contain your full Windows PATH variable, when expanded;
 
-    echo $PATH
-    # This list should contain all your Windows PATH entries as well as your distro's...
+```
+$ echo $PATH
+# This list should contain all your Windows PATH entries as well as your distro's...
+```
 
 If you don't see your Windows env paths in the terminal on calling the above, check all of your ```$PATH``` calls in ```/etc/profile```, ```$HOME/.profile```, and the ```/etc/wsl.conf``` interoperability settings. Furthermore, when installing new software on the Linux-side, these occasionally attempt to add further values to certain variables such as ```$PATH```, so try to keep a check on it's output behaviour.
 
 You could adapt a tidy function like the one below, if you prefer (note that the logic differs, though);
 
-    # Append "$1" to $PATH when not already in.
-    # Copied from Arch Linux, see #12803 for details.
-    append_path () {
-          case ":$PATH:" in
-                  *:"$1":*)
-                          ;;
-                  *)
-                          PATH="${PATH:+$PATH:}$1"
-                          ;;
-          esac
-    }
+```
+# Append "$1" to $PATH when not already in.
+# Copied from Arch Linux, see #12803 for details.
+append_path () {
+      case ":$PATH:" in
+              *:"$1":*)
+                      ;;
+              *)
+                      PATH="${PATH:+$PATH:}$1"
+                      ;;
+      esac
+}
 
-    append_path "/usr/local/sbin"
-    append_path "/usr/local/bin"
-    append_path "/usr/sbin"
-    append_path "/usr/bin"
-    append_path "/sbin"
-    append_path "/bin"
-    unset -f append_path
+append_path "/usr/local/sbin"
+append_path "/usr/local/bin"
+append_path "/usr/sbin"
+append_path "/usr/bin"
+append_path "/sbin"
+append_path "/bin"
+unset -f append_path
 
-    export PATH
-
+export PATH
+```
 
 ## Bash Completion
 
@@ -853,11 +863,13 @@ Let's look at a few things we can do.
 
 - option 1; Convert from ```docker export``` .tar-format distro named 'Ubuntu' to .vhdx-format distro named 'UBento', while storing a mountable backup (.vhdx) of 'Ubuntu' along the way;
 
-      wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
-      wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
-      wsl --unregister Ubuntu
-      wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
-   
+```
+> wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
+> wsl --export Ubuntu "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+> wsl --unregister Ubuntu
+> wsl --import UBento "D:\UBento" "D:\Backup\Ubuntu_22_04_1_LTS.vhdx" --vhd
+```
+
 Note that we imported Ubuntu from a ```.tar``` file, exported it into a resizeable ```.vhdx```, then re-imported that ```.vhdx``` under a new distro name.
 
 So in fact, the ```wsl --export/unregister Ubuntu``` steps above are *optional* - you can keep *both* distros on your WSL simultaneously, if you like; simply point the ```wsl --import``` argument at *any* destination folder, followed by *any* Linux distro (stored in .tar or .vhd/x format), using whatever unique distro name you like (i.e., 'Ubuntu', 'UBento'...).
@@ -865,36 +877,43 @@ So in fact, the ```wsl --export/unregister Ubuntu``` steps above are *optional* 
 
 - option 2; Convert an ```ubuntu.tar``` backup file, to a mounted ```.vhdx``` containing distro named 'UBento', without storing a backup;
 
-      wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
-    
+```
+> wsl --import UBento "C:\my\install\folder" "C:\my\backup\folder\ubuntu.tar"
+```
+
 - option 3; Just import a ```.vhd/x``` from storage directly;
 
-      wsl --import-in-place "C:\my\install\folder\ubuntu.vhdx"
-
+```
+> wsl --import-in-place "C:\my\install\folder\ubuntu.vhdx"
+```
 
 - Docker desktop and data storage (including images) can be managed in the exact same way;
-    
-      # Front end storage...
-      
-      wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
-      wsl --unregister docker-desktop
-      wsl --import docker-desktop "D:\Docker" "D:\Backup\Docker_desktop.vhdx" --vhd
 
-      
-      # Back end storage...
-      
-      wsl --export docker-desktop-data "D:\Backup\Docker_desktop_data.vhdx" --vhd
-      wsl --unregister docker-desktop-data
-      wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
-    
+```
+# Docker front-end storage...
 
-- All of the above can also be run from another WSL distro's terminal by creating an alias;
+> wsl --export docker-desktop "D:\Backup\Docker_desktop.vhdx" --vhd
+> wsl --unregister docker-desktop
+> wsl --import docker-desktop "D:\Docker" "D:\Backup\Docker_desktop.vhdx" --vhd
 
-      alias wsl='/mnt/c/Windows/System32/wsl.exe'
-    
-      wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
-    
-      # etc...
+
+# Docker back-end storage...
+
+> wsl --export docker-desktop-data "D:\Backup\Docker_desktop_data.vhdx" --vhd
+> wsl --unregister docker-desktop-data
+> wsl --import docker-desktop-data "D:\Docker\Data" "D:\Backup\Docker_desktop_data.vhdx" --vhd
+```
+
+
+- All of the above can also be run from another WSL distro's terminal (```$```) by creating an alias;
+
+```
+$ alias wsl='/mnt/c/Windows/System32/wsl.exe'
+
+$ wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
+
+# etc...
+```
 
 
 ## Windows Terminal and launcher
@@ -903,7 +922,7 @@ It's easy to launch UBento from the excellent new Windows Terminal app, by simpl
 
 ```
 C:\WINDOWS\system32\wsl.exe -d UBento
-´´´
+```
 
 Launching this profile should place you directly in your home folder as your user, which in turn will also call the initialization routines we have set up so far.
 
