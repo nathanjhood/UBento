@@ -1,6 +1,16 @@
 # UBento
 Minimal Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
+Quick usage (see 'requirements');
+
+```
+$ docker run -it ubuntu bash ls /
+$ docker export -o "/mnt/c/Users/{$username}/ubuntu.tar"  <distronumber>
+> wsl --import UBento "C:\Users\{$username}" "C:\Users\{$username}\ubuntu.tar"
+> wsl -d Ubento
+# swap bash env, profile, and WSL files and reboot!
+```
+
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 ## About
