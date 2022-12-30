@@ -255,13 +255,13 @@ By providing symbolic links to our Windows user folders, we can get some huge be
 
 ```
 # Logged in as user, NOT root(!);
-$ ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop" && \
-$ ln -s "/mnt/c/Users/{$username}/Documents"  "/home/{$username}/Documents" && \
-$ ln -s "/mnt/c/Users/{$username}/Downloads"  "/home/{$username}/Downloads" && \
-$ ln -s "/mnt/c/Users/{$username}/Music"      "/home/{$username}/Music" && \
-$ ln -s "/mnt/c/Users/{$username}/Pictures"   "/home/{$username}/Pictures" && \
-$ ln -s "/mnt/c/Users/{$username}/Templates"  "/home/{$username}/Templates" && \
-$ ln -s "/mnt/c/Users/{$username}/Videos"     "/home/{$username}/Videos"
+$ ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop"   && \
+ln -s "/mnt/c/Users/{$username}/Documents"    "/home/{$username}/Documents" && \
+ln -s "/mnt/c/Users/{$username}/Downloads"    "/home/{$username}/Downloads" && \
+ln -s "/mnt/c/Users/{$username}/Music"        "/home/{$username}/Music"     && \
+ln -s "/mnt/c/Users/{$username}/Pictures"     "/home/{$username}/Pictures"  && \
+ln -s "/mnt/c/Users/{$username}/Templates"    "/home/{$username}/Templates" && \
+ln -s "/mnt/c/Users/{$username}/Videos"       "/home/{$username}/Videos"
 
 # optional - logged in as root;
 $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
