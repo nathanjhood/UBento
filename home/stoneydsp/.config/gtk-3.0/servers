@@ -5,7 +5,7 @@
     <bookmark href="ftp://ftp.gnome.org/">
         <title>GNOME FTP</title>
     </bookmark>
-    <bookmark href="ftp://ftp.gnu.org/">
+    <bookmark href="http://ftp.gnu.org/">
         <title>GNU FTP</title>
     </bookmark>
 </xbel>
