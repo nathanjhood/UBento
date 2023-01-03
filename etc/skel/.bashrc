@@ -1,12 +1,29 @@
+# ~/.bashrc
 
-# ~/.bashrc: executed by bash(1) for non-login shells.
+# Personal aliases and functions.
+
+# Personal environment variables and startup programs should go in ~/.bash_profile.
+# System wide environment variables and startup programs are in /etc/profile.
+# System wide aliases and functions are in /etc/bashrc.
+
+# executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-echo "$USER loading $HOME/.bashrc..."
+# Begin ~/.bashrc
+echo "$0; # $USER loading $HOME/.bashrc..."
+
+# Source global definitions
+# if [ -f "/etc/bash.bashrc" ] ; then
+#     source "/etc/bash.bashrc"
+# fi
+
+# if [ -f "/etc/bashrc" ]; then
+#     source "/etc/bashrc"
+# fi
 
 # History Options
 
@@ -56,9 +73,6 @@ set -o notify
 # Don't use ^D to exit
 set -o ignoreeof
 
-
-
-
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
@@ -79,32 +93,20 @@ force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
-export CLICOLOR="1"
 if [ "$color_prompt" = yes ]; then
-
-  if [ "GIT_PS1_SHOWDIRTYSTATE" = "1" ]; then
-     export PS1="\[\033[40m\]\[\033[34m\][ \u@\H:\[\033[36m\]\w\$(__git_ps1 \" \[\033[35m\]{\[\033[32m\]%s\[\033[35m\]}\")\[\033[34m\] ]$\[\033[0m\] "
-  else
-     export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-  fi
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
-  if [ "GIT_PS1_SHOWDIRTYSTATE" = "1" ]; then
-    export PS1="\[\033[40m\]\[\033[34m\][ \u@\H:\[\033[36m\]\w\[\033[34m\] ]$\[\033[0m\] "
-  else
-    export PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-  fi
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
-
-unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -174,7 +176,22 @@ fi
 
 # Colorize grep
 if echo hello|grep --color=auto l >/dev/null 2>&1; then
-  export GREP_OPTIONS="--color=auto" GREP_COLOR="1;31"
+    export GREP_OPTIONS="--color=auto" GREP_COLOR="1;31"
 fi
 
-echo "...$USER loaded $HOME/.bashrc"
+# User specific aliases and functions
+if [ -d "$HOME/.bashrc.d" ]; then
+    for rc in "$HOME/.bashrc.d"/*; do
+        if [ -f "$rc" ]; then
+            source "$rc"
+        fi
+    done
+fi
+
+unset color_prompt force_color_prompt rc
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+echo "$0; # ...$USER loaded $HOME/.bashrc"
+# End ~/.bashrc
