@@ -12,7 +12,7 @@ media/
 mnt/
 opt/
 proc/
-root/
+#root/
 run/
 sbin/
 srv/
