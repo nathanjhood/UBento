@@ -1,0 +1,23 @@
+# /etc/environment
+
+# This file is parsed by pam_env module
+# Syntax: simple "KEY=VAL" pairs on separate lines
+# PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/pgsql/bin"
+
+# Begin /etc/environment
+
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+INFOPATH="/usr/share/info:/usr/local/info:/usr/info:/share/info"
+MANPATH="/usr/share/man:/usr/local/man:/share/man:/usr/man"
+
+XDG_DATA_DIRS="/usr/share/ubuntu:/usr/local/share:/usr/share"
+XDG_CONFIG_DIRS="/etc/xdg/xdg-ubuntu:/etc/xdg"
+
+INPUTRC="/etc/inputrc"
+LANG="C.UTF-8"
+CHARSET="UTF-8"
+PAGER="less"
+
+LIBGL_ALWAYS_INDIRECT="1"
+
+# End /etc/environment

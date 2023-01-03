@@ -1,4 +1,21 @@
-# System-wide .bashrc file for interactive bash(1) shells.
+# /etc/bash.bashrc
+
+# System-wide aliases and functions.
+
+# To the extent possible under law, the author(s) have dedicated all copyright
+# and related and neighboring rights to this software to the public domain
+# worldwide. This software is distributed without any warranty. You should have
+# received a copy of the CC0 Public Domain Dedication along with this software.
+# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+
+# It's NOT a good idea to change this file unless you know what you are doing.
+# It's much better to create a custom.sh shell script in /etc/profile.d/ to
+# make custom changes to your environment, as this will prevent the need for
+# merging in future updates.
+
+# System-wide environment variables and startup programs should go in /etc/profile.
+# Personal environment variables and startup programs should go in ~/.bash_profile.
+# Personal aliases and functions should go in ~/.bashrc.
 
 # To enable the settings / commands in this file for login shells as well,
 # this file has to be sourced in /etc/profile.
@@ -6,7 +23,23 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-echo "$USER loading /etc/bash.bashrc..."
+# Begin /etc/bash.bashrc
+echo "$0; # $USER loading /etc/bash.bashrc..."
+
+# Provides colored /bin/ls commands.
+# Used in conjunction with code in /etc/profile.d/color_ls.sh
+alias ls='ls --color=auto'
+
+# Provides colored /bin/grep commands.
+# Used in conjunction with code in /etc/profile.d/color_grep.sh
+grep --help | grep color  >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    alias grep='grep --color=auto'
+fi
+
+if test -n "$SSH_CONNECTION" -a -z "$PROFILEREAD"; then
+    . "/etc/profile" > /dev/null 2>&1
+fi
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
@@ -16,7 +49,7 @@ fi
 # set a fancy prompt (non-color, overwrite the one in /etc/profile)
 # but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
 if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
-  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 
 # Commented out, don't overwrite xterm -T "title" -n "icontitle" by default.
@@ -28,15 +61,6 @@ fi
 #*)
 #    ;;
 #esac
-
-# enable bash completion in interactive shells
-if ! shopt -oq posix; then
-  if [ -f "/usr/share/bash-completion/bash_completion" ]; then
-    source "/usr/share/bash-completion/bash_completion"
-  elif [ -f "/etc/bash_completion" ]; then
-    source "/etc/bash_completion"
-  fi
-fi
 
 # sudo hint
 if [ ! -e "$HOME/.sudo_as_admin_successful" ] && [ ! -e "$HOME/.hushlogin" ] ; then
@@ -53,19 +77,20 @@ fi
 
 # if the command-not-found package is installed, use it
 if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-not-found ]; then
-	function command_not_found_handle {
-	        # check because c-n-f could've been removed in the meantime
-                if [ -x /usr/lib/command-not-found ]; then
-		   /usr/lib/command-not-found -- "$1"
-                   return $?
-                elif [ -x /usr/share/command-not-found/command-not-found ]; then
-		   /usr/share/command-not-found/command-not-found -- "$1"
-                   return $?
-		else
-		   printf "%s: command not found\n" "$1" >&2
-		   return 127
-		fi
-	}
+    function command_not_found_handle {
+        # check because c-n-f could've been removed in the meantime
+        if [ -x /usr/lib/command-not-found ]; then
+            /usr/lib/command-not-found -- "$1"
+            return $?
+        elif [ -x /usr/share/command-not-found/command-not-found ]; then
+            /usr/share/command-not-found/command-not-found -- "$1"
+            return $?
+        else
+            printf "%s: command not found\n" "$1" >&2
+            return 127
+        fi
+    }
 fi
 
-echo "...$USER loaded /etc/bash.bashrc"
+echo "$0; # ...$USER loaded /etc/bash.bashrc"
+# End /etc/bash.bashrc
