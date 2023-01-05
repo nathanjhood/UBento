@@ -445,6 +445,9 @@ $ export APT_SOURCES="/etc/apt/sources.list.d"
 
 $ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
+# Requirements...
+$ apt install curl wget git gpg
+
 $ get_chrome()
 {
     curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
