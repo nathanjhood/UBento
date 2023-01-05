@@ -487,6 +487,7 @@ $ g config --global user.name "<Your Git Name>"
 $ g config --global user.email "<Your Git Email>"
 $ gh auth login
 # Choose .ssh option... then;
+$ gh auth setup-git
 
 $ nano $HOME/.gitconfig
 ```
