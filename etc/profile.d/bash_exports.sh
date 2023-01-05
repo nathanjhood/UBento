@@ -17,7 +17,7 @@ export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print
 # export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
 
 # Unencrypted X session address (if authentication fails, swap the above for this...)
-export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
+#export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
 #GL rendering
 export LIBGL_ALWAYS_INDIRECT=1

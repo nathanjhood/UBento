@@ -17,7 +17,7 @@
 
     "editor.renderFinalNewline": true,
     "editor.trimAutoWhitespace": true,
-    "editor.tabSize": 2,
+    "editor.tabSize": 4,
 
     "files.encoding": "utf8",
     "files.eol": "\n",
