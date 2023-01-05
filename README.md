@@ -1,5 +1,5 @@
 # UBento
-Minimal Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
+Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
 Quick usage (see 'requirements');
 
@@ -54,7 +54,7 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 
 - Run the suggested instructions in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but obviously don't bother entering the comment lines (```#```). Make sure to fill in the blanks where ```<variables>``` are concerned.
 
-- You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will roughly double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
+- You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will less-than-double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
 
 - Systemd-dependent services and apps are a big investment beyond the original minimized state of the distro, but are often key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid systemd for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```. 
 
