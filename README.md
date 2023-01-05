@@ -13,11 +13,11 @@ Quick usage (see 'requirements');
 
 ## About
 
-The Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. 
+The WSL Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. 
 
-It also contains a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
+The MS Store Ubuntu distro also contains quite a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
-Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and in many cases, highly improved runtime performances.
+Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and - in many cases, - highly improved runtime performances.
 
 
 ## Customisation and tailoring your build to focus only on your needs
@@ -52,11 +52,11 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 
 ## Notes:
 
-- Run the suggested instructions in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but obviously don't bother entering the comment lines (```#```).
+- Run the suggested instructions in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but obviously don't bother entering the comment lines (```#```). Make sure to fill in the blanks where ```<variables>``` are concerned.
 
 - You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will roughly double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
 
-- Systemd is a big investment beyond the original minimized state of the distro, but is key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid it for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```. 
+- Systemd-dependent services and apps are a big investment beyond the original minimized state of the distro, but are often key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid systemd for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```. 
 
 - Neither ```unminimize``` nor systemd are really required for most developing purposes - see [TIPS]. 
 
@@ -136,18 +136,21 @@ The below steps are to be run from within your new WSL Ubuntu-based bash termina
 ```
 $ chmod 755 /
 $ apt update && apt install apt-utils dialog
+
+# If you need superuser accesses...
+$ apt install sudo && sudo -s
       
 # If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
 $ yes | unminimize
 
 # Choose which base packages you need, I suggest these something like these...
-$ apt install sudo vim nano less manpages gawk grep bash-completion bash-doc git curl wget libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs openssl ca-certificates lsb-release xauth
-      
+$ apt install less manpages nano vim gawk grep bash-completion bash-doc git curl wget libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs openssl ca-certificates lsb-release xauth
+
 # Clear the APT cache if you like...
 $ rm -rf /var/lib/apt/lists/*
 ```
 
-## Copy UBento files over with curl/wget/git;
+## [SETUP FILES]
 
 (tbc - could just place a bash script and use curl/wget/git to fetch everything...)
 
@@ -157,23 +160,26 @@ $ rm -rf /var/lib/apt/lists/*
 # accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas. 
 # Here's an example where we've git cloned it to our Windows home folder;
 
-$ export UBENTO_WIN_REPO="/mnt/c/Users/{$username}/repos/ubento"
+$ export UBENTO_WIN_REPO="/mnt/c/Users/${USER}/repos/ubento"
 
 $ git clone "https://github.com/StoneyDSP/ubento.git" "$UBENTO_WIN_REPO"
 
-$ yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/ubento_helpers.sh" "/etc/profile.d/ubento_helpers.sh" && \
-yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.profile"                 "/etc/skel/.profile"               && \
+$ yes | cp -f "$UBENTO_WIN_REPO/etc/profile.d/*.sh"              "/etc/profile.d/*.sh"              && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bash_profile"            "/etc/skel/.bash_profile"          && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bash_logout"             "/etc/skel/.bash_logout"           && \
 yes | cp -f "$UBENTO_WIN_REPO/etc/skel/.bashrc"                  "/etc/skel/.bashrc"                && \
 yes | cp -f "$UBENTO_WIN_REPO/etc/bash.bashrc"                   "/etc/bash.bashrc"                 && \
 yes | cp -f "$UBENTO_WIN_REPO/etc/profile"                       "/etc/profile"                     && \
+yes | cp -f "$UBENTO_WIN_REPO/etc/environment"                   "/etc/environment"                 && \
 yes | cp -f "$UBENTO_WIN_REPO/root/.bashrc"                      "/root/.bashrc"                    && \
-yes | cp -f "$UBENTO_WIN_REPO/root/.profile"                     "/root/.profile"
+yes | cp -f "$UBENTO_WIN_REPO/root/.bash_profile"                "/root/.bash_profile"
+# ...and so forth (will script this at some point!)
 
 # *optional, see final post-install step (this file MUST contain your username in the correct field before we reboot!)
 $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 ```
 
-## Create user 
+## [CREATE USER] 
 
 - named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password for your new user;
 
@@ -181,17 +187,16 @@ $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 $ export username="<Your Username Name>"
 $ export fullname="<Your Full Name>"
 
-$ adduser --home=/home/$username --shell=/usr/bin/bash --gecos=$fullname --uid=1000 $username
+$ adduser --home=/home/"${username}" --shell=/bin/bash --gecos="${fullname}" --uid=1000 "${username}"
 
-$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev $username
+$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev "${username}"
 ```
 
 - Modify ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
 
 ```
 $ echo -e "[network]\n hostname=localhost\n" >> /etc/wsl.conf
-$ echo -e "[user]\n default=$username\n" >> /etc/wsl.conf
-$ "/mnt/c/windows/wsl.exe" -t UBento
+$ echo -e "[user]\n default=${username}\n" >> /etc/wsl.conf
 ```
 
 *The purpose of this last step is so that the ```[user] default=``` section of your ```/etc/wsl.conf``` contains your username, to ensure we boot into this profile later on our next launch... see next step)
@@ -200,8 +205,22 @@ $ "/mnt/c/windows/wsl.exe" -t UBento
 Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure here on this first re-launch, as this *ensures* we run finish critical initialization procedure correctly!)
 
 ```
-> wsl -d UBento --user "{$username}"
+> wsl -d UBento --shutdown
+> wsl -d UBento --user "${username}"
 ```
+
+
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
+
+
+## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
+
+
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
+
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
 
 ## [INTEROPERABILITY]
 
@@ -214,7 +233,7 @@ $ docker run hello-world
 $ docker run -it ubuntu bash
 ```
 
-- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/ubento_helpers.sh``` like this;
+- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
 
 ```
 alias wsl='/mnt/c/Windows/System32/wsl.exe'
@@ -240,83 +259,73 @@ code .
 ```
 
 
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
-
-## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
-
-...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
-
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
-
-## [DEFINING RUNTIME BEHAVIOUR]
-
-This step need not apply if you are happy running Linux GUI apps (with excellent performance) but aren't looking to explore the desktop capabilities of your distro. GUI apps will already be working smoothly at this stage, directly from their Windows launchers. But if you're doing anything that requires systemd to be installed, then it is quite important provide some control over certain system-level runtime behaviours; particularly, for our user's first launch into systemd.
-
-```
-$ echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
-```
-
-Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
-
-```
-set_runtime_dir
-set_session_bus
-
-# https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-```
-
-Setup systemd/dbus and accessibility bus, do a full shutdown;
-
-```
-$ apt install systemd dbus at-spi2-core
-$ wsl.exe -d UBento --shutdown
-```
-
-## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
-
-- launch distro as root to install apt-utils, dialog, and sudo
-- copy ubuntu-helpers/profile/bashrc/wsl.conf files
-- add new user and password
-- install systemd/dbus/at-spi2-core
-- shutdown distro and reboot as new user
-
-
-*this sequence ensures that when the distro default user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT have access to these functions (they should not be present at all in ```/root/.profile```).
-
-
 ## [DESKTOP SETTINGS]
 
+Now we can make ourselves at home in the ```$HOME``` folder. 
 
-The user-local ```$HOME/.profile``` file will contain several pointers for our desktop environment, including additional bin and man paths, as well as linkage to our home folders - we don't need to set these ourselves as they will have been pulled in from ```/etc/skel``` when we created our user (see previous steps!), but these are useful to be aware of when setting up our desktop;
+The user-local ```$HOME/.bash_profile``` file will contain several pointers for our desktop environment, including additional bin and man paths, as well as linkage to our home folders - we don't need to set these ourselves as they will have been pulled in from ```/etc/skel``` when we created our user (see previous steps!), but these are useful to be aware of when setting up our desktop;
 
 ```
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+if [ -d "$HOME/man" ]; then
+    MANPATH="$HOME/man:$MANPATH"
+fi
+
+if [ -d "$HOME/info" ]; then
+    INFOPATH="$HOME/info:$INFOPATH"
+fi
+
+export PATH MANPATH INFOPATH
+
+if [ -z "$XDG_CONFIG_HOME" ]; then
+    export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+if [ -z "$XDG_CACHE_HOME" ]; then
+    export XDG_CACHE_HOME="$HOME/.cache"
+fi
+
+if [ -z "$XDG_DATA_HOME" ]; then
+    export XDG_DATA_HOME="$HOME/.local/share"
+fi
+
+if [ -z "$XDG_STATE_HOME" ]; then
+    export XDG_STATE_HOME="$HOME/.local/state"
+fi
+
 export XDG_DESKTOP_DIR="$HOME/Desktop"
-export XDG_DOWNLOAD_DIR="$HOME/Downloads"
-export XDG_TEMPLATES_DIR="$HOME/Templates"
-export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_DOCUMENTS_DIR="$HOME/Documents"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
 export XDG_MUSIC_DIR="$HOME/Music"
+export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_PICTURES_DIR="$HOME/Pictures"
+export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_VIDEOS_DIR="$HOME/Videos"
-export XDG_CONFIG_HOME="$HOME/.config"
 ``` 
 
-Now we should start making ourselves at home in the ```$HOME``` folder. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
+The directories indicated in all of the above *should* exist in some form, for a working desktop. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
 
-By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly open it from your WSL user's downloads folder, for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either (or a mix) of the following;
+By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly access it from your WSL user's downloads folder (which is the exact same file address), for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either, or a mix, of the following;
 
 
 ## option 1 - linked storage; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
 ```
 # Logged in as user, NOT root(!);
-$ ln -s "/mnt/c/Users/{$username}/Desktop"    "/home/{$username}/Desktop"   && \
-ln -s "/mnt/c/Users/{$username}/Documents"    "/home/{$username}/Documents" && \
-ln -s "/mnt/c/Users/{$username}/Downloads"    "/home/{$username}/Downloads" && \
-ln -s "/mnt/c/Users/{$username}/Music"        "/home/{$username}/Music"     && \
-ln -s "/mnt/c/Users/{$username}/Pictures"     "/home/{$username}/Pictures"  && \
-ln -s "/mnt/c/Users/{$username}/Templates"    "/home/{$username}/Templates" && \
-ln -s "/mnt/c/Users/{$username}/Videos"       "/home/{$username}/Videos"
+$ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
+ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
+ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
+ln -s "/mnt/c/Users/${username}/Music"        "/home/${username}/Music"     && \
+ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
+ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
+ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
 
 # optional - logged in as root;
 $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
@@ -324,7 +333,7 @@ $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
 $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
     
 # optional - 'public' shared folder...
-$ ln -s "/mnt/c/Users/Public" "/home/{$username}/Public"
+$ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
 $ ln -s "/mnt/c/Users/Public" "/root/Public"
 ```
 
@@ -333,14 +342,14 @@ Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
 ```
 # (this is NOT a terminal command!!!)
-XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/{$username}/Downloads = /mnt/c/{$username}/Downloads"
+XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
 ```
 
 The exact same directory (and it's contents) on the Windows side...
 
 ```
 # (this is NOT a terminal command!!!)
-"$HOME\Downloads" = "C:\Users\{$username}\Downloads" = "\\wsl.localhost\UBento\home\{$username}\Downloads"
+"$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
 ```      
 
 All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
@@ -376,12 +385,12 @@ nano $HOME/.config/gtk-3.0/bookmarks
 add the following:
 
 ```
-file:///home/{$username}/Desktop
-file:///home/{$username}/Documents
-file:///home/{$username}/Downloads
-file:///home/{$username}/Music
-file:///home/{$username}/Pictures
-file:///home/{$username}/Videos
+file:///home/${USER}/Desktop
+file:///home/${USER}/Documents
+file:///home/${USER}/Downloads
+file:///home/${USER}/Music
+file:///home/${$USER}/Pictures
+file:///home/${USER}/Videos
 ```
 
 These locations will now appear in the tab bar of your Linux-side desktop explorer, as they should.
@@ -429,9 +438,9 @@ Slick.
 
 ## [DEVTOOLS KEYRING]
 
-*NOTE: These are all defined in "ubento_helpers.sh" with the correct calls to ```sudo``` where needed, reproduced here in altered form for convenience and testing. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
+Requires some of the basic packages from earlier, such as wget/curl/git.
 
-First you will of course need some of the basic packages from earlier; once prepared suitably, do ```sudo -s```, then;
+*NOTE: These bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. These are reproduced here in altered form for convenience and testing. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
 
 ```
 $ export DISTRO="$(lsb_release -cs)"
@@ -458,9 +467,13 @@ $ get_gith()
     apt update
 }
 
-$ get_chrome # Optional!!! Note that the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)
+# Optionally install Chrome...*
+$ get_chrome  
+
 $ get_gith
 $ apt install gh
+
+# * *Note that if you have w3m installed by now, the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)*
 ```
 
 Following the above, you can ```exit``` back to your user account, then 
@@ -675,11 +688,47 @@ Here are some other common tools for development - again, do ```sudo -s``` first
       }
 
 
+## [DEFINING RUNTIME BEHAVIOUR]
+
+This step need not apply if you are happy running Linux GUI apps (with excellent performance) but aren't looking to explore the desktop capabilities of your distro. GUI apps will already be working smoothly at this stage, directly from their Windows launchers. But if you're doing anything that requires systemd to be installed, then it is quite important provide some control over certain system-level runtime behaviours; particularly, for our user's first launch into systemd.
+
+```
+$ echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
+```
+
+Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
+
+```
+set_runtime_dir
+set_session_bus
+
+# https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
+```
+
+Setup systemd/dbus and accessibility bus, do a full shutdown;
+
+```
+$ apt install systemd dbus at-spi2-core
+$ wsl.exe -d UBento --shutdown
+```
+
+## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
+
+- launch distro as root to install apt-utils, dialog, and sudo
+- copy ubuntu-helpers/profile/bashrc/wsl.conf files
+- add new user and password
+- install systemd/dbus/at-spi2-core
+- shutdown distro and reboot as new user
+
+
+*this sequence ensures that when the distro default user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT have access to these functions (they should not be present at all in ```/root/.profile```).
+
+
 ## [X-SERVER DISPLAY]
 
 https://en.wikipedia.org/wiki/X_Window_authorization
 
-(tbc)
+(tbc - this is a rough sketch of the idea...)
 
     sudo apt install xauth resolveconf scp
     # Just in case...!
@@ -687,7 +736,7 @@ https://en.wikipedia.org/wiki/X_Window_authorization
     # Set some easy names...
     alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
     alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
-    alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//{username}//.Xauthority"
+    alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//${username}//.Xauthority"
     alias xauth_lin="xauth"
 
     sudo_autopasswd()
@@ -765,7 +814,8 @@ https://en.wikipedia.org/wiki/X_Window_authorization
         # Useage of cp should be substituted for scp, possibly via SSH...?
         # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
         # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
-        # Furthermore, would be ideal to store cookie in /run/user/1000...!
+        # Hmmm, what's this "XAUTHORITY" variable about...?
+        # Furthermore, would be ideal to store cookie in $XDG_RUNTIME_DIR!
     }
     
 Call the authentication function (this still needs some work - stay tuned!);
@@ -813,6 +863,12 @@ Windows Subsystem for Linux;
 Restart your Windows machine once the above is complete.
 
 
+## Storage considerations
+
+
+Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from a removable storage drive, like USB or SD card. While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. Desktop linkage is really cool, as is external storage - but I'd have to recommend not to mix the two, in the case of WSL.
+
+
 ## Still having package/service dependency issues?
     
 The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. 
@@ -838,7 +894,7 @@ To get back to the MS Store version from here, you can
 
 ## Making the most of your $PATHS variable:
 
-In "ubento_helpers.sh", we have a useful bash logic to check if a directory is present, and if so, to append it to a given variable, such as;
+In "bash_paths.sh", we have a useful bash logic to check if a directory is present, and if so, to append it to a given variable, such as;
 
 ```
 if [ -d "/usr/bin" ] ; then
@@ -956,6 +1012,12 @@ $ wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
 # etc...
 ```
 
+## Interoperability with Fonts and Wallpapers
+
+Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
+
+*The official Ubuntu fonts are here - https://design.ubuntu.com/font/
+
 
 ## Windows Terminal and launcher
 
@@ -975,12 +1037,10 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
     "$schema": "https://aka.ms/terminal-profiles-schema",
     "profiles": 
     {
-        "defaults": {},
         "list": 
         [
             {
                 "colorScheme": "StoneyDSP",
-                "guid": "{0b1af041-64fe-58fa-9cc2-a6c18bd72de4}",
                 "hidden": false,
                 "icon": "C:\\Users\\{username}\\repos\\ubento\\ubento.png",
                 "name": "UBento",
@@ -994,7 +1054,7 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
             "background": "#300A24",
             "black": "#000000",
             "blue": "#0000CC",
-            "brightBlack": "#000000",
+            "brightBlack": "#444444",
             "brightBlue": "#0000FF",
             "brightCyan": "#00FFFF",
             "brightGreen": "#00FF00",
@@ -1010,9 +1070,9 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
             "purple": "#CC00CC",
             "red": "#CC0000",
             "selectionBackground": "#FFFFFF",
-            "white": "#FFFFFF",
+            "white": "#CCCCCC",
             "yellow": "#CCCC00"
-        },
+        }
     ]
 }
 ```
