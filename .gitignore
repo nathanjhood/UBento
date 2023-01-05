@@ -1,4 +1,4 @@
-bin/
+#bin/
 boot/
 dev/
 #etc/
@@ -21,7 +21,7 @@ tmp/
 usr/
 var/
 
-/bin
+#/bin
 /lib
 /lib32
 /lib64
