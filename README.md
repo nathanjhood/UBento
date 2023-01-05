@@ -209,6 +209,19 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 > wsl -d UBento --user "${username}"
 ```
 
+
+From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
+
+
+## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
+
+
+...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
+
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
+
 ## [INTEROPERABILITY]
 
 - Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
@@ -244,15 +257,6 @@ code .
 # Will run an installation step for 'vscode-server-remote' on first run....
 # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
 ```
-
-
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
-
-## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
-
-...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
-
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 
 ## [DESKTOP SETTINGS]
