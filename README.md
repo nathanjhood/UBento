@@ -62,7 +62,7 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 
-To get started, run the below in either your Windows Powershell (```>```);
+To get started, run the below in either your Windows Powershell (```>```) or your Linux Bash (```$```) terminal;
 
 
 ## [PRE-INSTALL]
@@ -361,6 +361,7 @@ $HOME/Documents \
 $HOME/Downloads \
 $HOME/Music \
 $HOME/Pictures \
+$HOME/Public \
 $HOME/Templates \
 $HOME/Videos
 ```
@@ -384,7 +385,7 @@ file:///home/${USER}/Desktop
 file:///home/${USER}/Documents
 file:///home/${USER}/Downloads
 file:///home/${USER}/Music
-file:///home/${$USER}/Pictures
+file:///home/${USER}/Pictures
 file:///home/${USER}/Videos
 ```
 
@@ -466,7 +467,7 @@ $ get_gith()
 $ get_chrome  
 
 $ get_gith
-$ apt install gh
+
 
 # * *Note that if you have w3m installed by now, the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)*
 ```
@@ -478,16 +479,16 @@ $ export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
 
 $ alias g="git"
 
-$ g -g config user.name "<Your Git Name>"
-$ g -g config user.email "<Your Git Email>"
-
+$ sudo apt install gh
+$ g config --global user.name "<Your Git Name>"
+$ g config --global user.email "<Your Git Email>"
 $ gh auth login
 # Choose .ssh option... then;
 
 $ nano $HOME/.gitconfig
 ```
 
-Your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
+As nano shows, your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
 
 ```
 $ export DEV_DIR="$HOME/Development"
@@ -505,13 +506,13 @@ Here are some other common tools for development - again, do ```sudo -s``` first
 - Node (latest)
 
 ```
-export DISTRO="$(lsb_release -cs)"
-export ARCH="$(dpkg --print-architecture)"
-export APT_SOURCES="/etc/apt/sources.list.d"
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-export SYS_NODE_V="node_19.x"
+$ export SYS_NODE_V="node_19.x"
 
-get_node()
+$ get_node()
 {
     export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
@@ -524,19 +525,19 @@ get_node()
     apt update
 }
 
-apt install nodejs
+$ apt install nodejs
 
-npm --global install npm@latest
+$ npm --global install npm@latest
 ```
 
 
 - Yarn (latest)
 
 ```
-export ARCH="$(dpkg --print-architecture)"
-export APT_SOURCES="/etc/apt/sources.list.d"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-get_yarn()
+$ get_yarn()
 {
     export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
 
@@ -547,19 +548,19 @@ get_yarn()
     apt update
 }
 
-apt install yarn
+$ apt install yarn
 
-yarn global add npm@latest
+$ yarn global add npm@latest
 ```
 
 
 - PGAdmin (for PostgreSQL)
 
 ```
-export DISTRO="$(lsb_release -cs)"
-export APT_SOURCES="/etc/apt/sources.list.d"
+$ export DISTRO="$(lsb_release -cs)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-get_pgadmin()
+$ get_pgadmin()
 {
     export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
 
@@ -571,10 +572,10 @@ get_pgadmin()
 }
 
 # Might be needed - make sure to generate the bash completion scripts!
-apt install postgresql postgresql-contrib apache2 apache2-doc
+$ apt install postgresql postgresql-contrib apache2 apache2-doc
 
 # Install for both desktop and web modes:
-apt install pgadmin4
+$ apt install pgadmin4
 
 # Install for desktop mode only:
 # apt install pgadmin4-desktop
@@ -583,23 +584,23 @@ apt install pgadmin4
 # apt install pgadmin4-web
 
 # Configure the webserver, if you installed pgadmin4-web:
-/usr/pgadmin4/bin/setup-web.sh
+$ /usr/pgadmin4/bin/setup-web.sh
 
 # Postgres also has some well-used bash completion scripts such as 'createdb'.
 # We can give our user(s) the correct priviliges to access these commands.
 
 # create a password, for example 'postgres'...
-passwd postgres 
+$ passwd postgres 
 
 # enter psql shell as user 'postgres'...
-psql -u postgres 
+$ psql -u postgres 
 
 # in the psql shell, list our users, create two more, and list again before exiting...
-\du
-CREATE ROLE root CREATEDB CREATEROLE SUPERUSER; 
-CREATE ROLE {username} CREATEDB CREATEROLE SUPERUSER;
-\du
-\q
+> \du
+> CREATE ROLE root CREATEDB CREATEROLE SUPERUSER; 
+> CREATE ROLE ${username} CREATEDB CREATEROLE SUPERUSER;
+> \du
+> \q
 
 # Now your user can use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
 ```
@@ -608,11 +609,11 @@ CREATE ROLE {username} CREATEDB CREATEROLE SUPERUSER;
 - CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
 
 ```
-export DISTRO="$(lsb_release -cs)"
-export ARCH="$(dpkg --print-architecture)"
-export APT_SOURCES="/etc/apt/sources.list.d"
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-get_cmake()
+$ get_cmake()
 {
     export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
 
@@ -623,47 +624,51 @@ get_cmake()
     apt update
 }
 
-apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
 ```
 
 
 - Google Chrome (latest stable)
 
 ```
-export ARCH="$(dpkg --print-architecture)"
+$ export ARCH="$(dpkg --print-architecture)"
 
-get_chrome()
+$ get_chrome()
 {
     curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
     apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
 }
+
+$ get_chrome
 ```
 
 
 - Supabase (check repo for latest release version number, these outdate quickly...)
 
 ```
-export ARCH="$(dpkg --print-architecture)"
+$ export ARCH="$(dpkg --print-architecture)"
 
-export SYS_SUPABASE_V="1.27.0"
+$ export SYS_SUPABASE_V="1.27.0"
 
-get_supabase()
+$ get_supabase()
 {
     curl "https://github.com/supabase/cli/releases/download/v$SYS_SUPABASE_V/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
     apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
 }
 
+$ get_supabase
+
 # as user...
-supabase login
+$ supabase login
 ```
 
 
 - Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```) 
 
 ```
-get_nvm()
+$ get_nvm()
 {
     curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
 }
@@ -672,27 +677,27 @@ get_nvm()
 
 # nvm install --lts
 # nvm install node
-nvm use system
+$ nvm use system
 ```
 
 
 - Postman (will save your login key to your home folder)
 
 ```
-get_postman()
+& get_postman()
 {
     curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
 }
 
 # as user...
-postman login
+$ postman login
 ```
 
 
 - vcpkg-tool (still working on this, note that you can get vcpkg itself quite easily too)
 
 ```
-get_vcpkg_tool()
+$ get_vcpkg_tool()
 {
     . <(curl https://aka.ms/vcpkg-init.sh -L)
 
