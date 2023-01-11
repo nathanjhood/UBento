@@ -68,25 +68,6 @@ settitle()
     echo -ne "\e]2;$@\a\e]1;$@\a";
 }
 
-sudo_autopasswd()
-{
-  :
-  # echo "<your_ubuntu_wsl2_password>" | sudo -Svp ""
-  # Default timeout for caching your sudo password: 15 minutes
-
-  # Function courtesy of the X410 cookbook;
-  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-}
-
-sudo_resetpasswd()
-{
-  # Clears cached password for sudo
-  sudo -k
-
-  # Function courtesy of the X410 cookbook;
-  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-}
-
 set_runtime_dir()
 {
     echo "Checking for XDG Runtime Dir..."
@@ -97,10 +78,10 @@ set_runtime_dir()
 
         {
 
-        sudo_autopasswd
-
         # Create user runtime directories
-        sudo mkdir $XDG_RUNTIME_DIR && sudo chmod 700 $XDG_RUNTIME_DIR && sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
+        sudo mkdir "$XDG_RUNTIME_DIR"                     && \
+        sudo chmod 700 "$XDG_RUNTIME_DIR"                 && \
+        sudo chown $(id -un):$(id -gn) "$XDG_RUNTIME_DIR"
 
         # System D-Bus
         sudo service dbus start
@@ -119,7 +100,7 @@ set_runtime_dir()
 
     fi
 
-    # Function courtesy of the X410 cookbook;
+    # Function adapted from the X410 cookbook;
     # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 
 }
@@ -127,8 +108,10 @@ set_runtime_dir()
 set_session_bus()
 {
     echo "Checking session D_Bus..."
+    
+    export DBUS_PATH="dbus-1"
 
-    local bus_file_path="$XDG_RUNTIME_DIR/bus"
+    local bus_file_path="$XDG_RUNTIME_DIR$DBUS_PATH"
 
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
@@ -138,8 +121,8 @@ set_session_bus()
 
         {
 
-        dbus-daemon --session --address=$DBUS_SESSION_BUS_ADDRESS --nofork --nopidfile --syslog-only &
-        at-spi-bus-launcher --launch-immediately &
+        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only && \
+        /usr/libexec/at-spi-bus-launcher --launch-immediately
 
         }
 
@@ -151,7 +134,7 @@ set_session_bus()
 
     fi
 
-    # Function courtesy of the X410 cookbook;
+    # Function adapted from the X410 cookbook;
     # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 }
 
