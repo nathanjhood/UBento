@@ -79,6 +79,9 @@ set_runtime_dir()
         {
 
         # Create user runtime directories
+        sudo mkdir "$XDG_RUNTIME_DIR"                     && \
+        sudo chmod 700 "$XDG_RUNTIME_DIR"                 && \
+        sudo chown $(id -un):$(id -gn) "$XDG_RUNTIME_DIR"
         sudo mkdir $XDG_RUNTIME_DIR && \
         sudo chmod 700 $XDG_RUNTIME_DIR && \
         sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
@@ -100,7 +103,7 @@ set_runtime_dir()
 
     fi
 
-    # Function courtesy of the X410 cookbook;
+    # Function adapted from the X410 cookbook;
     # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 
 }
@@ -109,7 +112,9 @@ set_session_bus()
 {
     echo "Checking session D_Bus..."
 
-    local bus_file_path="$XDG_RUNTIME_DIR/bus"
+    export DBUS_PATH="dbus-1"
+
+    local bus_file_path="$XDG_RUNTIME_DIR$DBUS_PATH"
 
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
@@ -119,8 +124,8 @@ set_session_bus()
 
         {
 
-        dbus-daemon --session --address=$DBUS_SESSION_BUS_ADDRESS --nofork --nopidfile --syslog-only &
-        at-spi-bus-launcher --launch-immediately &
+        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only && \
+        /usr/libexec/at-spi-bus-launcher --launch-immediately
 
         }
 
@@ -132,7 +137,7 @@ set_session_bus()
 
     fi
 
-    # Function courtesy of the X410 cookbook;
+    # Function adapted from the X410 cookbook;
     # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 }
 

@@ -564,10 +564,13 @@ $ yarn global add npm@latest
 $ export DISTRO="$(lsb_release -cs)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
 
-$ get_pgadmin()
+export DISTRO="$(lsb_release -cs)"
+export APT_SOURCES="/etc/apt/sources.list.d"
+
+get_pgadmin()
 {
     export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
-
+  
     curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
 
     echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
@@ -575,39 +578,51 @@ $ get_pgadmin()
     apt update
 }
 
-# Might be needed - make sure to generate the bash completion scripts!
-$ apt install postgresql postgresql-contrib apache2 apache2-doc
+
+# install packages - the postgresql package will create a new user named 'postgres', as needed...
+$ sudo apt install apache2 apache2-bin apache2-data apache2-utils apache2-doc postgresql postgresql-contrib postgresql-15-doc
+
+# start the server...
+$ sudo service postgresql start
 
 # Install for both desktop and web modes:
-$ apt install pgadmin4
+$ sudo apt install pgadmin4
 
-# Install for desktop mode only:
-# apt install pgadmin4-desktop
-
-# Install for web mode only:
-# apt install pgadmin4-web
-
-# Configure the webserver, if you installed pgadmin4-web:
-$ /usr/pgadmin4/bin/setup-web.sh
-
-# Postgres also has some well-used bash completion scripts such as 'createdb'.
-# We can give our user(s) the correct priviliges to access these commands.
+# set up pgAmdmin with your user email and password...
+$ sudo /usr/pgadmin4/bin/setup-web.sh
 
 # create a password, for example 'postgres'...
-$ passwd postgres 
+$ sudo passwd postgres 
 
 # enter psql shell as user 'postgres'...
-$ psql -u postgres 
+$ sudo -u postgres psql 
 
-# in the psql shell, list our users, create two more, and list again before exiting...
+# in the psql shell, give 'postgres' a password, list all users, create two more, and list again before exiting...
+> ALTER ROLE postgres WITH PASSWORD 'postgres';
 > \du
-> CREATE ROLE root CREATEDB CREATEROLE SUPERUSER; 
-> CREATE ROLE ${username} CREATEDB CREATEROLE SUPERUSER;
+> CREATE ROLE root CREATEDB CREATEROLE SUPERUSER LOGIN; 
+> CREATE ROLE <username> CREATEDB CREATEROLE SUPERUSER LOGIN;
 > \du
 > \q
 
-# Now your user can use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
-```
+# open the link in a browser* to log in to pgAdmin (works on either Windows or Linux side);
+http://localhost/pgadmin4
+
+# Choose 'Register new server' 
+# On 'General' tab, choose any name you wish
+# Go to 'connection' tab and enter as follows;
+
+# Hostname/address: localhost
+# Port: 5432
+# Maintenance database: postgres
+# Username: postgres
+# Password: postgres
+
+# Click 'save' - you should now see your local db's etc listed under 'servers'!
+
+# Now your user(s) can also use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
+# Postgres also has some well-used bash completion scripts such as 'createdb'. Make sure to generate the bash completion scripts!
+# *note that that you can also launch the 'pgAdmin4-desktop' app instead of the web-based interface, if you prefer...
 
 
 - CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
