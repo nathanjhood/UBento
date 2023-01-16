@@ -1,8 +1,8 @@
-bin/
+#bin/
 boot/
 dev/
-etc/
-home/
+#etc/
+#home/
 lib/
 lib32/
 lib64/
@@ -12,7 +12,7 @@ media/
 mnt/
 opt/
 proc/
-root/
+#root/
 run/
 sbin/
 srv/
@@ -21,7 +21,7 @@ tmp/
 usr/
 var/
 
-/bin
+#/bin
 /lib
 /lib32
 /lib64

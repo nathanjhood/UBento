@@ -1,77 +1,83 @@
-# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
-# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+# /etc/profile
 
-# To the extent possible under law, the author(s) have dedicated all
-# copyright and related and neighboring rights to this software to the
-# public domain worldwide. This software is distributed without any warranty.
-# You should have received a copy of the CC0 Public Domain Dedication along
-# with this software.
+# System-wide environment and startup programs.
+
+# To the extent possible under law, the author(s) have dedicated all copyright
+# and related and neighboring rights to this software to the public domain
+# worldwide. This software is distributed without any warranty. You should have
+# received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
-# Some resources...
-# Customizing Your Shell: http://www.dsl.org/cookbook/cookbook_5.html#SEC69
-# Consistent BackSpace and Delete Configuration:
-#   http://www.ibb.net/~anne/keyboard.html
-# The Linux Documentation Project: https://www.tldp.org/
-# The Linux Cookbook: https://www.tldp.org/LDP/linuxcookbook/html/
-# Greg's Wiki https://mywiki.wooledge.org/
+# It's NOT a good idea to change this file unless you know what you are doing.
+# It's much better to create a custom.sh shell script in /etc/profile.d/ to
+# make custom changes to your environment, as this will prevent the need for
+# merging in future updates.
 
-# System-wide profile file
+# System-wide aliases and functions should go in /etc/bashrc.
+# Personal environment variables and startup programs should go in ~/.bash_profile.
+# Personal aliases and functions should go in ~/.bashrc.
 
-echo "$USER loading /etc/profile..."
+# Begin /etc/profile
+echo "$0; # $USER loading /etc/profile..."
 
-# Umask
+# umask
+# By default, the umask should be set.
+#
 # Set as 022 for removing write permissions to group + others.
 # Set as 027 for a more restrictive umask: i.e. no exec perms for others.
 # Set as 077 when paranoid: neither group nor others have any permissions.
-
-umask 022
-
-if [ "${PS1-}" ]; then
-  if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
-    # The file bash.bashrc already sets the default PS1.
-    # PS1='\h:\w\$ '
-    if [ -f "/etc/bash.bashrc" ]; then
-      source "/etc/bash.bashrc"
-    fi
-  else
-    if [ "$(id -u)" -eq 0 ]; then
-      PS1='# '
-    else
-      PS1='$ '
-    fi
-  fi
+if [ "$(id -gn)" = "$(id -un)" -a $EUID -gt 99 ] ; then
+    umask 002
+else
+    umask 022
 fi
 
 if [ -d "/etc/profile.d" ]; then
-  for script in /etc/profile.d/*.sh; do
-    if [ -r $script ]; then
-      source $script
-    fi
-  done
-  unset script
+    for script in /etc/profile.d/*.sh ; do
+        if [ -r $script ]; then
+            source $script
+        fi
+    done
+    unset script
 fi
 
-
-# Ensure base distro default paths are set if nothing filed up some
+# Ensure base distro default paths and env vars are set if nothing filled up some
 # defaults yet.
-
 if [ -z "$PATH" ]; then
-  export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 fi
 
 if [ -z "$MANPATH" ]; then
-  export MANPATH="/usr/local/man:/usr/share/man:/usr/man:/share/man:$MANPATH"
+    export MANPATH="/usr/local/man:/usr/share/man:/usr/man:/share/man"
 fi
 
 if [ -z "$INFOPATH" ]; then
-  export INFOPATH="/usr/local/info:/usr/share/info:/usr/info:/share/info:$INFOPATH"
+    export INFOPATH="/usr/local/info:/usr/share/info:/usr/info:/share/info"
 fi
 
-# Desktop files (used by desktop environments within both X11 and Wayland) are
-# looked for in XDG_DATA_DIRS;
 if [ -z "$XDG_DATA_DIRS" ]; then
-  export XDG_DATA_DIRS="/usr/local/share:/usr/share"
+    export XDG_DATA_DIRS="/usr/local/share:/usr/share"
 fi
 
-echo "...$USER loaded /etc/profile"
+if [ -z "$XDG_CONFIG_DIRS" ]; then
+    export XDG_CONFIG_DIRS="/etc/xdg"
+fi
+
+if [ -z "$INPUTRC" -a ! -f "$HOME/.inputrc" ] ; then
+    export INPUTRC="/etc/inputrc"
+fi
+
+if [ -z "$LANG" ]; then
+    export LANG="C"
+fi
+
+if [ -z "$CHARSET" ]; then
+    export CHARSET="utf-8"
+fi
+
+if [ -z "$PAGER" ]; then
+    export PAGER="less"
+fi
+
+echo "$0; # ...$USER loaded /etc/profile"
+# End /etc/profile

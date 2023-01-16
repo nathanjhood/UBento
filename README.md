@@ -1,32 +1,30 @@
 # UBento
-Minimal Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
+Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
 Quick usage (see 'requirements');
 
 ```
 > docker run -it ubuntu bash ls /
-> docker export -o "/mnt/c/Users/{$username}/ubuntu.tar"  <distronumber>
-> wsl --import UBento "C:\Users\{$username}" "C:\Users\{$username}\ubuntu.tar"
+> docker export -o "/mnt/c/Users/${username}/ubuntu.tar"  ${distronumber}
+> wsl --import UBento "C:\Users\${username}" "C:\Users\${username}\ubuntu.tar"
 > wsl -d Ubento
-# swap bash env, profile, and WSL files and reboot the distro - done!
+# Copy UBento files and reboot the distro - done!
 ```
+
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
 
 ## About
 
-The WSL Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance. 
+The WSL Ubuntu distro that is available from the MS Store is initialized via a snap called "install RELEASE", and also comes bundled with a rather hefty APT package suite called ```ubuntu-wsl```. The MS Store Linux distros are also generally bundled with the "WSL2 Distro Launcher", which provides for example the 'Ubuntu.exe' on the Windows-side. This is a nice interoperability, but particularly the snap requirements are quite costly in both storage and performance.
 
 The MS Store Ubuntu distro also contains quite a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
 Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and - in many cases, - highly improved runtime performances.
 
-
-## Customisation and tailoring your build to focus only on your needs
-
-A lot of the latest Linux releases of popular coding tools, like NodeJs and CMake, don't have any additional package dependencies in order to be installed and used. WSL-integrated Windows apps like VSCode and Docker Desktop also "just work" straight from the box. Dependencies aside, most Linux GUI apps will happily launch from their Windows icons - or bash shell commands - without any additional self-configuring of, or even launching of, the X-Server. The requirements to run a full visual desktop environment are where the majority of the costs lie; and with otherwise such low runtime integration requirements and portability, the benefits of having a secondary visual desktop environment *on your native visual desktop environment* don't necessarily outweight the performance costs when you really need it most, IME. If your main interest is in getting critical work done, you likely don't need much more than to ```unminimize``` and add a few packages to the keyring, if that. But if what you want is to have a deep and performant Linux experience integrated directly within your Windows environment, you can have that too.
-
 This will hopefully all get compiled into some sort of an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 ## System Requirements:
 
@@ -44,30 +42,27 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 - Finish X-Server encryption helper function
 - Use the shared ```$WSLENV``` variable to optionally link the distro userspace, to the Windows userspace
 - Try ```$WSLENV``` for sharing a single, translatable path to an '.Xauthority' key between both userspaces (this works for SSH keys and symlinks...)
-- Investigate usage of user-login password as an MIT-encrypted env variable (like ```{{ git.SECRET }}``` ) for use with Git control, intializing DBus with as sudo during startup routine, authenticating the X-Server encryption layer step, and so on 
-- Implement as a shell-scripted front-end for a fast, flexible, potentially CI-capable* Ubuntu-Minimal deployment 
- 
-*where the ```unminimize``` command and other rehydrations can be averted from use cases. 
+- Investigate usage of user-login password as an MIT-encrypted env variable (like ```{{ git.SECRET }}``` ) for use with Git control, intializing DBus with as sudo during startup routine, authenticating the X-Server encryption layer step, and so on
+- Implement as a shell-scripted front-end for a fast, flexible, potentially CI-capable* Ubuntu-Minimal deployment
+
+*where the ```unminimize``` command and other rehydrations can be averted from use cases.
 
 
 ## Notes:
 
 - Run the suggested instructions in either your Windows Powershell (```>```), or your current WSL2 distro's terminal (```$```), but obviously don't bother entering the comment lines (```#```). Make sure to fill in the blanks where ```<variables>``` are concerned.
 
-- You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will roughly double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
-
-- Systemd-dependent services and apps are a big investment beyond the original minimized state of the distro, but are often key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid systemd for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```. 
-
-- Neither ```unminimize``` nor systemd are really required for most developing purposes - see [TIPS]. 
-
-- Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
+- Neither ```unminimize``` nor systemd are really required for most developing purposes - see [TIPS].
 
 - Check the [TIPS] and [TROUBLESHOOTING] sections for helpful insights.
 
 - Try it with other Linux flavours and goals.
 
 
-To get started, run the below in either your Windows Powershell (```>```);
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
+
+To get started, run the below in either your Windows Powershell (```>```) or your Linux Bash (```$```) terminal;
 
 
 ## [PRE-INSTALL]
@@ -90,14 +85,14 @@ We then have a few options for how we wish to store UBento, such as using the dy
 
 ```
 > wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
-    
+
 > wsl --export UBento "D:\My\Backup\Folder\ubento.vhdx" --vhd
 ```
 
 ## Backing up and restarting with a clean slate;
 
 
-It turns out to be handy to run the following argument around this stage, or whenever you feel you have a good starting point; 
+It turns out to be handy to run the following argument around this stage, or whenever you feel you have a good starting point;
 
 ```
 > wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
@@ -119,8 +114,8 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
 ```
 > wsl -l -v
 # UBento should be listed amongst your WSL distros...
-    
-    
+
+
 > wsl -d UBento
 # The docker Ubuntu Minimal image we pulled earlier - now named 'UBento' - will now launch in the terminal...
 ```
@@ -139,7 +134,7 @@ $ apt update && apt install apt-utils dialog
 
 # If you need superuser accesses...
 $ apt install sudo && sudo -s
-      
+
 # If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
 $ yes | unminimize
 
@@ -157,7 +152,7 @@ $ rm -rf /var/lib/apt/lists/*
 ```
 # Git-clone UBento somewhere locally... you could store it Linux-side
 # directory, such as '$HOME/Development/ubento' and adjust this step
-# accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas. 
+# accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas.
 # Here's an example where we've git cloned it to our Windows home folder;
 
 $ export UBENTO_WIN_REPO="/mnt/c/Users/${USER}/repos/ubento"
@@ -179,7 +174,7 @@ yes | cp -f "$UBENTO_WIN_REPO/root/.bash_profile"                "/root/.bash_pr
 $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 ```
 
-## [CREATE USER] 
+## [CREATE USER]
 
 - named "username" (could use ```$WSLENV``` to pull your Win user name here - stay tuned) with the required UID of '1000'. You will be prompted to create a secure login password for your new user;
 
@@ -247,7 +242,7 @@ notepad .
 # Will launch Notepad - careful with those line ending settings!
 ```
 
-    
+
 - Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
 
 ```
@@ -261,7 +256,7 @@ code .
 
 ## [DESKTOP SETTINGS]
 
-Now we can make ourselves at home in the ```$HOME``` folder. 
+Now we can make ourselves at home in the ```$HOME``` folder.
 
 The user-local ```$HOME/.bash_profile``` file will contain several pointers for our desktop environment, including additional bin and man paths, as well as linkage to our home folders - we don't need to set these ourselves as they will have been pulled in from ```/etc/skel``` when we created our user (see previous steps!), but these are useful to be aware of when setting up our desktop;
 
@@ -308,7 +303,7 @@ export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_PICTURES_DIR="$HOME/Pictures"
 export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_VIDEOS_DIR="$HOME/Videos"
-``` 
+```
 
 The directories indicated in all of the above *should* exist in some form, for a working desktop. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
 
@@ -331,7 +326,7 @@ ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
 $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
 ...
 $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
-    
+
 # optional - 'public' shared folder...
 $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
 $ ln -s "/mnt/c/Users/Public" "/root/Public"
@@ -350,7 +345,7 @@ The exact same directory (and it's contents) on the Windows side...
 ```
 # (this is NOT a terminal command!!!)
 "$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
-```      
+```
 
 All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
@@ -359,13 +354,14 @@ All of the above are one and the same directory...! Storage is on the Windows-si
 
 ```
 # Run this once as the user, then once as root...
-      
+
 $ mkdir \
 $HOME/Desktop \
 $HOME/Documents \
 $HOME/Downloads \
 $HOME/Music \
 $HOME/Pictures \
+$HOME/Public \
 $HOME/Templates \
 $HOME/Videos
 ```
@@ -389,7 +385,7 @@ file:///home/${USER}/Desktop
 file:///home/${USER}/Documents
 file:///home/${USER}/Downloads
 file:///home/${USER}/Music
-file:///home/${$USER}/Pictures
+file:///home/${USER}/Pictures
 file:///home/${USER}/Videos
 ```
 
@@ -449,6 +445,9 @@ $ export APT_SOURCES="/etc/apt/sources.list.d"
 
 $ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
+# Requirements...
+$ apt install curl wget git gpg
+
 $ get_chrome()
 {
     curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
@@ -468,31 +467,32 @@ $ get_gith()
 }
 
 # Optionally install Chrome...*
-$ get_chrome  
+$ get_chrome
 
 $ get_gith
-$ apt install gh
+
 
 # * *Note that if you have w3m installed by now, the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)*
 ```
 
-Following the above, you can ```exit``` back to your user account, then 
+Following the above, you can ```exit``` back to your user account, then
 
 ```
 $ export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
 
 $ alias g="git"
 
-$ g -g config user.name "<Your Git Name>"
-$ g -g config user.email "<Your Git Email>"
-
+$ sudo apt install gh
+$ g config --global user.name "<Your Git Name>"
+$ g config --global user.email "<Your Git Email>"
 $ gh auth login
 # Choose .ssh option... then;
+$ gh auth setup-git
 
 $ nano $HOME/.gitconfig
 ```
 
-Your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
+As nano shows, your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
 
 ```
 $ export DEV_DIR="$HOME/Development"
@@ -508,184 +508,222 @@ Here are some other common tools for development - again, do ```sudo -s``` first
 
 
 - Node (latest)
-    
-      export DISTRO="$(lsb_release -cs)"
-      export ARCH="$(dpkg --print-architecture)"
-      export APT_SOURCES="/etc/apt/sources.list.d"
-      
-      export SYS_NODE_V="node_19.x"
-      
-      get_node()
-      {
-          export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
-          curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-          echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee $APT_SOURCES/nodesource.list
+$ export SYS_NODE_V="node_19.x"
 
-          echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee -a $APT_SOURCES/nodesource.list
+$ get_node()
+{
+    export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
-          apt update
-      }
-    
-      apt install nodejs
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
-      npm --global install npm@latest
+    echo "deb [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee $APT_SOURCES/nodesource.list
+
+    echo "deb-src [arch=$ARCH signed-by=$NODEJS_KEY] https://deb.nodesource.com/$SYS_NODE_V $DISTRO main" | tee -a $APT_SOURCES/nodesource.list
+
+    apt update
+}
+
+$ apt install nodejs
+
+$ npm --global install npm@latest
+```
 
 
 - Yarn (latest)
-    
-      export ARCH="$(dpkg --print-architecture)"
-      export APT_SOURCES="/etc/apt/sources.list.d"
 
-      get_yarn()
-      {
-          export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
+```
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-          curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee $YARN_KEY >/dev/null
+$ get_yarn()
+{
+    export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
 
-          echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | tee $APT_SOURCES/yarn.list
+    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee $YARN_KEY >/dev/null
 
-          apt update
-      }
-    
-      apt install yarn
+    echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | tee $APT_SOURCES/yarn.list
 
-      yarn global add npm@latest
+    apt update
+}
+
+$ apt install yarn
+
+$ yarn global add npm@latest
+```
 
 
 - PGAdmin (for PostgreSQL)
-    
-      export DISTRO="$(lsb_release -cs)"
-      export APT_SOURCES="/etc/apt/sources.list.d"
-      
-      get_pgadmin()
-      {
-          export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
-        
-          curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
 
-          echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-          apt update
-      }
-      
-      # Might be needed - make sure to generate the bash completion scripts!
-      apt install postgresql postgresql-contrib apache2 apache2-doc
-    
-      # Install for both desktop and web modes:
-      apt install pgadmin4
+export DISTRO="$(lsb_release -cs)"
+export APT_SOURCES="/etc/apt/sources.list.d"
 
-      # Install for desktop mode only:
-      # apt install pgadmin4-desktop
+get_pgadmin()
+{
+    export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
 
-      # Install for web mode only:
-      # apt install pgadmin4-web
+    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
 
-      # Configure the webserver, if you installed pgadmin4-web:
-      /usr/pgadmin4/bin/setup-web.sh
-      
-      # Postgres also has some well-used bash completion scripts such as 'createdb'.
-      # We can give our user(s) the correct priviliges to access these commands.
-      
-      # create a password, for example 'postgres'...
-      passwd postgres 
-      
-      # enter psql shell as user 'postgres'...
-      psql -u postgres 
-      
-      # in the psql shell, list our users, create two more, and list again before exiting...
-      \du
-      CREATE ROLE root CREATEDB CREATEROLE SUPERUSER; 
-      CREATE ROLE {username} CREATEDB CREATEROLE SUPERUSER;
-      \du
-      \q
-      
-      # Now your user can use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
+    echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
+
+    apt update
+}
+
+
+# install packages - the postgresql package will create a new user named 'postgres', as needed...
+$ sudo apt install apache2 apache2-bin apache2-data apache2-utils apache2-doc postgresql postgresql-contrib postgresql-15-doc
+
+# start the server...
+$ sudo service postgresql start
+
+# Install for both desktop and web modes:
+$ sudo apt install pgadmin4
+
+# set up pgAmdmin with your user email and password...
+$ sudo /usr/pgadmin4/bin/setup-web.sh
+
+# create a password, for example 'postgres'...
+$ sudo passwd postgres
+
+# enter psql shell as user 'postgres'...
+$ sudo -u postgres psql
+
+# in the psql shell, give 'postgres' a password, list all users, create two more, and list again before exiting...
+> ALTER ROLE postgres WITH PASSWORD 'postgres';
+> \du
+> CREATE ROLE root CREATEDB CREATEROLE SUPERUSER LOGIN;
+> CREATE ROLE <username> CREATEDB CREATEROLE SUPERUSER LOGIN;
+> \du
+> \q
+
+# open the link in a browser* to log in to pgAdmin (works on either Windows or Linux side);
+http://localhost/pgadmin4
+
+# Choose 'Register new server'
+# On 'General' tab, choose any name you wish
+# Go to 'connection' tab and enter as follows;
+
+# Hostname/address: localhost
+# Port: 5432
+# Maintenance database: postgres
+# Username: postgres
+# Password: postgres
+
+# Click 'save' - you should now see your local db's etc listed under 'servers'!
+
+# Now your user(s) can also use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
+# Postgres also has some well-used bash completion scripts such as 'createdb'. Make sure to generate the bash completion scripts!
+# *note that that you can also launch the 'pgAdmin4-desktop' app instead of the web-based interface, if you prefer...
+```
 
 
 - CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
-    
-      export DISTRO="$(lsb_release -cs)"
-      export ARCH="$(dpkg --print-architecture)"
-      export APT_SOURCES="/etc/apt/sources.list.d"
-      
-      get_cmake()
-      {
-          export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
-        
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
 
-          echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-          apt update
-      }
-    
-      apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+$ get_cmake()
+{
+    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
+
+    apt update
+}
+
+$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+```
 
 
 - Google Chrome (latest stable)
-    
-      export ARCH="$(dpkg --print-architecture)"
-      
-      get_chrome()
-      {
-          curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
-          apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
-      }
+```
+$ export ARCH="$(dpkg --print-architecture)"
+
+$ get_chrome()
+{
+    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+
+    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+}
+
+$ get_chrome
+```
 
 
 - Supabase (check repo for latest release version number, these outdate quickly...)
-    
-      export ARCH="$(dpkg --print-architecture)"
-      
-      export SYS_SUPABASE_V="1.27.0"
-      
-      get_supabase()
-      {
-          curl "https://github.com/supabase/cli/releases/download/v$SYS_SUPABASE_V/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
-          apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
-      }
-      
-      # as user...
-      supabase login
+```
+$ export ARCH="$(dpkg --print-architecture)"
+
+$ export SYS_SUPABASE_V="1.27.0"
+
+$ get_supabase()
+{
+    curl "https://github.com/supabase/cli/releases/download/v$SYS_SUPABASE_V/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
+
+    apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
+}
+
+$ get_supabase
+
+# as user...
+$ supabase login
+```
 
 
-- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```) 
-    
-      get_nvm()
-      {
-          curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
-      }
-      
-      # Choose as preferred...
-      
-      # nvm install --lts
-      # nvm install node
-      nvm use system
+- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```)
+
+```
+$ get_nvm()
+{
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
+}
+
+# Choose as preferred...
+
+# nvm install --lts
+# nvm install node
+$ nvm use system
+```
 
 
 - Postman (will save your login key to your home folder)
-    
-      get_postman()
-      {
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
-      }
-      
-      # as user...
-      postman login
+
+```
+& get_postman()
+{
+    curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
+}
+
+# as user...
+$ postman login
+```
 
 
 - vcpkg-tool (still working on this, note that you can get vcpkg itself quite easily too)
-    
-      get_vcpkg_tool()
-      {
-          . <(curl https://aka.ms/vcpkg-init.sh -L)
 
-          . ~/.vcpkg/vcpkg-init
-      }
+```
+$ get_vcpkg_tool()
+{
+    . <(curl https://aka.ms/vcpkg-init.sh -L)
+
+    . ~/.vcpkg/vcpkg-init
+}
+```
 
 
 ## [DEFINING RUNTIME BEHAVIOUR]
@@ -712,7 +750,7 @@ $ apt install systemd dbus at-spi2-core
 $ wsl.exe -d UBento --shutdown
 ```
 
-## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized; 
+## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized;
 
 - launch distro as root to install apt-utils, dialog, and sudo
 - copy ubuntu-helpers/profile/bashrc/wsl.conf files
@@ -730,97 +768,102 @@ https://en.wikipedia.org/wiki/X_Window_authorization
 
 (tbc - this is a rough sketch of the idea...)
 
-    sudo apt install xauth resolveconf scp
-    # Just in case...!
-    
-    # Set some easy names...
-    alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
-    alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
-    alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//${username}//.Xauthority"
-    alias xauth_lin="xauth"
+```
+sudo apt install xauth resolveconf scp
+# Just in case...!
 
-    sudo_autopasswd()
-    {
-        echo "<your_user_password>" | sudo -Svp ""
-        # Default timeout for caching your sudo password: 15 minutes
-        
-        # TBC: I'd like to find a way to capture our password using an 
-        # ecryption routine here to store our pwd into some kind of cookie file for 
-        # local re-use (xauth?)
-    }
+# Set some easy names...
+alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
+alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
+alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//${username}//.Xauthority"
+alias xauth_lin="xauth"
 
-    # Screen number
-    export DISPLAY_NUMBER="0" 
-    
-    # Auth key
-    export DISPLAY_TOKEN="$(echo '{sudo_autopasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )" 
-    
-    # Server address
-    export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )" 
-    
-    # Encrypted X session address
-    export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
-    
-    # Unencrypted X session address (if authentication fails, swap the above for this...)
-    # export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
+sudo_autopasswd()
+{
+    echo "<your_user_password>" | sudo -Svp ""
+    # Default timeout for caching your sudo password: 15 minutes
 
-    #GL rendering
-    export LIBGL_ALWAYS_INDIRECT=1
-    
+    # TBC: I'd like to find a way to capture our password using an
+    # ecryption routine here to store our pwd into some kind of cookie file for
+    # local re-use (xauth?)
+}
 
-    auth_x()
-    {
-        if [ -z "$DISPLAY" ]; then
-            echo "Error: DISPLAY environment variable is not set."
-        else
-        
-            echo "$DISPLAY" 
-            # Will print your encrypted X address...
+# Screen number
+export DISPLAY_NUMBER="0"
 
-            vcxsrv
-            # Will launch your X-Server Windows executable...
+# Auth key
+export DISPLAY_TOKEN="$(echo '{sudo_autopasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
 
-            echo "Linux X Server keys:" && xauth_lin list
+# Server address
+export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
 
-            echo "Windows X Server keys:" && xauth_win list
+# Encrypted X session address
+export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
 
-            # Authorize key on Linux side and pass to Windows
-            xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+# Unencrypted X session address (if authentication fails, swap the above for this...)
+# export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
-            cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
-
-            xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+#GL rendering
+export LIBGL_ALWAYS_INDIRECT=1
 
 
-            # Vice-versa...
-            xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+auth_x()
+{
+    if [ -z "$DISPLAY" ]; then
+        echo "Error: DISPLAY environment variable is not set."
+    else
 
-            cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+        echo "$DISPLAY"
+        # Will print your encrypted X address...
 
-            xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
+        vcxsrv
+        # Will launch your X-Server Windows executable...
+
+        echo "Linux X Server keys:" && xauth_lin list
+
+        echo "Windows X Server keys:" && xauth_win list
+
+        # Authorize key on Linux side and pass to Windows
+        xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+
+        cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
+
+        xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
 
 
-            # For backup/restoration...
-            cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
+        # Vice-versa...
+        xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
+
+        cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
+
+        xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
 
 
-            echo "Linux X Server keys:" && xauth_lin list
+        # For backup/restoration...
+        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
 
-            echo "Windows X Server keys:" && xauth_win list
-        
-        fi
-        
-        # Notes;
-        # Useage of cp should be substituted for scp, possibly via SSH...?
-        # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
-        # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
-        # Hmmm, what's this "XAUTHORITY" variable about...?
-        # Furthermore, would be ideal to store cookie in $XDG_RUNTIME_DIR!
-    }
-    
+
+        echo "Linux X Server keys:" && xauth_lin list
+
+        echo "Windows X Server keys:" && xauth_win list
+
+    fi
+
+    # Notes;
+    # Useage of cp should be substituted for scp, possibly via SSH...?
+    # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
+    # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
+    # Hmmm, what's this "XAUTHORITY" variable about...?
+    # Furthermore, would be ideal to store cookie in $XDG_RUNTIME_DIR!
+}
+
+```
 Call the authentication function (this still needs some work - stay tuned!);
 
     auth_x
+
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 
 ## [TROUBLESHOOTING]
@@ -829,15 +872,17 @@ Call the authentication function (this still needs some work - stay tuned!);
 
 - Get the required packages (save as "HyperV.bat" and launch in PowerShell):
 
-      pushd "%~dp0"
+```
+pushd "%~dp0"
 
-      dir /b %SystemRoot%\servicing\Packages\*Hyper-V*.mum >hv.txt
+dir /b %SystemRoot%\servicing\Packages\*Hyper-V*.mum >hv.txt
 
-      for /f %%i in ('findstr /i . hv.txt 2^>nul') do dism /online /norestart /add-package:"%SystemRoot%\servicing\Packages\%%i"
+for /f %%i in ('findstr /i . hv.txt 2^>nul') do dism /online /norestart /add-package:"%SystemRoot%\servicing\Packages\%%i"
 
-      Dism /online /enable-feature /featurename:Microsoft-Hyper-V -All /LimitAccess /ALL
+Dism /online /enable-feature /featurename:Microsoft-Hyper-V -All /LimitAccess /ALL
 
-      pause
+pause
+```
 
 Restart your Windows machine once the above is complete.
 
@@ -847,18 +892,21 @@ Restart your Windows machine once the above is complete.
 
 Virtual Machine Platform;
 
-      dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-
+```
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
 
 Hyper Virtualization;
 
-      dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
-
+```
+dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
+```
 
 Windows Subsystem for Linux;
 
-      dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-
+```
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+```
 
 Restart your Windows machine once the above is complete.
 
@@ -870,23 +918,29 @@ Think very carefully about how/where you choose to store your runtime distro on 
 
 
 ## Still having package/service dependency issues?
-    
-The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues. 
-    
-    sudo apt install ubuntu-wsl 
-  
+
+The MS Store Ubuntu distro ships with a very large APT package suite named ```ubuntu-wsl``` that we can instead break down into smaller dependency cycles, as and where (or even if) required. But you can go ahead and ```apt install ubtuntu-wsl``` if you do experience any issues.
+
+```
+sudo apt install ubuntu-wsl
+```
+
 Note that the package ```wsl-setup``` attempts to run the Ubiquity "install-RELEASE" snap that creates the default WSL Ubuntu install for us, should you be interested (requires apt install snapd).
 
-    sudo apt install snapd
-    sudo snap refresh
-    sudo snap list
+```
+sudo apt install snapd
+sudo snap refresh
+sudo snap list
+```
 
 No default snaps (cool!), but all the ```/snapd/bin``` folder locations should be appended to the $PATH variable - make sure to check ```/etc/profile``` and the troubleshooting tips below :)
 
 To get back to the MS Store version from here, you can
 
-    sudo snap install ubuntu-desktop-installer --classic
-    sudo wsl-setup
+```
+sudo snap install ubuntu-desktop-installer --classic
+sudo wsl-setup
+```
 
 
 ## [TIPS]
@@ -954,9 +1008,9 @@ Many, perhaps most, modern CLI applications also ship with completion scripts. T
 ## Storage
 
 As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
-    
+
 Let's look at a few things we can do.
-    
+
 
 - option 1; Convert from ```docker export``` .tar-format distro named 'Ubuntu' to .vhdx-format distro named 'UBento', while storing a mountable backup (.vhdx) of 'Ubuntu' along the way;
 
@@ -1035,9 +1089,9 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "profiles": 
+    "profiles":
     {
-        "list": 
+        "list":
         [
             {
                 "colorScheme": "StoneyDSP",
@@ -1048,7 +1102,7 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
             }
         ]
     },
-    "schemes": 
+    "schemes":
     [
         {
             "background": "#300A24",
@@ -1079,10 +1133,20 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
 
 The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.exe -d UBento``` - you can also append ```--user {username}``` if you like.
 
+## Customisation and tailoring your build to focus only on your needs
+
+- A lot of the latest Linux releases of popular coding tools, like NodeJs and CMake, don't have any additional package dependencies in order to be installed and used. WSL-integrated Windows apps like VSCode and Docker Desktop also "just work" straight from the box. Dependencies aside, most Linux GUI apps will happily launch from their Windows icons - or bash shell commands - without any additional self-configuring of, or even launching of, the X-Server. The requirements to run a full visual desktop environment are where the majority of the costs lie; and with otherwise such low runtime integration requirements and portability, the benefits of having a secondary visual desktop environment *on your native visual desktop environment* don't necessarily outweight the performance costs when you really need it most, IME. If your main interest is in getting critical work done, you likely don't need much more than to ```unminimize``` and add a few packages to the keyring, if that. But if what you want is to have a deep and performant Linux experience integrated directly within your Windows environment, you can have that too.
+
+- You can choose not to ```unminimize``` if you want your distro to be as compact as possible (for CI/Docker runs, for example). As of writing, this command will less-than-double the size of the install on disk; Without it, however, there are a large amount of quite low-level symlinks and base libraries missing - though you can still build all the way up to the full equivalent environment of the MS Store version, one package dependency cycle at a time. But if you're skipping it, your bash and apt command line responses might seem quite strange and present you with unfamiliar prompts and errors. While these are often just harmless indicators - especially in short-term runs - you will probably want to accomodate some of their requests and ignore others. Always good test your distro setup with a few manual run-throughs on the terminal!
+
+- Systemd-dependent services and apps are a big investment beyond the original minimized state of the distro, but are often key to having a stable, more robust (certainly mid/long-term) working environment. My suggestion is to avoid systemd for CI/Docker runs, and embrace it for desktop and GUI stuff; same goes for ```unminimize```.
+
+- Name your distro's host server. It's a good idea to use 'localhost' or at least something different to your Windows Machine ID as your WSL distro's hostname (this is set in ```/etc/wsl.conf```). The unfortunate current default is to simply copy the Win MachineID over to WSL userland. I personally like "localclient" for my Windows machine, and "localhost" for my WSL distro - this is a nice distinction when you are presented with network addresses that point to either 'localclient' or 'localhost'. When launching Node apps, for example, you can view them in your "localclient"'s browser (i.e., your net browser for Windows) and differentiate the network addresses your code backend provides from "localhost", for example. This is also very useful when configuring the X-server, especially, where keys might be exchanged both ways.
+
 
 ## Git tip from microsoft WSL docs
 
-When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. Microsoft suggests adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;    
+When handling a single repo on both your Windows and Linux file systems, it's a good idea to weary of line endings. Microsoft suggests adding a ```.gitattributes``` to the repo's root folder with the following, to ensure that no script files are corrupted;
 
 ```
 * text=auto eol=lf
@@ -1097,9 +1161,9 @@ When handling a single repo on both your Windows and Linux file systems, it's a 
 $ mkdir "$HOME/Development"
 $ export DEV_DIR="$HOME/Development"
 $ cd "$DEV_DIR"
-    
+
 $ git clone git@github.com:StoneyDSP/ubento.git
-    
+
 # If you're cd-'ing around between NodeJs-based repo's, consider checking out
 # nvm-sh's 'cd_nvm' function.
 ```
@@ -1107,7 +1171,7 @@ $ git clone git@github.com:StoneyDSP/ubento.git
 
 ## Shutting down
 
-Note that if you choose not to ```unminimize``` your distro, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always 
+Note that if you choose not to ```unminimize``` your distro, not install systemd, or otherwise have no real shutdown strategy in your distro, you can always
 
 ```
 $ alias shutdown="wsl.exe -d <myDistro> --shutdown && logout"
@@ -1122,7 +1186,7 @@ $ shutdown
 
 ## [REFERENCES AND SOURCES]
 
-## Microsoft WSL docs 
+## Microsoft WSL docs
 
 - https://learn.microsoft.com/en-us/windows/wsl/
 
@@ -1155,7 +1219,7 @@ $ shutdown
 - https://superuser.com/questions/1745166/verify-that-config-value-applied-in-wsl
 
 
-## Package keys; 
+## Package keys;
 
 - Please see respective repos on GH, and study the "get key" routine as found here and elsewhere;
 - https://apt.kitware.com/
