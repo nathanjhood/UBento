@@ -39,19 +39,22 @@ xterm*|rxvt*)
     ;;
 esac
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ] && [ -f "-r ~/.dircolors" ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+# Setup for /bin/ls and /bin/grep to support color, the alias is in /etc/bashrc.
+if [ -x /usr/bin/dircolors ]; then
+    # enable color support of ls and also add handy aliases
+    if [ -f "~/dircolors" ] ; then
+        eval $(dircolors -b ~/dircolors)
 
-    # classify files in colour
-    alias ls='ls -hF --color=tty'
-    alias dir='ls --color=auto --format=vertical'
-    alias vdir='ls --color=auto --format=long'
+        # classify files in colour
+        alias ls='ls -hF --color=tty'
+        alias dir='ls --color=auto --format=vertical'
+        alias vdir='ls --color=auto --format=long'
 
-    # show differences in colour
-    alias grep='grep --color'
-    alias egrep='egrep --color=auto'
-    alias fgrep='fgrep --color=auto'
+        # show differences in colour
+        alias grep='grep --color'
+        alias egrep='egrep --color=auto'
+        alias fgrep='fgrep --color=auto'
+    fi
 fi
 
 # Uncomment the following line if you don't like systemctl's auto-paging feature:

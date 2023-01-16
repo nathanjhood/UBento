@@ -27,10 +27,6 @@ fi
 if [ -d "/usr/local/games" ] ; then
     PATH="/usr/local/games:$PATH"
 fi
-
-if [ -d "/usr/local/lib/pkgconfig" ] ; then
-    PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-fi
 #export PATH
 
 # Global info paths
