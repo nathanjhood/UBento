@@ -3,14 +3,6 @@
 # Begin /etc/profile.d/bash_paths.sh
 
 ## Global bin paths
-if [ -d "/bin" ] ; then
-    PATH="/bin:$PATH"
-fi
-
-if [ -d "/sbin" ] ; then
-    PATH="/sbin:$PATH"
-fi
-
 if [ -d "/usr/bin" ] ; then
     PATH="/usr/bin:$PATH"
 fi
@@ -36,37 +28,12 @@ if [ -d "/usr/local/games" ] ; then
     PATH="/usr/local/games:$PATH"
 fi
 
-if [ -d "/snap/bin" ] ; then
-    PATH="/snap/bin:$PATH"
-fi
-
 if [ -d "/usr/local/lib/pkgconfig" ] ; then
-    PATH="/usr/local/lib/pkgconfig:$PATH"
     PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-fi
-
-if [ -d "/usr/local/psql" ] ; then
-
-    # https://www.postgresql.org/docs/13/install-post.html
-    if [ -d "/usr/local/pgsql/bin" ] ; then
-        PATH="/usr/local/pgsql/bin:$PATH"
-    fi
-
-    if [ -d "/usr/local/pgsql/lib" ] ; then
-        LD_LIBRARY_PATH="/usr/local/pgsql/lib"
-    fi
-
-    if [ -z "$DATABASE_URL" ]; then
-        export DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
-    fi
 fi
 #export PATH
 
 # Global info paths
-if [ -d "/share/info" ] ; then
-    INFOPATH="/share/info:$INFOPATH"
-fi
-
 if [ -d "/usr/info" ] ; then
     INFOPATH="/usr/info:$INFOPATH"
 fi
@@ -81,7 +48,7 @@ fi
 #export INFOPATH
 
 
-## Global man paths
+## Global man paths (defaults; "/usr/local/man:/usr/share/man:/usr/man:/share/man" )
 if [ -d "/share/man" ] ; then
     MANPATH="/share/man:$MANPATH"
 fi
@@ -97,28 +64,20 @@ fi
 if [ -d "/usr/local/man" ] ; then
     MANPATH="/usr/local/man:$MANPATH"
 fi
-
-if [ -d "/usr/local/pgsql/share/man" ] ; then
-    MANPATH="/usr/local/pgsql/share/man:$MANPATH"
-fi
 #export MANPATH
 
 
 ## Global xdg paths - data
 if [ -d "/usr/share" ] ; then
     XDG_DATA_DIRS="/usr/share:$XDG_DATA_DIRS"
+
+    if [ -d "/usr/share/ubuntu" ] ; then
+        XDG_DATA_DIRS="/usr/share/ubuntu:$XDG_DATA_DIRS"
+    fi
 fi
 
 if [ -d "/usr/local/share" ] ; then
     XDG_DATA_DIRS="/usr/local/share:$XDG_DATA_DIRS"
-fi
-
-if [ -d "/usr/share/ubuntu" ] ; then
-    XDG_DATA_DIRS="/usr/share/ubuntu:$XDG_DATA_DIRS"
-fi
-
-if [ -d "/var/lib/snapd/desktop" ] ; then
-    XDG_DATA_DIRS="/var/lib/snapd/desktop:$XDG_DATA_DIRS"
 fi
 #export XDG_DATA_DIRS
 
@@ -126,12 +85,17 @@ fi
 # Global xdg paths - config
 if [ -d "/etc/xdg" ] ; then
     XDG_CONFIG_DIRS="/etc/xdg:$XDG_CONFIG_DIRS"
-fi
 
-if [ -d "/etc/xdg/xdg-ubuntu" ] ; then
-    XDG_CONFIG_DIRS="/etc/xdg/xdg-ubuntu:$XDG_CONFIG_DIRS"
+    if [ -d "/etc/xdg/xdg-ubuntu" ] ; then
+        XDG_CONFIG_DIRS="/etc/xdg/xdg-ubuntu:$XDG_CONFIG_DIRS"
+    fi
 fi
 #export XDG_CONFIG_DIRS
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
 
 # Runtime Dir
 # export XDG_RUNTIME_DIR="/run/user/$(id -u)" # for systemd

@@ -32,81 +32,52 @@ else
     umask 022
 fi
 
-if [ "${PS1-}" ]; then
-    if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
-        # The file bash.bashrc already sets the default PS1.
-        # PS1='\h:\w\$ '
-        if [ -f "/etc/bash.bashrc" ]; then
-            source "/etc/bash.bashrc"
-        fi
-    else
-        if [ "$(id -u)" -eq 0 ]; then
-            PS1='# '
-        else
-            PS1='$ '
-        fi
-    fi
-fi
-
 if [ -d "/etc/profile.d" ]; then
-    for script in "/etc/profile.d"/*.sh ; do
+    for script in /etc/profile.d/*.sh ; do
         if [ -r $script ]; then
             source $script
         fi
     done
+    unset script
 fi
-
-# Setup for /bin/ls and /bin/grep to support color, the alias is in /etc/bashrc.
-if [ -f "/etc/dircolors" ] ; then
-    eval $(dircolors -b "/etc/dircolors")
-
-    if [ -f "$HOME/.dircolors" ] ; then
-        eval $(dircolors -b "$HOME/.dircolors")
-    fi
-fi
-
 
 # Ensure base distro default paths and env vars are set if nothing filled up some
 # defaults yet.
 if [ -z "$PATH" ]; then
-    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 fi
 
 if [ -z "$MANPATH" ]; then
-    MANPATH="/usr/local/man:/usr/share/man:/usr/man:/share/man:$MANPATH"
+    export MANPATH="/usr/local/man:/usr/share/man:/usr/man:/share/man"
 fi
 
 if [ -z "$INFOPATH" ]; then
-    INFOPATH="/usr/local/info:/usr/share/info:/usr/info:/share/info:$INFOPATH"
+    export INFOPATH="/usr/local/info:/usr/share/info:/usr/info:/share/info"
 fi
 
 if [ -z "$XDG_DATA_DIRS" ]; then
-    XDG_DATA_DIRS="/usr/local/share:/usr/share:$XDG_DATA_DIRS"
+    export XDG_DATA_DIRS="/usr/local/share:/usr/share"
 fi
 
 if [ -z "$XDG_CONFIG_DIRS" ]; then
-    XDG_CONFIG_DIRS="/etc/xdg/xdg-ubuntu:/etc/xdg:$XDG_CONFIG_DIRS"
+    export XDG_CONFIG_DIRS="/etc/xdg"
 fi
 
 if [ -z "$INPUTRC" -a ! -f "$HOME/.inputrc" ] ; then
-    INPUTRC="/etc/inputrc"
+    export INPUTRC="/etc/inputrc"
 fi
 
 if [ -z "$LANG" ]; then
-    LANG="C.UTF-8"
+    export LANG="C"
 fi
 
 if [ -z "$CHARSET" ]; then
-    CHARSET="UTF-8"
+    export CHARSET="utf-8"
 fi
 
 if [ -z "$PAGER" ]; then
-    PAGER="less"
+    export PAGER="less"
 fi
-
-export PATH INFOPATH MANPATH LANG CHARSET PAGER XDG_DATA_DIRS XDG_CONFIG_DIRS INPUTRC
-
-unset script RED GREEN NORMAL
 
 echo "$0; # ...$USER loaded /etc/profile"
 # End /etc/profile

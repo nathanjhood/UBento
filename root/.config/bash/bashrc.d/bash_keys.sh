@@ -1,12 +1,8 @@
 # /etc/profile.d/bash_keyring.sh
 
-export DISTRO="$(lsb_release -cs)"
-export ARCH="$(dpkg --print-architecture)"
-export APT_SOURCES="/etc/apt/sources.list.d"
-
 get_gith()
 {
-    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
+    GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
 
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
 
@@ -14,13 +10,15 @@ get_gith()
 
     apt update
 
+    unset GH_KEY
+
     # apt install gh
 }
 
 
 get_node()
 {
-    export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
+    NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
 
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
@@ -30,6 +28,8 @@ get_node()
 
     apt update
 
+    unset NODEJS_KEY
+
     # sudo apt install nodejs
 
     # npm --global install npm@latest
@@ -38,13 +38,15 @@ get_node()
 
 get_yarn()
 {
-    export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
+    YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
 
     curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee $YARN_KEY >/dev/null
 
     echo "deb [arch=$ARCH signed-by=$YARN_KEY] https://dl.yarnpkg.com/debian stable main" | tee $APT_SOURCES/yarn.list
 
     apt update
+
+    unset YARN_KEY
 
     # sudo apt install yarn
 
@@ -64,13 +66,15 @@ get_postgres()
 
 get_pgadmin()
 {
-    export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
+    PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
 
     curl -fsSL "https://www.pgadmin.org/static/packages_pgadmin_org.pub" | gpg --dearmor -o $PGADMIN_KEY
 
     echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
 
     apt update
+
+    unset PGADMIN_KEY
 
     # Install for both desktop and web modes:
     # sudo apt install pgadmin4
@@ -88,13 +92,15 @@ get_pgadmin()
 
 get_cmake()
 {
-    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+    KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
 
     wget -O - "https://apt.kitware.com/keys/kitware-archive-latest.asc" 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
 
     echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
 
     apt update
+
+    unset KITWARE_KEY
 
     # sudo apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
 }
