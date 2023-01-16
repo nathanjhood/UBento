@@ -6,10 +6,6 @@
 # System wide environment variables and startup programs are in /etc/profile.
 # System wide aliases and functions are in /etc/bashrc.
 
-# executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
-
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
@@ -43,19 +39,22 @@ xterm*|rxvt*)
     ;;
 esac
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ] && [ -f "~/.dircolors" ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+# Setup for /bin/ls and /bin/grep to support color, the alias is in /etc/bashrc.
+if [ -x /usr/bin/dircolors ]; then
+    # enable color support of ls and also add handy aliases
+    if [ -f "~/dircolors" ] ; then
+        eval $(dircolors -b ~/dircolors)
 
-    # classify files in colour
-    alias ls='ls -hF --color=tty'
-    alias dir='ls --color=auto --format=vertical'
-    alias vdir='ls --color=auto --format=long'
+        # classify files in colour
+        alias ls='ls -hF --color=tty'
+        alias dir='ls --color=auto --format=vertical'
+        alias vdir='ls --color=auto --format=long'
 
-    # show differences in colour
-    alias grep='grep --color'
-    alias egrep='egrep --color=auto'
-    alias fgrep='fgrep --color=auto'
+        # show differences in colour
+        alias grep='grep --color'
+        alias egrep='egrep --color=auto'
+        alias fgrep='fgrep --color=auto'
+    fi
 fi
 
 # Uncomment the following line if you don't like systemctl's auto-paging feature:

@@ -48,21 +48,7 @@ fi
 # Setup a normal prompt for root and a green one for users.
 # Provides prompt for non-login shells, specifically shells started in the X environment.
 # [Review the LFS archive thread titled 'PS1 Environment Variable' for a great case study behind this script addendum.]
-if [[ $EUID == 0 ]] ; then
-    PS1="$RED\u [ $NORMAL\w$RED ]\n$SYMB $NORMAL"
-else
-    if [ "$USER" = root ]; then
-        PS1="$NORMAL\h [$NORMAL\w$NORMAL]\n$SYMB $NORMAL"
-    else
-        SYMB="\$"
-        PS1="$GREEN\h [$NORMAL\w$GREEN]\n$SYMB $NORMAL"
-    fi
-fi
-unset NORMAL RED GREEN SYMB
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
+# uncomment for a colored prompt, if the terminal has the capability;
 force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
@@ -78,7 +64,7 @@ fi
 
 if [ "$color_prompt" = yes ]; then
     if [[ $EUID == 0 ]] ; then
-        PS1="$RED\u [ $NORMAL\w$RED ]\n$SYMB $NORMAL"
+        PS1="$RED\u$NORMAL@$RED\h$NORMAL:$BLUE[ $NORMAL\w $BLUE] $YELLOW\n$SYMB $NORMAL"
     else
         if [ "$USER" = root ]; then
             PS1="${debian_chroot:+($debian_chroot)}$RED\u$NORMAL@$RED\h$NORMAL:$BLUE[ $NORMAL\w $BLUE] $YELLOW\n$SYMB $NORMAL"

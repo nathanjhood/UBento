@@ -32,6 +32,21 @@ else
     umask 022
 fi
 
+if [ "${PS1-}" ]; then
+    if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
+        # The file bash.bashrc already sets the default PS1.
+        if [ -f "/etc/bash.bashrc" ]; then
+            source "/etc/bash.bashrc"
+        fi
+    else
+        if [ "$(id -u)" -eq 0 ]; then
+            PS1='# '
+        else
+            PS1='$ '
+        fi
+    fi
+fi
+
 if [ -d "/etc/profile.d" ]; then
     for script in /etc/profile.d/*.sh ; do
         if [ -r $script ]; then
