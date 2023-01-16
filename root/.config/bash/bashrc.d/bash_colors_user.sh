@@ -1,41 +1,3 @@
-# /etc/profile.d/bash_colors.sh
-
-# Begin /etc/profile.d/bash_colors.sh
-
-# Set some bash colors
-NORMAL="\[\e[0m\]"
-RED="\[\e[1;31m\]"
-GREEN="\[\e[1;32m\]"
-SYMB="#"
-
-# colored GCC warnings and errors
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# Setup a normal prompt for root and a green one for users.
-# Provides prompt for non-login shells, specifically shells started in the X
-# environment. [Review the LFS archive thread titled 'PS1 Environment Variable'
-# for a great case study behind this script addendum.]
-if [[ $EUID == 0 ]] ; then
-
-    PS1="$RED\u [ $NORMAL\w$RED ]# $NORMAL"
-
-else
-
-    if [ "$USER" = root ]; then
-
-        SYMB="#"
-        PS1="$NORMAL\h [$NORMAL\w$NORMAL]# $NORMAL"
-
-    else
-
-        SYMB="$"
-        PS1="$GREEN\h [$NORMAL\w$GREEN]\$ $NORMAL"
-
-    fi
-
-fi
-unset NORMAL RED GREEN SYMB
-
 
 #when USER_LS_COLORS defined do not override user LS_COLORS, but use them.
 if [ -z "$USER_LS_COLORS" ]; then
@@ -80,5 +42,3 @@ if [ -z "$USER_LS_COLORS" ]; then
     /usr/bin/grep -qi "^COLOR.*none" $COLORS >/dev/null 2>/dev/null && return
 fi
 unset TMP COLORS INCLUDE
-
-# End /etc/profile.d/bash_colors.sh

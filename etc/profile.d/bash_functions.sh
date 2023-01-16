@@ -68,25 +68,6 @@ settitle()
     echo -ne "\e]2;$@\a\e]1;$@\a";
 }
 
-sudo_autopasswd()
-{
-  :
-  # echo "<your_ubuntu_wsl2_password>" | sudo -Svp ""
-  # Default timeout for caching your sudo password: 15 minutes
-
-  # Function courtesy of the X410 cookbook;
-  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-}
-
-sudo_resetpasswd()
-{
-  # Clears cached password for sudo
-  sudo -k
-
-  # Function courtesy of the X410 cookbook;
-  # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-}
-
 set_runtime_dir()
 {
     echo "Checking for XDG Runtime Dir..."
@@ -97,10 +78,10 @@ set_runtime_dir()
 
         {
 
-        sudo_autopasswd
-
         # Create user runtime directories
-        sudo mkdir $XDG_RUNTIME_DIR && sudo chmod 700 $XDG_RUNTIME_DIR && sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
+        sudo mkdir $XDG_RUNTIME_DIR && \
+        sudo chmod 700 $XDG_RUNTIME_DIR && \
+        sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
 
         # System D-Bus
         sudo service dbus start

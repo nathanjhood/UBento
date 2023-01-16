@@ -14,37 +14,50 @@ export DISPLAY_TOKEN="$(echo '{sudo_autopasswd | sudo_resetpasswd}' | tr -d '\n\
 export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
 
 # Encrypted X session address
-# export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+#export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
 
 # Unencrypted X session address (if authentication fails, swap the above for this...)
 #export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
 #GL rendering
-export LIBGL_ALWAYS_INDIRECT=1
-
-# Set user-defined locale
-export CHARSET="UTF-8"
-export PAGER="less"
-export PS1='\h:\w\$ '
-
-# git prompt
-export GIT_PS1_SHOWDIRTYSTATE=1
-
-# Desktop
-export DESKTOP_SESSION=ubuntu
-export GNOME_SHELL_SESSION_MODE=ubuntu
-
-# Ubuntu default desktop (GNOME Shell variant)
-# https://wiki.gnome.org/Projects/GnomeShell
-export XDG_CURRENT_DESKTOP=ubuntu:GNOME
-export XDG_SESSION_DESKTOP=ubuntu
-export XDG_MENU_PREFIX=gnome-
-export XDG_SESSION_TYPE=xwayland # default = x11
-export XDG_SESSION_CLASS=user
+#export LIBGL_ALWAYS_INDIRECT=1
 
 # System vars
 export DISTRO="$(lsb_release -cs)"
 export ARCH="$(dpkg --print-architecture)"
 export APT_SOURCES="/etc/apt/sources.list.d"
+
+# git prompt
+export GIT_PS1_SHOWDIRTYSTATE=1
+
+# Desktop defaults (if not set yet)
+if [ -z "$DESKTOP_SESSION" ]; then
+    export DESKTOP_SESSION="ubuntu"
+fi
+
+if [ -z "$GNOME_SHELL_SESSION_MODE" ]; then
+    export GNOME_SHELL_SESSION_MODE="ubuntu"
+fi
+
+# Ubuntu default desktop (GNOME Shell variant)
+if [ -z "$XDG_CURRENT_DESKTOP" ]; then
+    export XDG_CURRENT_DESKTOP="ubuntu:GNOME"
+fi
+
+if [ -z "$XDG_SESSION_DESKTOP" ]; then
+    export XDG_SESSION_DESKTOP="ubuntu"
+fi
+
+if [ -z "$XDG_MENU_PREFIX" ]; then
+    export XDG_MENU_PREFIX="gnome-"
+fi
+
+if [ -z "$XDG_SESSION_TYPE" ]; then
+    export XDG_SESSION_TYPE="x11"
+fi
+
+if [ -z "$XDG_SESSION_CLASS" ]; then
+    export XDG_SESSION_CLASS="user"
+fi
 
 # End /etc/profile.d/bash_exports.sh
