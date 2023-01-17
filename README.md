@@ -657,7 +657,7 @@ $ get_chrome()
 {
     curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
 
-    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
+    apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
 }
 
 $ get_chrome
