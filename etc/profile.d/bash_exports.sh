@@ -22,14 +22,6 @@ export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print
 #GL rendering
 #export LIBGL_ALWAYS_INDIRECT=1
 
-# System vars
-export DISTRO="$(lsb_release -cs)"
-export ARCH="$(dpkg --print-architecture)"
-export APT_SOURCES="/etc/apt/sources.list.d"
-
-# git prompt
-export GIT_PS1_SHOWDIRTYSTATE=1
-
 # Desktop defaults (if not set yet)
 if [ -z "$DESKTOP_SESSION" ]; then
     export DESKTOP_SESSION="ubuntu"

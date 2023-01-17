@@ -147,7 +147,7 @@ $ rm -rf /var/lib/apt/lists/*
 
 ## [SETUP FILES]
 
-(tbc - could just place a bash script and use curl/wget/git to fetch everything...)
+(tbc - could just place a bash script and use curl/wget/git to fetch everything... alternatively, check the pre-releases tab for a pre-build!)
 
 ```
 # Git-clone UBento somewhere locally... you could store it Linux-side
@@ -181,21 +181,29 @@ $ yes | cp -f "$UBENTO_WIN_REPO/etc/wsl.conf" "/etc/wsl.conf"
 ```
 $ export username="<Your Username Name>"
 $ export fullname="<Your Full Name>"
+$ export email="<Your Email>"
 
-$ adduser --home=/home/"${username}" --shell=/bin/bash --gecos="${fullname}" --uid=1000 "${username}"
+make_user()
+{
+    adduser --home=/home/"${1}" --shell=/bin/bash --gecos="${2}" --uid=1000 "${1}"
 
-$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev "${username}"
+    usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev "${1}"
+
+    login ${1}
+
+    git config --global user.name "${1}"
+
+    git config --global user.email "${3}"
+
+    echo -e "[user]\n default=${1}\n" >> /etc/wsl.conf
+}
+
+make_user "${username}" "${fullname}" "${email}"
+
+# The output of the above function will prompt you to create and confirm a secure login password, then to repeat it again to complete the actual log in process. Once complete, you will be in your linux user-space
 ```
 
-- Modify ```/etc/wsl.conf``` to export our 'username@localhost' and expose default wsl settings, mount the windows drive in ```/mnt```, and set the required OS interoperabilities*;
-
-```
-$ echo -e "[network]\n hostname=localhost\n" >> /etc/wsl.conf
-$ echo -e "[user]\n default=${username}\n" >> /etc/wsl.conf
-```
-
-*The purpose of this last step is so that the ```[user] default=``` section of your ```/etc/wsl.conf``` contains your username, to ensure we boot into this profile later on our next launch... see next step)
-
+From now on, you can use ```sudo``` invocations from your new user login shell (assuming you already installed sudo), and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```.
 
 Back in Powershell (```>```), we can now login as our new user (the ```--user``` argument here shouldn't be necessary due to the 'default user' setting in ```/etc/wsl.conf```, but it doesn't hurt to be sure here on this first re-launch, as this *ensures* we run finish critical initialization procedure correctly!)
 
@@ -204,9 +212,7 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 > wsl -d UBento --user "${username}"
 ```
 
-
-From now on, you can use ```sudo``` invocations from your new user login shell, and will also have access to useful system commands like ```sudo apt update && sudo apt ugrade```. You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).
-
+*You can also adapt the above command for launching a Windows Terminal profile, for example (see [TIPS]).*
 
 ## At this point, the distro remains minimal yet fully scalable, GUI apps and Windows integration should be working, and UBento is well-configured to continue on as you please...
 
@@ -297,12 +303,14 @@ fi
 
 export XDG_DESKTOP_DIR="$HOME/Desktop"
 export XDG_DOCUMENTS_DIR="$HOME/Documents"
-export XDG_DOWNLOAD_DIR="$HOME/Downloads"
+export XDG_DOWNLOADS_DIR="$HOME/Downloads"
 export XDG_MUSIC_DIR="$HOME/Music"
 export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_PICTURES_DIR="$HOME/Pictures"
 export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_VIDEOS_DIR="$HOME/Videos"
+
+# And so forth...
 ```
 
 The directories indicated in all of the above *should* exist in some form, for a working desktop. One excellent touch is to leverage Linux symbolic links to share your user folders between Windows and Linux environments (option 1), or we can create ourselves an alternative userspace by not going outside the distro (option 2).
@@ -613,7 +621,7 @@ http://localhost/pgadmin4
 # Go to 'connection' tab and enter as follows;
 
 # Hostname/address: localhost
-# Port: 5432
+# Port: 54322
 # Maintenance database: postgres
 # Username: postgres
 # Password: postgres
@@ -645,6 +653,7 @@ $ get_cmake()
 }
 
 $ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+$ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual correct command here, check cmake docs to confirm...
 ```
 
 
@@ -655,7 +664,7 @@ $ export ARCH="$(dpkg --print-architecture)"
 
 $ get_chrome()
 {
-    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
+    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOADS_DIR/chrome.deb"
 
     apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
 }
@@ -676,6 +685,8 @@ $ get_supabase()
     curl "https://github.com/supabase/cli/releases/download/v$SYS_SUPABASE_V/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/supabase.deb"
 
     apt install "$XDG_DOWNLOAD_DIR/supabase_$SYS_SUPABASE_V_linux_$ARCH.deb"
+
+    supabase completion bash > /etc/bash_completion.d/supabase
 }
 
 $ get_supabase
@@ -722,6 +733,12 @@ $ get_vcpkg_tool()
     . <(curl https://aka.ms/vcpkg-init.sh -L)
 
     . ~/.vcpkg/vcpkg-init
+
+    vcpkg integrate install
+
+    vcpkg integrate bash
+
+    vcpkg completion bash > /etc/bash_completion.d/vcpkg
 }
 ```
 
