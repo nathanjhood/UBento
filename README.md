@@ -21,7 +21,7 @@ The WSL Ubuntu distro that is available from the MS Store is initialized via a s
 
 The MS Store Ubuntu distro also contains quite a large stash of Bash completion helpers and scripts, covering many packages and libraries that are not actually to be found on the base install but which are still updated regularly at source (e.g., CMake), and the standard APT keyring which holds many outdated packages (e.g., NodeJs v.12...?), yet does not provide other common developer packages (e.g., Yarn) by default.
 
-Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full server version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and - in many cases, - highly improved runtime performances.
+Instead, we can pull Ubuntu-Minimal - Approx. 74mb - from a Docker container image, and launch that in WSL directly. Ubuntu-Minimal also has the ```unminimize``` command which rehydrates the install into the full "interactive login" version of Ubuntu; from there, we can build a much more streamlined Ubuntu with fewer runtime dependencies and practically no Linux-side background service requirements of it's own (compare by running ```service --status-all```) and tailor the environment towards a full-powered development environment with full GUI/desktop support via an encrypted Windows X-Server, *and* with a much reduced storage footprint, a fully up-to-date package registry, and - in many cases, - highly improved runtime performances.
 
 This will hopefully all get compiled into some sort of an interactive bash script... if time permits. Meanwhile, you can check the files provided here in the repo to get the idea - copying these simple bash scripts into the Ubuntu-Minimal docker distro and installing/running a few standard packages is all that is required to achieve the above goals of UBento.
 
@@ -135,10 +135,10 @@ $ apt update && apt install apt-utils dialog
 # If you need superuser accesses...
 $ apt install sudo && sudo -s
 
-# If you wish to 'rehydrate' from Ubuntu Minimal to Ubuntu Server...
+# If you wish to 'rehydrate' from Minimal to a fully interactive, login-based install...
 $ yes | unminimize
 
-# Choose which base packages you need, I suggest these something like these...
+# Choose which base packages you need, I suggest something like these...
 $ apt install less manpages nano vim gawk grep bash-completion bash-doc git curl wget libreadline8 readline-common readline-doc resolvconf gnu-standards xdg-user-dirs openssl ca-certificates lsb-release xauth
 
 # Clear the APT cache if you like...
@@ -198,7 +198,7 @@ make_user()
     echo -e "[user]\n default=${1}\n" >> /etc/wsl.conf
 }
 
-make_user "${username}" "${fullname}" "${email}"
+$ make_user "${username}" "${fullname}" "${email}"
 
 # The output of the above function will prompt you to create and confirm a secure login password, then to repeat it again to complete the actual log in process. Once complete, you will be in your linux user-space
 ```
@@ -239,12 +239,12 @@ $ docker run -it ubuntu bash
 ```
 alias wsl='/mnt/c/Windows/System32/wsl.exe'
 
-wsl --list --verbose
+$ wsl --list --verbose
 # Will list all of WSL's installed distros and statuses
 
 alias notepad='/mnt/c/Windows/System32/notepad.exe'
 
-notepad .
+$ notepad .
 # Will launch Notepad - careful with those line ending settings!
 ```
 
@@ -252,8 +252,8 @@ notepad .
 - Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
 
 ```
-cd $HOME
-code .
+$ cd $HOME
+$ code .
 
 # Will run an installation step for 'vscode-server-remote' on first run....
 # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
@@ -383,7 +383,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
 ## We can set bookmark tabs for our chosen Linux-side desktop explorer;
 
 ```
-nano $HOME/.config/gtk-3.0/bookmarks
+$ nano $HOME/.config/gtk-3.0/bookmarks
 ```
 
 add the following:
@@ -402,7 +402,7 @@ These locations will now appear in the tab bar of your Linux-side desktop explor
 ## We can also connect our Linux-side desktop explorer to remote servers;
 
 ```
-nano $HOME/.config/gtk-3.0/servers
+$ nano $HOME/.config/gtk-3.0/servers
 ```
 
 add the following:
@@ -424,7 +424,7 @@ Check your Linux-side desktop explorer's "other locations" or network options to
 ## Import your Windows fonts by adding the below to ```/etc/fonts```;
 
 ```
-sudo nano /etc/fonts/local.conf
+$ sudo nano /etc/fonts/local.conf
 ```
 
 add the following:
@@ -751,7 +751,7 @@ This step need not apply if you are happy running Linux GUI apps (with excellent
 $ echo -e "[boot]\n systemd=true\n" >> /etc/wsl.conf
 ```
 
-Make sure the following two functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
+Make sure the following two modified functions from the x410 cookbook are defined in ```/etc/profile.d/ubento_helpers.sh``` and are present/called in ```$HOME/.profile``` for user, but *NOT* for root (IMPORTANT!) - they should be at the end after the exports;
 
 ```
 set_runtime_dir
@@ -910,19 +910,19 @@ Restart your Windows machine once the above is complete.
 Virtual Machine Platform;
 
 ```
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+> dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
 
 Hyper Virtualization;
 
 ```
-dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
+> dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V /all /limitaccess /all /norestart
 ```
 
 Windows Subsystem for Linux;
 
 ```
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+> dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 ```
 
 Restart your Windows machine once the above is complete.
