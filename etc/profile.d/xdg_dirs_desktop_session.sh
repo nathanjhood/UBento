@@ -15,10 +15,10 @@ if [ -n "$DESKTOP_SESSION" ]; then
     # gnome is already added if gnome-session installed
     if [ "$DESKTOP_SESSION" != "gnome" ]; then
         if [ -z "$XDG_DATA_DIRS" ]; then
-        XDG_DATA_DIRS="$DEFAULT_XDG_DATA_DIRS"
+            XDG_DATA_DIRS="$DEFAULT_XDG_DATA_DIRS"
         fi
         if [ -n "${XDG_DATA_DIRS##*/usr/share/$DESKTOP_SESSION*}" ]; then
-        XDG_DATA_DIRS=/usr/share/"$DESKTOP_SESSION":"$XDG_DATA_DIRS"
+            XDG_DATA_DIRS=/usr/share/"$DESKTOP_SESSION":"$XDG_DATA_DIRS"
         fi
         export XDG_DATA_DIRS
     fi

@@ -22,6 +22,7 @@ LIGHT_MAGENTA="\[\e[1;95m\]"
 LIGHT_CYAN="\[\e[1;96m\]"
 LIGHT_WHITE="\[\e[1;97m\]"
 
+GIT_PS='$(__git_ps1 " (%s)") '
 SYMB="#"
 
 # colored GCC warnings and errors
@@ -70,7 +71,7 @@ if [ "$color_prompt" = yes ]; then
             PS1="${debian_chroot:+($debian_chroot)}$RED\u$NORMAL@$RED\h$NORMAL:$BLUE[ $NORMAL\w $BLUE] $YELLOW\n$SYMB $NORMAL"
         else
             SYMB="\$"
-            PS1="${debian_chroot:+($debian_chroot)}$GREEN\u$NORMAL@$GREEN\h$NORMAL:$BLUE[ $NORMAL\w $BLUE] $YELLOW\n$SYMB $NORMAL"
+            PS1="${debian_chroot:+($debian_chroot)}$GREEN\u$NORMAL@$GREEN\h$NORMAL:$BLUE[ $NORMAL\w $GIT_PS$BLUE] $YELLOW\n$SYMB $NORMAL"
         fi
     fi
 else
@@ -81,7 +82,7 @@ else
             PS1="${debian_chroot:+($debian_chroot)}\u@\h: [ \w ]\n$SYMB "
         else
             SYMB="\$"
-            PS1="${debian_chroot:+($debian_chroot)}\u@\h: [ \w ]\n$SYMB "
+            PS1="${debian_chroot:+($debian_chroot)}\u@\h: [ \w $GIT_PS]\n$SYMB "
         fi
     fi
 fi

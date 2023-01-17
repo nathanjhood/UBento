@@ -25,7 +25,7 @@ echo "$0; # ...$USER loaded $HOME/.bash_profile"
 # End ~/.bash_profile
 
 # Startup commands
-#set_runtime_dir
+set_runtime_dir
 #set_session_bus
 #neofetch
 mesg n 2> /dev/null || true
