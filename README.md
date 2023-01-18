@@ -12,12 +12,12 @@ $ make_user "${username}" "${full name}"
 # Supply and confirm a password... and welcome to UBento :)
 ```
 
-Summary (see 'requirements');
+Build from source - Summary (see 'requirements');
 
 ```
 > docker run -it ubuntu bash ls /
-> docker export -o "/mnt/c/Users/${username}/ubuntu.tar"  ${distronumber}
-> wsl --import UBento "C:\Users\${username}" "C:\Users\${username}\ubuntu.tar"
+> docker export -o "C:\Users\${username}\ubuntu.tar"  ${distronumber}
+> wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
 > wsl -d Ubento
 # Copy UBento files and reboot the distro - done!
 ```
