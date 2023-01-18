@@ -78,19 +78,31 @@ To get started, run the below in either your Windows Powershell (```>```) or you
 
 ## [PRE-INSTALL]
 
+First, we need to get a copy of the distro and import it into WSL, all on the Windows-side. There are currently two different strategies to achieve this; for a quick-start method that will have all the benefits of UBento pre-loaded and ready to be executed, or alternatively you can choose to build a distro from source, and follow the suggestions and specifications highlighted in this document for yourself (see "[TIPS]:Building from source").
 
-Pull Ubuntu-Minimal from Docker image into .tar (Approx. 74mb)
+- Opt 1 - Download the pre-configured distro for a quick start;
 
-```
-> docker run -it ubuntu bash ls /
-```
+    Check the "Releases" page here and grab the latest UBento version, which should specifically be a .tar file with no further extension types; i.e., ```ubento-v1-0-1.tar```.
 
-Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
+Then, you can use WSL to directly import that .tar file, immediately launching a mostly-configured UBento as 'root' user, by proceeding to the next step.
 
-```
-> docker container ls -a
-> docker export -o "C:\Users\<username>\ubuntu_minimal.tar" "<UbuntuContainerID>"
-```
+
+- Opt 2 - Pull Ubuntu-Minimal from a Docker Desktop image into .tar (Approx. 74mb) to build from source
+
+    ```
+    > docker run -it ubuntu bash ls /
+    ```
+
+    Take a note of the container ID of the Ubuntu image that was just running, then export it to some handy Windows location, using the .tar extension (WSL can then import it directly), as follows;
+
+    ```
+    > docker container ls -a
+    > docker export -o "C:\Users\<username>\ubuntu_minimal.tar" "<UbuntuContainerID>"
+    ```
+
+NOTE: If you're choosing option 2 of the above - building a distro from source, by pulling a clean Ubuntu image from Docker Desktop and importing it - then I strongly suggest scrolling down to [TIPS:Building from source] for a clear understanding of the difference between the image hosted on the UBento "Release" page, and the Ubuntu image hosted by Docker. If building from source, the majority of this document only applies if you follow the provided instructions in [TIPS] correctly, before proceeding any further. If you choose to deviate from these instructions, you will simply have to adjust all the given advice accordingly - just a friendly dev-to-dev FYI :)
+
+## Importing the .tar file to run as a distro in WSL
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives. The ```--export``` command in the below example stores a backup mountable image in the 'D:\' drive (which can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more storage examples).
 
@@ -100,10 +112,10 @@ We then have a few options for how we wish to store UBento, such as using the dy
 > wsl --export UBento "D:\My\Backup\Folder\ubento.vhdx" --vhd
 ```
 
-## Backing up and restarting with a clean slate;
+## Backing up for restarting with a clean slate;
 
 
-It turns out to be handy to run the following argument around this stage, or whenever you feel you have a good starting point;
+It later turns out to be handy to run that previous ```--export``` argument around this stage, or whenever you feel you have a good starting point;
 
 ```
 > wsl --export <myPerfectDistro> "D:\My\Backup\Folder\my_perfect_distro.vhdx" --vhd
