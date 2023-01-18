@@ -17,8 +17,6 @@ if [ "$BASH" ]; then
     fi
 fi
 
-USER_AT_HOST="$USER@$HOSTNAME"
-
 echo "$0; # ...$USER loaded $HOME/.bash_profile"
 # End ~/.bash_profile
 

@@ -18,16 +18,14 @@ if [ "$BASH" ]; then
 fi
 
 if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
-    PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
+    export PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
 fi
-
-USER_AT_HOST="$USER@$HOSTNAME"
 
 echo "$0; # ...$USER loaded $HOME/.bash_profile"
 # End ~/.bash_profile
 
 # Startup commands
-#set_runtime_dir
+set_runtime_dir
 #set_session_bus
 #neofetch
 mesg n 2> /dev/null || true

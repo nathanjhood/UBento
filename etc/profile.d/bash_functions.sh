@@ -68,77 +68,46 @@ settitle()
     echo -ne "\e]2;$@\a\e]1;$@\a";
 }
 
+# Function adapted from the X410 cookbook;
+# https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 set_runtime_dir()
 {
     echo "Checking for XDG Runtime Dir..."
 
     if [ ! -d "$XDG_RUNTIME_DIR" ]; then
-
-        echo "XDG Runtime Dir not found..."
-
         {
-
+        echo "XDG Runtime Dir not found..."
         # Create user runtime directories
         sudo mkdir "$XDG_RUNTIME_DIR"                     && \
         sudo chmod 700 "$XDG_RUNTIME_DIR"                 && \
         sudo chown $(id -un):$(id -gn) "$XDG_RUNTIME_DIR"
-        sudo mkdir $XDG_RUNTIME_DIR && \
-        sudo chmod 700 $XDG_RUNTIME_DIR && \
-        sudo chown $(id -un):$(id -gn) $XDG_RUNTIME_DIR
-
-        # System D-Bus
-        sudo service dbus start
-        # sudo service network-manager start
-        # sudo service mysql start
-        # sudo service postgresql start
-        # ...
-
-        }
-
         echo "Created new XDG Runtime Dir at $XDG_RUNTIME_DIR"
-
+        }
     else
-
         echo "Using active XDG Runtime Dir at $XDG_RUNTIME_DIR"
-
     fi
-
-    # Function adapted from the X410 cookbook;
-    # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
-
 }
 
+# Function adapted from the X410 cookbook;
+# https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 set_session_bus()
 {
-    echo "Checking session D_Bus..."
-
-    export DBUS_PATH="dbus-1"
-
+    export DBUS_PATH="bus"
     local bus_file_path="$XDG_RUNTIME_DIR$DBUS_PATH"
-
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
+    echo "Checking session D_Bus..."
     if [ ! -e "$bus_file_path" ]; then
-
-        echo "Session D-Bus not found..."
-
         {
-
+        echo "Session D-Bus not found..."
         /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only && \
-        /usr/libexec/at-spi-bus-launcher --launch-immediately
-
-        }
-
+        /usr/libexec/at-spi-bus-launcher --launch-immediately && \
+        /usr/bin/dbus-update-activation-environment --all --verbose --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
         echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
-
+        }
     else
-
         echo "Using active D-Bus session at $DBUS_SESSION_BUS_ADDRESS"
-
     fi
-
-    # Function adapted from the X410 cookbook;
-    # https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 }
 
 cdnvm() {

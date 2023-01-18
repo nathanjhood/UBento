@@ -1,6 +1,6 @@
-file:///home/$USER/Desktop
-file:///home/$USER/Documents
-file:///home/$USER/Downloads
-file:///home/$USER/Music
-file:///home/$USER/Pictures
-file:///home/$USER/Videos
+file:///home/${1}/Desktop
+file:///home/${1}/Documents
+file:///home/${1}/Downloads
+file:///home/${1}/Music
+file:///home/${1}/Pictures
+file:///home/${1}/Videos

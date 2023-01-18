@@ -21,14 +21,11 @@ if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
     export PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
 fi
 
-export USER_AT_HOST="$USER@$HOSTNAME"
-
-export PATH MANPATH INFOPATH
-
 echo "$0; # ...$USER loaded $HOME/.bash_profile"
 # End ~/.bash_profile
 
-# Startup commands
-#set_runtime_dir
+# Startup commands can go here...
+set_runtime_dir
 #set_session_bus
+#neofetch
 mesg n 2> /dev/null || true
