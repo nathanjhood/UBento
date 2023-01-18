@@ -4,9 +4,9 @@ Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting 
 Quick start (see 'requirements');
 
 ```
-# Download ubento.tar from the releases page to "C:\Users\${username}\ubuntu.tar"
+# Download ubento.tar from the releases page to "C:\Users\${username}\ubento.tar"
 # Import Ubento into WSL and launch;
-> wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
+> wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubento.tar"
 > wsl -d UBento
 $ make_user "${username}" "${full name}"
 # Supply and confirm a password... and welcome to UBento :)
