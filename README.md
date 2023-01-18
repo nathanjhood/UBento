@@ -1,12 +1,23 @@
 # UBento
 Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
-Quick usage (see 'requirements');
+Quick start;
+
+```
+# Download ubento.tar from the releases page to "C:\Users\${username}\ubuntu.tar"
+# Import Ubento into WSL and launch;
+> wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
+> wsl -d UBento
+$ make_user "${username}" "${full name}"
+# Supply and confirm a password... and welcome to UBento :)
+```
+
+Build from source - Summary (see 'requirements');
 
 ```
 > docker run -it ubuntu bash ls /
-> docker export -o "/mnt/c/Users/${username}/ubuntu.tar"  ${distronumber}
-> wsl --import UBento "C:\Users\${username}" "C:\Users\${username}\ubuntu.tar"
+> docker export -o "C:\Users\${username}\ubuntu.tar"  ${distronumber}
+> wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
 > wsl -d Ubento
 # Copy UBento files and reboot the distro - done!
 ```
@@ -386,7 +397,7 @@ We're using ```$HOME/.config``` as our desktop configuration folder (you may hav
 $ nano $HOME/.config/gtk-3.0/bookmarks
 ```
 
-add the following:
+add the following (with the correct username):
 
 ```
 file:///home/${USER}/Desktop
@@ -442,78 +453,19 @@ Slick.
 
 ## [DEVTOOLS KEYRING]
 
-Requires some of the basic packages from earlier, such as wget/curl/git.
-
-*NOTE: These bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. These are reproduced here in altered form for convenience and testing. This convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula (get key, add to lst, update cache).*
+Requires some of the basic packages from earlier, such as wget/curl/git/gpg/lsb-release/openssh-client.
 
 ```
+$ sudo apt install wget curl git gpg lsb-release openssh-client
+
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
-
-# Requirements...
-$ apt install curl wget git gpg
-
-$ get_chrome()
-{
-    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOAD_DIR/chrome.deb"
-
-    apt install "$XDG_DOWNLOAD_DIR/chrome.deb"
-}
-
-$ get_gith()
-{
-    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
-
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
-
-    echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
-
-    apt update
-}
-
-# Optionally install Chrome...*
-$ get_chrome
-
-$ get_gith
-
-
-# * *Note that if you have w3m installed by now, the gh CLI can actually open and display the GitHub webpage in ASCII format, directly in the Linux terminal, if it must ;)*
 ```
 
-Following the above, you can ```exit``` back to your user account, then
+The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```. 
 
-```
-$ export PUBKEYPATH="$HOME\.ssh\id_ed25519.pub"
-
-$ alias g="git"
-
-$ sudo apt install gh
-$ g config --global user.name "<Your Git Name>"
-$ g config --global user.email "<Your Git Email>"
-$ gh auth login
-# Choose .ssh option... then;
-$ gh auth setup-git
-
-$ nano $HOME/.gitconfig
-```
-
-As nano shows, your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
-
-```
-$ export DEV_DIR="$HOME/Development"
-
-$ g clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
-
-# Or....
-
-$ gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
-```
-
-Here are some other common tools for development - again, do ```sudo -s``` first (if you are running these commands directly from this README.md file);
-
+These are reproduced here in altered form for convenience and testing. The following function convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula ('get key, add to lst, update cache'...).
 
 - Node (latest)
 
@@ -565,13 +517,80 @@ $ apt install yarn
 $ yarn global add npm@latest
 ```
 
+- Fully ssh-authenticated Git and Chrome integration
+
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
+
+$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
+
+# Requirements...
+$ apt install curl wget git gpg
+
+$ get_chrome()
+{
+    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOADS_DIR/chrome.deb"
+
+    apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
+}
+
+$ get_gith()
+{
+    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
+
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
+
+    apt update
+}
+
+# Optionally install Chrome...*
+$ get_chrome
+
+$ get_gith
+
+
+# * *Note that if you have w3m installed by now but not a full browser such as Chrome, the gh CLI can actually open and display the GitHub authentication webpage in ASCII format, directly in the Linux terminal, if it must ;)*
+```
+
+Following the above, you can ```exit``` back to your user account, then
+
+```
+$ export PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
+
+$ alias g="git"
+
+$ sudo apt install gh
+$ g config --global user.name "<Your Git Name>"
+$ g config --global user.email "<Your Git Email>"
+$ gh auth login
+# Choose .ssh option... then;
+$ gh auth setup-git
+
+$ nano $XDG_CONFIG_HOME/git/config
+```
+
+As nano shows, your Git SSH key credentials can now managed by the GitHub CLI client, and the GitHub CLI commands and credential manager tools are available to use, along with the regular Git and SSH commands. You can now invoke your SSH key (available at ```$PUBKEYPATH```) with an expanded set of Git-based commands using SSH encryption;
+
+```
+$ export DEV_DIR="$HOME/Development"
+
+$ g clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
+
+# Or....
+
+$ gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
+```
+
+Here are some other common tools for development - again, do ```sudo -s``` first (if you are running these commands directly from this README.md file);
+
 
 - PGAdmin (for PostgreSQL)
 
 ```
-$ export DISTRO="$(lsb_release -cs)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
 export DISTRO="$(lsb_release -cs)"
 export APT_SOURCES="/etc/apt/sources.list.d"
 
