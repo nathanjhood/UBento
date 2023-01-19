@@ -35,8 +35,9 @@ set_session_bus()
     if [ ! -e "$bus_file_path" ]; then
         {
         echo "Session D-Bus not found..."
-        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only && \
-        /usr/libexec/at-spi-bus-launcher --launch-immediately && \
+        sudo service dbus start
+        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
+        /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
         /usr/bin/dbus-update-activation-environment --all --verbose --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
         echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
         }
