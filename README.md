@@ -80,7 +80,7 @@ To get started, run the below in either your Windows Powershell (```>```) or you
 
 ## [PRE-INSTALL]
 
-First, we need to get a copy of the distro and import it into WSL, all on the Windows-side. There are currently two different strategies to achieve this; for a quick-start method that will have all the benefits of UBento pre-loaded and ready to be executed, or alternatively you can choose to build a distro from source, and follow the suggestions and specifications highlighted in this document for yourself (see "[TIPS]:Building from source").
+First, we need to get a copy of the distro and import it into WSL, all on the Windows-side. There are currently two different strategies to achieve this; a quick-start method that will have all the benefits of UBento pre-loaded and ready to be executed, or alternatively you can choose to build a distro from source, and follow the suggestions and specifications highlighted in this document for yourself (see "[TIPS]:Building from source").
 
 - Opt 1 - Download the pre-configured distro for a quick start;
 
@@ -102,14 +102,14 @@ Then, you can use WSL to directly import that .tar file, immediately launching a
     > docker export -o "C:\Users\<username>\ubuntu_minimal.tar" "<UbuntuContainerID>"
     ```
 
-NOTE: If you're choosing option 2 of the above - building a distro from source, by pulling a clean Ubuntu image from Docker Desktop and importing it - then I strongly suggest scrolling down to [TIPS:Building from source] for a clear understanding of the difference between the image hosted on the UBento "Release" page, and the Ubuntu image hosted by Docker. If building from source, the majority of this document only applies if you follow the provided instructions in [TIPS] correctly, before proceeding any further. If you choose to deviate from these instructions, you will simply have to adjust all the given advice accordingly - just a friendly dev-to-dev FYI :)
+    NOTE: If you're choosing option 2 of the above - building a distro from source, by pulling a clean Ubuntu image from Docker Desktop and importing it - then I strongly suggest scrolling down to [TIPS:Building from source] for a clear understanding of the difference between the image hosted on the UBento "Release" page, and the Ubuntu image hosted by Docker. If building from source, the majority of this document only applies if you follow the provided instructions in [TIPS] correctly, before proceeding any further. If you choose to deviate from these instructions, you will simply have to adjust all the given advice accordingly - just a friendly dev-to-dev FYI :)
 
 ## Importing the .tar file to run as a distro in WSL
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives. The ```--export``` command in the below example stores a backup mountable image in the 'D:\' drive (which can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more storage examples).
 
 ```
-> wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
+> wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubento.tar"
 
 > wsl --export UBento "D:\My\Backup\Folder\ubento.vhdx" --vhd
 ```
@@ -151,10 +151,10 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
 The below steps are to be run from within your new WSL Ubuntu-based bash terminal (```$```).
 
 
-- set permission for root folder, restore server packages, and install basic dependencies;
+- set permission for root folder (see '[TIPS]:Building from source' for info on this command), restore server packages, and install basic dependencies;
 
 ```
-$ chmod 755 /
+$ init_permissions
 $ apt update && apt install apt-utils dialog
 
 # If you need superuser accesses...
@@ -218,41 +218,6 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
-## [INTEROPERABILITY]
-
-- Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
-
-```
-# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
-
-$ docker run hello-world
-$ docker run -it ubuntu bash
-```
-
-- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
-
-```
-alias wsl='/mnt/c/Windows/System32/wsl.exe'
-
-$ wsl --list --verbose
-# Will list all of WSL's installed distros and statuses
-
-alias notepad='/mnt/c/Windows/System32/notepad.exe'
-
-$ notepad .
-# Will launch Notepad - careful with those line ending settings!
-```
-
-
-- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
-
-```
-$ cd $HOME
-$ code .
-
-# Will run an installation step for 'vscode-server-remote' on first run....
-# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
-```
 
 ## [DEVTOOLS KEYRING]
 
@@ -264,6 +229,7 @@ $ sudo apt install wget curl git gpg lsb-release openssh-client
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
+$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 ```
 
 The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```. 
@@ -320,14 +286,35 @@ $ apt install yarn
 $ yarn global add npm@latest
 ```
 
+
+- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```)
+
+```
+$ get_nvm()
+{
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
+}
+
+# Choose as preferred...
+
+# nvm install --lts
+# nvm install node
+$ nvm use system
+
+# The useful "cd_nvm()" function is already provided in /etc/profile.d/bash_functions.sh - so, when navigating between Node project repo's on the command line, feel free to...
+
+$ cd_nvm <Node Project Repo>
+
+# ...and NVM should do it's thing.
+```
+
+
 - Fully ssh-authenticated Git and Chrome integration
 
 ```
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
 # Requirements...
 $ apt install curl wget git gpg
@@ -432,6 +419,8 @@ $ sudo -u postgres psql
 > \du
 > CREATE ROLE root CREATEDB CREATEROLE SUPERUSER LOGIN;
 > CREATE ROLE <username> CREATEDB CREATEROLE SUPERUSER LOGIN;
+> ALTER ROLE root WITH PASSWORD 'root';
+> ALTER ROLE <username> WITH PASSWORD '<password>';
 > \du
 > \q
 
@@ -450,48 +439,19 @@ http://localhost/pgadmin4
 
 # Click 'save' - you should now see your local db's etc listed under 'servers'!
 
+# The above combination will also be served at;
+
+postgresql://postgres:postgres@localhost:54322/postgres
+
+# which is equivalent to;
+
+{service}://{user}:{password}@{address}:{port}/{database}
+
+# Note that some WSL users have reported better performance by using address value of '127.0.0.1' - I can't be too sure, but having your distro's hostname be renamed to something *other than* the Windows name tends to be helpful in these situations; I again suggest i.e., Windows host name = "localclient", Linux host name = "localhost". It throws a small warning in the WSL debug terminal on launch, but the operation is still allowed to pass.
+
 # Now your user(s) can also use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
 # Postgres also has some well-used bash completion scripts such as 'createdb'. Make sure to generate the bash completion scripts!
 # *note that that you can also launch the 'pgAdmin4-desktop' app instead of the web-based interface, if you prefer...
-```
-
-
-- CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
-
-```
-$ export DISTRO="$(lsb_release -cs)"
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ get_cmake()
-{
-    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
-
-    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
-
-    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
-
-    apt update
-}
-
-$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
-$ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual correct command here, check cmake docs to confirm...
-```
-
-
-- Google Chrome (latest stable)
-
-```
-$ export ARCH="$(dpkg --print-architecture)"
-
-$ get_chrome()
-{
-    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOADS_DIR/chrome.deb"
-
-    apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
-}
-
-$ get_chrome
 ```
 
 
@@ -518,22 +478,6 @@ $ supabase login
 ```
 
 
-- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```)
-
-```
-$ get_nvm()
-{
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
-}
-
-# Choose as preferred...
-
-# nvm install --lts
-# nvm install node
-$ nvm use system
-```
-
-
 - Postman (will save your login key to your home folder)
 
 ```
@@ -544,6 +488,31 @@ $ nvm use system
 
 # as user...
 $ postman login
+```
+
+
+- CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
+
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
+
+$ sudo apt install build-essential gnu-standards pkgconfig
+
+$ get_cmake()
+{
+    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
+
+    apt update
+}
+
+$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+$ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual correct command here, check cmake docs to confirm...
 ```
 
 
@@ -562,6 +531,77 @@ $ get_vcpkg_tool()
 
     vcpkg completion bash > /etc/bash_completion.d/vcpkg
 }
+```
+
+Untested; integrating ```pkg-config``` to detect ```.pc``` files stored on either system... check the following (and my CMake repo);
+
+```
+$ pkgconfig --list-all
+```
+
+
+## [INTEROPERABILITY]
+
+- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
+
+```
+alias wsl='/mnt/c/Windows/System32/wsl.exe'
+
+$ wsl --list --verbose
+# Will list all of WSL's installed distros and statuses
+
+alias notepad='/mnt/c/Windows/System32/notepad.exe'
+
+$ notepad .
+# Will launch Notepad - careful with those line ending settings!
+```
+
+- What about using our Linux-side libs and binaries on our Windows-side files, in PowerShell? Well...
+
+
+Let's call the WSL Ubento user-login shell with a command line invocation, to create and open a new Windows-local file named 'nanotest';
+
+```
+> wsl --shell-type login -d ubento --exec nano ./nanotest
+```
+
+Type the word 'success!' and press 'Ctrl-s', then 'Ctrl-x', to save and exit nano, then execute the below in PowerShell to 'cat' the result;
+
+```
+> wsl --shell-type login -d ubento --exec cat ./nanotest
+# success!
+```
+
+Be very wary of file permissions, line-ending settings, and conversions that the above basic text editors are unknowingly capable of, and leverage every interoperability opportunity that you can find among their individual configuration files. For example, GNU nano uses a 'nanorc' or '*.nanorc' file to control certain configuration aspects, handily on a per-filetype basis. Some 'nanorc' settings to be very watchful of (suggested settings below) - this file usually exists at system-level in ```/etc/nanorc``` and user-level in ```$XDG_CONFIG_HOME/nano/nanorc```;
+
+```
+## Don't convert files from DOS/Mac format.
+set noconvert
+## Save files by default in Unix format (also when they were DOS or Mac).
+# set unix
+```
+
+
+- Don't forget to test out VSCode with the Remote Development extension installed on the Windows side, of course... ;
+
+This is an excellent example of WSL capable is offering; your code-base is stored and served from "localhost", i.e., the Linux (back-end) side, while the VS Code graphical code-editor application runs in "localclient", i.e., your Windows-side software and hardware
+
+```
+$ cd $HOME
+$ code .
+
+# Will run an installation step for 'vscode-server-remote' on first run....
+# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions
+# Make sure that you *don't* already have VSCode installed on the Linux side before doing this, as that's *not* how the Remote Dev extension works! ;) 
+```
+
+- Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
+
+```
+# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
+
+$ docker run hello-world
+$ docker run -it alpine bash
 ```
 
 
@@ -616,7 +656,13 @@ Restart your Windows machine once the above is complete.
 ## Storage considerations
 
 
-Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from a removable storage drive, like USB or SD card. While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. Desktop linkage is really cool, as is external storage - but I'd have to recommend not to mix the two, in the case of WSL.
+Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. 
+
+It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from an external/removable storage drive, like USB or SD card. 
+
+While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. 
+
+Desktop linkage is really cool, as is external storage - but I'd have to recommend *not* to mix the two, in the case of WSL.
 
 
 ## Still having package/service dependency issues?
@@ -669,7 +715,7 @@ $ apt install systemd dbus at-spi2-core
 $ wsl.exe -d UBento --shutdown
 ```
 
-## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized;
+It is CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized;
 
 - launch distro as root to install apt-utils, dialog, and sudo
 - copy ubuntu-helpers/profile/bashrc/wsl.conf files
@@ -693,14 +739,29 @@ $ wsl.exe -d UBento --shutdown
 > wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
 > wsl -d Ubento
 
+$ init_permissions()
+{
+    chmod 755 / && \
+    chmod 1777 /tmp &&\
+    find /tmp \
+        -mindepth 1 \
+        -name '.*-unix' -exec chmod 1777 {} + -prune -o \
+        -exec chmod go-rwx {} +
+
+    # https://unix.stackexchange.com/questions/71622/what-are-correct-permissions-for-tmp-i-unintentionally-set-it-all-public-recu
+}
+$ export -f init_permissions
+
+$ init_permissions
 $ apt install apt-utils dialog && apt install sudo && sudo -s
-$ apt install nano less lsb-release curl wget git 
+$ apt install nano less lsb-release curl wget git # And whatever other dependencies you might need...
+```
 
-# Git-clone UBento somewhere locally... you could store it Linux-side
-# directory, such as '$HOME/Development/ubento' and adjust this step
-# accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas.
-# Here's an example where we've git cloned it to our Windows home folder;
+Git-clone the UBento source files somewhere locally... you could store it Linux-side directory, such as '$HOME/Development/ubento' and adjust this step accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas.
 
+Here's an example where we've git cloned this repo it to our Windows home folder;
+
+```
 $ export UBENTO_WIN_REPO="/mnt/c/Users/${username}/repos/ubento"
 
 $ git clone "https://github.com/StoneyDSP/ubento.git" "$UBENTO_WIN_REPO"
@@ -801,66 +862,95 @@ The directories indicated in all of the above *should* exist in some form, for a
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly access it from your WSL user's downloads folder (which is the exact same file address), for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either, or a mix, of the following;
 
 
-## option 1 - linked storage; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
+## option 1 - linked storage; 
 
-```
-# Logged in as user, NOT root(!);
-$ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
-ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
-ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
-ln -s "/mnt/c/Users/${username}/Music"        "/home/${username}/Music"     && \
-ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
-ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
-ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
+Symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
-# optional - logged in as root;
-$ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
-...
-$ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
+- Logged in as user, NOT root(!);
 
-# optional - 'public' shared folder...
-$ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
-$ ln -s "/mnt/c/Users/Public" "/root/Public"
-```
+    ```
+    $ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
+    ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
+    ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
+    ln -s "/mnt/c/Users/${username}/Music"        "/home/${username}/Music"     && \
+    ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
+    ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
+    ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
+    ```
+
+- optional - logged in as root;
+
+    ```
+    $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
+    ...
+    $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
+    ```
+
+- optional - 'public' shared folder...
+    
+    ```
+    $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
+    $ ln -s "/mnt/c/Users/Public" "/root/Public"
+    ```
+
+- Alternatively, make a function;
+    
+    ```
+    $ link_home_dirs()
+    {
+        ln -s /mnt/c/Users/${1}/${2} $HOME/${2}
+    }
+
+    $ link_home_dirs "<Windows User Name>" "Downloads"
+    # ...etc
+    ```
 
 
 Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
-```
-# (this is NOT a terminal command!!!)
-XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
-```
+    ```
+    # (this is NOT a terminal command!!!)
+    XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
+    ```
 
 The exact same directory (and it's contents) on the Windows side...
 
-```
-# (this is NOT a terminal command!!!)
-"$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
-```
+    ```
+    # (this is NOT a terminal command!!!)
+    "$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
+    ```
 
 All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
 ## option 2 - local storage; create new UBento user folders with these commands;
 
-```
-# Run this once as the user, then once as root...
+- Run this once as the user, then once as root...
+    
+    ```
+    $ mkdir \
+    $HOME/Desktop \
+    $HOME/Documents \
+    $HOME/Downloads \
+    $HOME/Music \
+    $HOME/Pictures \
+    $HOME/Public \
+    $HOME/Templates \
+    $HOME/Videos
+    ```
 
-$ mkdir \
-$HOME/Desktop \
-$HOME/Documents \
-$HOME/Downloads \
-$HOME/Music \
-$HOME/Pictures \
-$HOME/Public \
-$HOME/Templates \
-$HOME/Videos
-```
+- Alternatively, use the handy XDG package to do it for us;
+    
+    ```
+    $ sudo apt install xdg-user-dirs
+    $ xdg-user-dirs-defaults
+    ```
 
-With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd.
+With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd, wherever you chose to store it.
 
 
-We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
+
+We're using ```$XDG_CONFIG_HOME``` = ```$HOME/.config``` for our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
 
 
 ## We can set bookmark tabs for our chosen Linux-side desktop explorer;
@@ -904,7 +994,7 @@ add the following:
 Check your Linux-side desktop explorer's "other locations" or network options to discover this connection.
 
 
-## Import your Windows fonts by adding the below to ```/etc/fonts```;
+## Import your Windows fonts;
 
 ```
 $ sudo nano /etc/fonts/local.conf
@@ -928,9 +1018,8 @@ Slick.
 The XDG freedesktop specs suggest creating the following directories in your userspaces, for trash can management that integrates widely across a variety of desktop browsers (particularly in the wide world of Linux);
 
 ```
-$ /home/{username}/.local/share/Trash/info
-$ /home/{username}/.local/share/Trash/files
-
+$ mkdir $HOME/.local/share/Trash/info
+$ mkdir $HOME/.local/share/Trash/files
 ```
 
 The above creates a Trash Can that works properly with, for example, Nautilus and Gnome. The same can (and probably should) be done for the root user. Reading up on the XDG desktop specs is well advised, if you're interested in building from source.
@@ -993,11 +1082,16 @@ export PATH
 
 ## Bash Completion
 
-Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please, and version-update the content accordingly. Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
+Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. 
+
+Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please, and version-update the content accordingly. Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
+
 
 ## Storage
 
-As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
+As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. 
+
+We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
 
 Let's look at a few things we can do.
 
@@ -1058,7 +1152,9 @@ $ wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
 
 ## Interoperability with Fonts and Wallpapers
 
-Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
+Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. 
+
+While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
 
 *The official Ubuntu fonts are here - https://design.ubuntu.com/font/
 
@@ -1257,8 +1353,7 @@ $ cd "$DEV_DIR"
 
 $ git clone git@github.com:StoneyDSP/ubento.git
 
-# If you're cd-'ing around between NodeJs-based repo's, consider checking out
-# nvm-sh's 'cd_nvm' function.
+# If you're cd-'ing around between NodeJs-based repo's, consider checking out nvm-sh's 'cd_nvm' function :)
 ```
 
 

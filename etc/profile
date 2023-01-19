@@ -1,31 +1,25 @@
-# /etc/profile
 
-# System-wide environment and startup programs.
+## /etc/profile
 
-# To the extent possible under law, the author(s) have dedicated all copyright
-# and related and neighboring rights to this software to the public domain
-# worldwide. This software is distributed without any warranty. You should have
-# received a copy of the CC0 Public Domain Dedication along with this software.
-# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+## System-wide environment and startup programs.
 
-# It's NOT a good idea to change this file unless you know what you are doing.
-# It's much better to create a custom.sh shell script in /etc/profile.d/ to
-# make custom changes to your environment, as this will prevent the need for
-# merging in future updates.
+## To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty. You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
-# System-wide aliases and functions should go in /etc/bashrc.
-# Personal environment variables and startup programs should go in ~/.bash_profile.
-# Personal aliases and functions should go in ~/.bashrc.
+## It's NOT a good idea to change this file unless you know what you are doing. It's much better to create a custom.sh shell script in /etc/profile.d/ to make custom changes to your environment, as this will prevent the need for merging in future updates.
 
-# Begin /etc/profile
+## System-wide aliases and functions should go in /etc/bashrc.
+## Personal environment variables and startup programs should go in ~/.bash_profile.
+## Personal aliases and functions should go in ~/.bashrc.
+
+## Begin /etc/profile
 echo "$0; # $USER loading /etc/profile..."
 
-# umask
-# By default, the umask should be set.
-#
-# Set as 022 for removing write permissions to group + others.
-# Set as 027 for a more restrictive umask: i.e. no exec perms for others.
-# Set as 077 when paranoid: neither group nor others have any permissions.
+## umask
+## By default, the umask should be set.
+
+## Set as 022 for removing write permissions to group + others.
+## Set as 027 for a more restrictive umask: i.e. no exec perms for others.
+## Set as 077 when paranoid: neither group nor others have any permissions.
 if [ "$(id -gn)" = "$(id -un)" -a $EUID -gt 99 ] ; then
     umask 002
 else
@@ -56,8 +50,7 @@ if [ -d "/etc/profile.d" ]; then
     unset script
 fi
 
-# Ensure base distro default paths and env vars are set if nothing filled up some
-# defaults yet.
+## Ensure base distro default paths and env vars are set if nothing filled up some defaults yet.
 if [ -z "$PATH" ]; then
     export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 fi
@@ -95,4 +88,4 @@ if [ -z "$PAGER" ]; then
 fi
 
 echo "$0; # ...$USER loaded /etc/profile"
-# End /etc/profile
+## End /etc/profile
