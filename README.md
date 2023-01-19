@@ -80,7 +80,7 @@ To get started, run the below in either your Windows Powershell (```>```) or you
 
 ## [PRE-INSTALL]
 
-First, we need to get a copy of the distro and import it into WSL, all on the Windows-side. There are currently two different strategies to achieve this; for a quick-start method that will have all the benefits of UBento pre-loaded and ready to be executed, or alternatively you can choose to build a distro from source, and follow the suggestions and specifications highlighted in this document for yourself (see "[TIPS]:Building from source").
+First, we need to get a copy of the distro and import it into WSL, all on the Windows-side. There are currently two different strategies to achieve this; a quick-start method that will have all the benefits of UBento pre-loaded and ready to be executed, or alternatively you can choose to build a distro from source, and follow the suggestions and specifications highlighted in this document for yourself (see "[TIPS]:Building from source").
 
 - Opt 1 - Download the pre-configured distro for a quick start;
 
@@ -102,14 +102,14 @@ Then, you can use WSL to directly import that .tar file, immediately launching a
     > docker export -o "C:\Users\<username>\ubuntu_minimal.tar" "<UbuntuContainerID>"
     ```
 
-NOTE: If you're choosing option 2 of the above - building a distro from source, by pulling a clean Ubuntu image from Docker Desktop and importing it - then I strongly suggest scrolling down to [TIPS:Building from source] for a clear understanding of the difference between the image hosted on the UBento "Release" page, and the Ubuntu image hosted by Docker. If building from source, the majority of this document only applies if you follow the provided instructions in [TIPS] correctly, before proceeding any further. If you choose to deviate from these instructions, you will simply have to adjust all the given advice accordingly - just a friendly dev-to-dev FYI :)
+    NOTE: If you're choosing option 2 of the above - building a distro from source, by pulling a clean Ubuntu image from Docker Desktop and importing it - then I strongly suggest scrolling down to [TIPS:Building from source] for a clear understanding of the difference between the image hosted on the UBento "Release" page, and the Ubuntu image hosted by Docker. If building from source, the majority of this document only applies if you follow the provided instructions in [TIPS] correctly, before proceeding any further. If you choose to deviate from these instructions, you will simply have to adjust all the given advice accordingly - just a friendly dev-to-dev FYI :)
 
 ## Importing the .tar file to run as a distro in WSL
 
 We then have a few options for how we wish to store UBento, such as using the dynamic virtual hard drive (.vhd or .vhdx) format, and backing up and/or running from external storage drives. The ```--export``` command in the below example stores a backup mountable image in the 'D:\' drive (which can be a smart card or USB memory, etc), but you may of course place the files anywhere you like (see [TIPS] for more storage examples).
 
 ```
-> wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubuntu_minimal.tar"
+> wsl --import UBento "C:\My\Install\Folder" "C:\Users\<username>\ubento.tar"
 
 > wsl --export UBento "D:\My\Backup\Folder\ubento.vhdx" --vhd
 ```
@@ -151,10 +151,10 @@ And that puts us back to exactly where we last ran the ```--export``` command. P
 The below steps are to be run from within your new WSL Ubuntu-based bash terminal (```$```).
 
 
-- set permission for root folder, restore server packages, and install basic dependencies;
+- set permission for root folder (see '[TIPS]:Building from source' for info on this command), restore server packages, and install basic dependencies;
 
 ```
-$ chmod 755 /
+$ init_permissions
 $ apt update && apt install apt-utils dialog
 
 # If you need superuser accesses...
@@ -705,6 +705,20 @@ It is CRITICAL* during systemd configuration that of the previous steps, the fol
 > wsl --import UBento "C:\Users\${username}\UBento" "C:\Users\${username}\ubuntu.tar"
 > wsl -d Ubento
 
+$ init_permissions()
+{
+    chmod 755 / && \
+    chmod 1777 /tmp &&\
+    find /tmp \
+        -mindepth 1 \
+        -name '.*-unix' -exec chmod 1777 {} + -prune -o \
+        -exec chmod go-rwx {} +
+
+    # https://unix.stackexchange.com/questions/71622/what-are-correct-permissions-for-tmp-i-unintentionally-set-it-all-public-recu
+}
+$ export -f init_permissions
+
+$ init_permissions
 $ apt install apt-utils dialog && apt install sudo && sudo -s
 $ apt install nano less lsb-release curl wget git 
 
