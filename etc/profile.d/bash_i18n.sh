@@ -1,6 +1,7 @@
-# /etc/profile.d/i18n.sh
 
-# Begin /etc/profile.d/i18n.sh
+## /etc/profile.d/i18n.sh
+
+## Begin /etc/profile.d/i18n.sh
 
 unset LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES \
     LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
@@ -25,4 +26,4 @@ export LANG="${LANG:-C}"
 [ -n "$LC_MEASUREMENT" ]    && export LC_MEASUREMENT
 [ -n "$LC_IDENTIFICATION" ] && export LC_IDENTIFICATION
 
-# End /etc/profile.d/i18n.sh
+## End /etc/profile.d/i18n.sh
