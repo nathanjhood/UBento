@@ -558,10 +558,16 @@ $ notepad .
 
 - What about using our Linux-side libs and binaries on our Windows-side files, in PowerShell? Well...
 
+
+Let's call the WSL Ubento user-login shell with a command line invocation, to create and open a new Windows-local file named 'nanotest';
+
 ```
-# Call the WSL Ubento user-login shell with a command line invocation, to create and open a new Windows-local file named 'nanotest';
 > wsl --shell-type login -d ubento --exec nano ./nanotest
-# Type the word 'success!' and press 'Ctrl-s', then 'Ctrl-x', to save and exit nano, then execute the below in PowerShell to 'cat' the result;
+```
+
+Type the word 'success!' and press 'Ctrl-s', then 'Ctrl-x', to save and exit nano, then execute the below in PowerShell to 'cat' the result;
+
+```
 > wsl --shell-type login -d ubento --exec cat ./nanotest
 # success!
 ```
@@ -578,14 +584,15 @@ set noconvert
 
 - Don't forget to test out VSCode with the Remote Development extension installed on the Windows side, of course... ;
 
-This is an excellent example of WSL capable is offering; your code-base is stored and served from "localhost", i.e., the Linux (back-end) side, while the VS Code graphical code-editor application runs using your Windows-side software and hardware (and VSCode Remote Development extension) - Just make sure that you DON'T have VSCode installed on the Linux side before doing this.
+This is an excellent example of WSL capable is offering; your code-base is stored and served from "localhost", i.e., the Linux (back-end) side, while the VS Code graphical code-editor application runs in "localclient", i.e., your Windows-side software and hardware
 
 ```
 $ cd $HOME
 $ code .
 
 # Will run an installation step for 'vscode-server-remote' on first run....
-# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
+# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions
+# Make sure that you *don't* already have VSCode installed on the Linux side before doing this, as that's *not* how the Remote Dev extension works! ;) 
 ```
 
 - Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
@@ -649,7 +656,13 @@ Restart your Windows machine once the above is complete.
 ## Storage considerations
 
 
-Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from a removable storage drive, like USB or SD card. While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. Desktop linkage is really cool, as is external storage - but I'd have to recommend not to mix the two, in the case of WSL.
+Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. 
+
+It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from an external/removable storage drive, like USB or SD card. 
+
+While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. 
+
+Desktop linkage is really cool, as is external storage - but I'd have to recommend *not* to mix the two, in the case of WSL.
 
 
 ## Still having package/service dependency issues?
@@ -1069,11 +1082,16 @@ export PATH
 
 ## Bash Completion
 
-Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please, and version-update the content accordingly. Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
+Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. 
+
+Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please, and version-update the content accordingly. Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
+
 
 ## Storage
 
-As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
+As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. 
+
+We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
 
 Let's look at a few things we can do.
 
@@ -1134,7 +1152,9 @@ $ wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
 
 ## Interoperability with Fonts and Wallpapers
 
-Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
+Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. 
+
+While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
 
 *The official Ubuntu fonts are here - https://design.ubuntu.com/font/
 
