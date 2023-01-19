@@ -220,15 +220,6 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 
 ## [INTEROPERABILITY]
 
-- Test docker interoperability; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
-
-```
-# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
-
-$ docker run hello-world
-$ docker run -it ubuntu bash
-```
-
 - We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
 
 ```
@@ -254,6 +245,16 @@ $ code .
 # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
 ```
 
+- Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
+
+```
+# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
+
+$ docker run hello-world
+$ docker run -it alpine bash
+```
+
+
 ## [DEVTOOLS KEYRING]
 
 Requires some of the basic packages from earlier, such as wget/curl/git/gpg/lsb-release/openssh-client.
@@ -264,6 +265,7 @@ $ sudo apt install wget curl git gpg lsb-release openssh-client
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
+$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 ```
 
 The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```. 
@@ -320,14 +322,29 @@ $ apt install yarn
 $ yarn global add npm@latest
 ```
 
+
+- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```)
+
+```
+$ get_nvm()
+{
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
+}
+
+# Choose as preferred...
+
+# nvm install --lts
+# nvm install node
+$ nvm use system
+```
+
+
 - Fully ssh-authenticated Git and Chrome integration
 
 ```
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
 # Requirements...
 $ apt install curl wget git gpg
@@ -479,22 +496,6 @@ $ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual 
 ```
 
 
-- Google Chrome (latest stable)
-
-```
-$ export ARCH="$(dpkg --print-architecture)"
-
-$ get_chrome()
-{
-    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOADS_DIR/chrome.deb"
-
-    apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
-}
-
-$ get_chrome
-```
-
-
 - Supabase (check repo for latest release version number, these outdate quickly...)
 
 ```
@@ -515,22 +516,6 @@ $ get_supabase
 
 # as user...
 $ supabase login
-```
-
-
-- Node Version Manager (note that it will install into ```$XDG_CONFIG_DIR```, so ```$HOME/.config/nvm```)
-
-```
-$ get_nvm()
-{
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh" | bash
-}
-
-# Choose as preferred...
-
-# nvm install --lts
-# nvm install node
-$ nvm use system
 ```
 
 
@@ -821,6 +806,15 @@ $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
 # optional - 'public' shared folder...
 $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
 $ ln -s "/mnt/c/Users/Public" "/root/Public"
+
+# Alternatively, make a function;
+$ link_home_dirs()
+{
+    ln -s /mnt/c/Users/${1}/${2} $HOME/${2}
+}
+
+$ link_home_dirs "<Windows User Name>" "Downloads"
+# ...etc
 ```
 
 
@@ -828,7 +822,7 @@ Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
 ```
 # (this is NOT a terminal command!!!)
-XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
+XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
 ```
 
 The exact same directory (and it's contents) on the Windows side...
@@ -855,12 +849,16 @@ $HOME/Pictures \
 $HOME/Public \
 $HOME/Templates \
 $HOME/Videos
+
+# Alternatively, use the handy XDG package to do it for us;
+$ sudo apt install xdg-user-dirs
+$ xdg-user-dirs-defaults
 ```
 
 With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd.
 
 
-We're using ```$HOME/.config``` as our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
+We're using ```$XDG_CONFIG_HOME``` = ```$HOME/.config``` for our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
 
 
 ## We can set bookmark tabs for our chosen Linux-side desktop explorer;
@@ -904,7 +902,7 @@ add the following:
 Check your Linux-side desktop explorer's "other locations" or network options to discover this connection.
 
 
-## Import your Windows fonts by adding the below to ```/etc/fonts```;
+## Import your Windows fonts;
 
 ```
 $ sudo nano /etc/fonts/local.conf
@@ -928,9 +926,8 @@ Slick.
 The XDG freedesktop specs suggest creating the following directories in your userspaces, for trash can management that integrates widely across a variety of desktop browsers (particularly in the wide world of Linux);
 
 ```
-$ /home/{username}/.local/share/Trash/info
-$ /home/{username}/.local/share/Trash/files
-
+$ mkdir $HOME/.local/share/Trash/info
+$ mkdir $HOME/.local/share/Trash/files
 ```
 
 The above creates a Trash Can that works properly with, for example, Nautilus and Gnome. The same can (and probably should) be done for the root user. Reading up on the XDG desktop specs is well advised, if you're interested in building from source.
