@@ -569,7 +569,8 @@ $ notepad .
 Be very wary of file permissions, line-ending settings, and conversions that the above basic text editors are unknowingly capable of, and leverage every interoperability opportunity that you can find among their individual configuration files. For example, GNU nano uses a 'nanorc' or '*.nanorc' file to control certain configuration aspects, handily on a per-filetype basis. Some 'nanorc' settings to be very watchful of (suggested settings below) - this file usually exists at system-level in ```/etc/nanorc``` and user-level in ```$XDG_CONFIG_HOME/nano/nanorc```;
 
 ```
-## Don't convert files from DOS/Mac format.                                                                                                                       set noconvert 
+## Don't convert files from DOS/Mac format.
+set noconvert
 ## Save files by default in Unix format (also when they were DOS or Mac).
 # set unix
 ```
