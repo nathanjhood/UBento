@@ -828,10 +828,13 @@ The directories indicated in all of the above *should* exist in some form, for a
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly access it from your WSL user's downloads folder (which is the exact same file address), for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either, or a mix, of the following;
 
 
-## option 1 - linked storage; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
+## option 1 - linked storage; 
+
+Symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
+
+- Logged in as user, NOT root(!);
 
     ```
-    # Logged in as user, NOT root(!);
     $ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
     ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
     ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
@@ -839,17 +842,26 @@ By providing symbolic links to our Windows user folders, we can get some huge be
     ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
     ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
     ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
+    ```
 
-    # optional - logged in as root;
+- optional - logged in as root;
+
+    ```
     $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
     ...
     $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
+    ```
 
-    # optional - 'public' shared folder...
+- optional - 'public' shared folder...
+    
+    ```
     $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
     $ ln -s "/mnt/c/Users/Public" "/root/Public"
+    ```
 
-    # Alternatively, make a function;
+- Alternatively, make a function;
+    
+    ```
     $ link_home_dirs()
     {
         ln -s /mnt/c/Users/${1}/${2} $HOME/${2}
@@ -860,28 +872,28 @@ By providing symbolic links to our Windows user folders, we can get some huge be
     ```
 
 
-    Let's expand our $XDG_DOWNLOAD_DIR variable out...
+Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
     ```
     # (this is NOT a terminal command!!!)
     XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
     ```
 
-    The exact same directory (and it's contents) on the Windows side...
+The exact same directory (and it's contents) on the Windows side...
 
     ```
     # (this is NOT a terminal command!!!)
     "$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
     ```
 
-    All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
+All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
 ## option 2 - local storage; create new UBento user folders with these commands;
 
+- Run this once as the user, then once as root...
+    
     ```
-    # Run this once as the user, then once as root...
-
     $ mkdir \
     $HOME/Desktop \
     $HOME/Documents \
@@ -891,13 +903,17 @@ By providing symbolic links to our Windows user folders, we can get some huge be
     $HOME/Public \
     $HOME/Templates \
     $HOME/Videos
+    ```
 
-    # Alternatively, use the handy XDG package to do it for us;
+- Alternatively, use the handy XDG package to do it for us;
+    
+    ```
     $ sudo apt install xdg-user-dirs
     $ xdg-user-dirs-defaults
     ```
 
-    With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd, wherever you chose to store it.
+With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd, wherever you chose to store it.
+
 
 
 We're using ```$XDG_CONFIG_HOME``` = ```$HOME/.config``` for our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
