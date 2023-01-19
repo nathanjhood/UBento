@@ -27,8 +27,9 @@ set_runtime_dir()
 ## https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 set_session_bus()
 {
-    export DBUS_PATH="bus"
-    local bus_file_path="$XDG_RUNTIME_DIR/$DBUS_PATH"
+    export DBUS_PATH="dbus-1"
+    export DBUS_SOCK="bus"
+    local bus_file_path="$XDG_RUNTIME_DIR/$DBUS_PATH/$DBUS_SOCK"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
     echo "Checking session D_Bus..."
@@ -36,14 +37,17 @@ set_session_bus()
         {
         echo "Session D-Bus not found..."
         sudo service dbus start
-        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
-        /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
-        /usr/bin/dbus-update-activation-environment --all --verbose --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
+        sudo service cron start
+        sudo service x11-common start
         echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
         }
     else
         echo "Using active D-Bus session at $DBUS_SESSION_BUS_ADDRESS"
     fi
+    /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
+    /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
+    /usr/bin/dbus-update-activation-environment --all --verbose &
+    /usr/libexec/at-spi2-registryd --use-gnome-session &
 }
 
 cdnvm() {
