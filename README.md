@@ -720,13 +720,14 @@ $ export -f init_permissions
 
 $ init_permissions
 $ apt install apt-utils dialog && apt install sudo && sudo -s
-$ apt install nano less lsb-release curl wget git 
+$ apt install nano less lsb-release curl wget git # And whatever other dependencies you might need...
+```
 
-# Git-clone UBento somewhere locally... you could store it Linux-side
-# directory, such as '$HOME/Development/ubento' and adjust this step
-# accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas.
-# Here's an example where we've git cloned it to our Windows home folder;
+Git-clone the UBento source files somewhere locally... you could store it Linux-side directory, such as '$HOME/Development/ubento' and adjust this step accordingly. See the [TIPS] and [DEVTOOLS KEYRING] sections for ideas.
 
+Here's an example where we've git cloned this repo it to our Windows home folder;
+
+```
 $ export UBENTO_WIN_REPO="/mnt/c/Users/${username}/repos/ubento"
 
 $ git clone "https://github.com/StoneyDSP/ubento.git" "$UBENTO_WIN_REPO"
