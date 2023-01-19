@@ -1,78 +1,57 @@
-# bash/zsh completion support for core Git.
-#
-# Copyright (C) 2006,2007 Shawn O. Pearce <spearce@spearce.org>
-# Conceptually based on gitcompletion (http://gitweb.hawaga.org.uk/).
-# Distributed under the GNU General Public License, version 2.0.
-#
-# The contained completion routines provide support for completing:
-#
-#    *) local and remote branch names
-#    *) local and remote tag names
-#    *) .git/remotes file names
-#    *) git 'subcommands'
-#    *) git email aliases for git-send-email
-#    *) tree paths within 'ref:path/to/file' expressions
-#    *) file paths within current working directory and index
-#    *) common --long-options
-#
-# To use these routines:
-#
-#    1) Copy this file to somewhere (e.g. ~/.git-completion.bash).
-#    2) Add the following line to your .bashrc/.zshrc:
-#        source ~/.git-completion.bash
-#    3) Consider changing your PS1 to also show the current branch,
-#       see git-prompt.sh for details.
-#
-# If you use complex aliases of form '!f() { ... }; f', you can use the null
-# command ':' as the first command in the function body to declare the desired
-# completion style.  For example '!f() { : git commit ; ... }; f' will
-# tell the completion to use commit completion.  This also works with aliases
-# of form "!sh -c '...'".  For example, "!sh -c ': git commit ; ... '".
-#
-# If you have a command that is not part of git, but you would still
-# like completion, you can use __git_complete:
-#
+## bash/zsh completion support for core Git.
+
+## Copyright (C) 2006,2007 Shawn O. Pearce <spearce@spearce.org>
+
+## Conceptually based on gitcompletion (http://gitweb.hawaga.org.uk/).
+## Distributed under the GNU General Public License, version 2.0.
+
+## The contained completion routines provide support for completing:
+##
+##    *) local and remote branch names
+##    *) local and remote tag names
+##    *) .git/remotes file names
+##    *) git 'subcommands'
+##    *) git email aliases for git-send-email
+##    *) tree paths within 'ref:path/to/file' expressions
+##    *) file paths within current working directory and index
+##    *) common --long-options
+##
+
+## If you use complex aliases of form '!f() { ... }; f', you can use the null command ':' as the first command in the function body to declare the desired completion style.  For example '!f() { : git commit ; ... }; f' will tell the completion to use commit completion.  This also works with aliases of form "!sh -c '...'".  For example, "!sh -c ': git commit ; ... '".
+
+## If you have a command that is not part of git, but you would still like completion, you can use __git_complete:
 #   __git_complete gl git_log
-#
-# Or if it's a main command (i.e. git or gitk):
-#
+
+## Or if it's a main command (i.e. git or gitk):
 #   __git_complete gk gitk
-#
-# Compatible with bash 3.2.57.
-#
-# You can set the following environment variables to influence the behavior of
-# the completion routines:
-#
-#   GIT_COMPLETION_CHECKOUT_NO_GUESS
-#
-#     When set to "1", do not include "DWIM" suggestions in git-checkout
-#     and git-switch completion (e.g., completing "foo" when "origin/foo"
-#     exists).
-#
-#   GIT_COMPLETION_SHOW_ALL_COMMANDS
-#
-#     When set to "1" suggest all commands, including plumbing commands
-#     which are hidden by default (e.g. "cat-file" on "git ca<TAB>").
-#
-#   GIT_COMPLETION_SHOW_ALL
-#
-#     When set to "1" suggest all options, including options which are
-#     typically hidden (e.g. '--allow-empty' for 'git commit').
-#
-#   GIT_COMPLETION_IGNORE_CASE
-#
-#     When set, uses for-each-ref '--ignore-case' to find refs that match
-#     case insensitively, even on systems with case sensitive file systems
-#     (e.g., completing tag name "FOO" on "git checkout f<TAB>").
+
+## Compatible with bash 3.2.57.
+
+## You can set the following environment variables to influence the behavior of the completion routines:
+##
+##   GIT_COMPLETION_CHECKOUT_NO_GUESS
+##
+##     When set to "1", do not include "DWIM" suggestions in git-checkoutand git-switch completion (e.g., completing "foo" when "origin/foo" exists).
+##
+##   GIT_COMPLETION_SHOW_ALL_COMMANDS
+##
+##     When set to "1" suggest all commands, including plumbing commands which are hidden by default (e.g. "cat-file" on "git ca<TAB>").
+##
+##   GIT_COMPLETION_SHOW_ALL
+##
+##     When set to "1" suggest all options, including options which are typically hidden (e.g. '--allow-empty' for 'git commit').
+##
+##   GIT_COMPLETION_IGNORE_CASE
+##
+##     When set, uses for-each-ref '--ignore-case' to find refs that match case insensitively, even on systems with case sensitive file systems (e.g., completing tag name "FOO" on "git checkout f<TAB>").
+##
 
 case "$COMP_WORDBREAKS" in
 *:*) : great ;;
 *)   COMP_WORDBREAKS="$COMP_WORDBREAKS:"
 esac
 
-# Discovers the path to the git repository taking any '--git-dir=<path>' and
-# '-C <path>' options into account and stores it in the $__git_repo_path
-# variable.
+## Discovers the path to the git repository taking any '--git-dir=<path>' and '-C <path>' options into account and stores it in the $__git_repo_path variable.
 __git_find_repo_path ()
 {
 	if [ -n "${__git_repo_path-}" ]; then
@@ -97,9 +76,7 @@ __git_find_repo_path ()
 	fi
 }
 
-# Deprecated: use __git_find_repo_path() and $__git_repo_path instead
-# __gitdir accepts 0 or 1 arguments (i.e., location)
-# returns location of .git repo
+## Deprecated: use __git_find_repo_path() and $__git_repo_path instead __gitdir accepts 0 or 1 arguments (i.e., location) returns location of .git repo
 __gitdir ()
 {
 	if [ -z "${1-}" ]; then
@@ -112,17 +89,14 @@ __gitdir ()
 	fi
 }
 
-# Runs git with all the options given as argument, respecting any
-# '--git-dir=<path>' and '-C <path>' options present on the command line
+## Runs git with all the options given as argument, respecting any '--git-dir=<path>' and '-C <path>' options present on the command line
 __git ()
 {
 	git ${__git_C_args:+"${__git_C_args[@]}"} \
 		${__git_dir:+--git-dir="$__git_dir"} "$@" 2>/dev/null
 }
 
-# Removes backslash escaping, single quotes and double quotes from a word,
-# stores the result in the variable $dequoted_word.
-# 1: The word to dequote.
+## Removes backslash escaping, single quotes and double quotes from a word, stores the result in the variable $dequoted_word. 1: The word to dequote.
 __git_dequote ()
 {
 	local rest="$1" len ch
@@ -184,35 +158,26 @@ __git_dequote ()
 	done
 }
 
-# The following function is based on code from:
-#
-#   bash_completion - programmable completion functions for bash 3.2+
-#
-#   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
-#             © 2009-2010, Bash Completion Maintainers
-#                     <bash-completion-devel@lists.alioth.debian.org>
-#
-#   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation; either version 2, or (at your option)
-#   any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program; if not, see <http://www.gnu.org/licenses/>.
-#
-#   The latest version of this software can be obtained here:
-#
-#   http://bash-completion.alioth.debian.org/
-#
-#   RELEASE: 2.x
+## The following function is based on code from:
+##
+##   bash_completion - programmable completion functions for bash 3.2+
+##
+##   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
+##             © 2009-2010, Bash Completion Maintainers <bash-completion-devel@lists.alioth.debian.org>
+##
+##   This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
+##
+##   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+##
+##   You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
+##
+##   The latest version of this software can be obtained here:
+##
+##   http://bash-completion.alioth.debian.org/
+##
+##   RELEASE: 2.x
 
-# This function can be used to access a tokenized list of words
-# on the command line:
+## This function can be used to access a tokenized list of words on the command line:
 #
 #	__git_reassemble_comp_words_by_ref '=:'
 #	if test "${words_[cword_-1]}" = -w
@@ -3574,9 +3539,9 @@ ___git_complete ()
 		|| complete -o default -o nospace -F $wrapper $1
 }
 
-# Setup the completion for git commands
-# 1: command or alias
-# 2: function to call (e.g. `git`, `gitk`, `git_fetch`)
+## Setup the completion for git commands
+## 1: command or alias
+## 2: function to call (e.g. `git`, `gitk`, `git_fetch`)
 __git_complete ()
 {
 	local func
@@ -3597,10 +3562,7 @@ __git_complete ()
 ___git_complete git __git_main
 ___git_complete gitk __gitk_main
 
-# The following are necessary only for Cygwin, and only are needed
-# when the user has tab-completed the executable name and consequently
-# included the '.exe' suffix.
-#
+## The following are necessary only for Cygwin, and only are needed when the user has tab-completed the executable name and consequently included the '.exe' suffix.
 if [ "$OSTYPE" = cygwin ]; then
 	___git_complete git.exe __git_main
 fi
