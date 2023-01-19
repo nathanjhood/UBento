@@ -556,8 +556,28 @@ $ notepad .
 # Will launch Notepad - careful with those line ending settings!
 ```
 
+- What about using our Linux-side libs and binaries on our Windows-side files, in PowerShell? Well...
 
-- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
+```
+# Call the WSL Ubento user-login shell with a command line invocation, to create and open a new Windows-local file named 'nanotest';
+> wsl --shell-type login -d ubento --exec nano ./nanotest
+# Type the word 'success!' and press 'Ctrl-s', then 'Ctrl-x', to save and exit nano, then execute the below in PowerShell to 'cat' the result;
+> wsl --shell-type login -d ubento --exec cat ./nanotest
+# success!
+```
+
+Be very wary of file permissions, line-ending settings, and conversions that the above basic text editors are unknowingly capable of, and leverage every interoperability opportunity that you can find among their individual configuration files. For example, GNU nano uses a 'nanorc' or '*.nanorc' file to control certain configuration aspects, handily on a per-filetype basis. Some 'nanorc' settings to be very watchful of (suggested settings below) - this file usually exists at system-level in ```/etc/nanorc``` and user-level in ```$XDG_CONFIG_HOME/nano/nanorc```;
+
+```
+## Don't convert files from DOS/Mac format.                                                                                                                       set noconvert 
+## Save files by default in Unix format (also when they were DOS or Mac).
+# set unix
+```
+
+
+- Don't forget to test out VSCode with the Remote Development extension installed on the Windows side, of course... ;
+
+This is an excellent example of WSL capable is offering; your code-base is stored and served from "localhost", i.e., the Linux (back-end) side, while the VS Code graphical code-editor application runs using your Windows-side software and hardware (and VSCode Remote Development extension) - Just make sure that you DON'T have VSCode installed on the Linux side before doing this.
 
 ```
 $ cd $HOME
@@ -1312,8 +1332,7 @@ $ cd "$DEV_DIR"
 
 $ git clone git@github.com:StoneyDSP/ubento.git
 
-# If you're cd-'ing around between NodeJs-based repo's, consider checking out
-# nvm-sh's 'cd_nvm' function.
+# If you're cd-'ing around between NodeJs-based repo's, consider checking out nvm-sh's 'cd_nvm' function :)
 ```
 
 
