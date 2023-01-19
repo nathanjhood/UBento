@@ -1,4 +1,6 @@
-# /etc/profile.d/desktop_session_xdg_dirs.sh - Prepend a $DESKTOP_SESSION-named directory to $XDG_CONFIG_DIRS and $XDG_DATA_DIRS
+## /etc/profile.d/desktop_session_xdg_dirs.sh
+
+## Prepend a $DESKTOP_SESSION-named directory to $XDG_CONFIG_DIRS and $XDG_DATA_DIRS
 
 DEFAULT_XDG_CONFIG_DIRS='/etc/xdg'
 DEFAULT_XDG_DATA_DIRS='/usr/local/share/:/usr/share/'

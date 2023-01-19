@@ -1,4 +1,10 @@
-# /etc/profile.d/bash_keyring.sh
+
+## /etc/profile.d/bash_keyring.sh
+
+export DISTRO="$(lsb_release -cs)"
+export ARCH="$(dpkg --print-architecture)"
+export APT_SOURCES="/etc/apt/sources.list.d"
+alias apt_cln='rm -rf /var/lib/apt/lists/*'
 
 get_gith()
 {

@@ -1,6 +1,7 @@
-# /etc/profile.d/bash_completion.sh
 
-# check for interactive bash and only bash
+## /etc/profile.d/bash_completion.sh
+
+## check for interactive bash and only bash
 if [ -n "$BASH_VERSION" -a -n "$PS1" ]; then
     # enable bash completion in interactive shells
     if ! shopt -oq posix; then

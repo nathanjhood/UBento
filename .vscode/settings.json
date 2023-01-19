@@ -17,6 +17,11 @@
         "**/Thumbs.db": true
     },
 
+    "editor.wordWrap": "on",
+
+    // "editor.wordWrap": "bounded",
+    // "editor.wordWrapColumn": 80,
+
     "editor.renderFinalNewline": true,
     "editor.trimAutoWhitespace": true,
     "editor.tabSize": 4,

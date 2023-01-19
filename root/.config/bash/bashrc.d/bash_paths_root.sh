@@ -1,32 +1,32 @@
 
-# Begin ~/.bash_paths_root.sh
+## Begin ~/.bash_paths_root.sh
 
-# Set PATH so it includes user's private bin if it exists
+## Set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
-# Set PATH so it includes user's private bin if it exists
+## Set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Set MANPATH so it includes users' private man if it exists
+## Set MANPATH so it includes users' private man if it exists
 if [ -d "$HOME/man" ]; then
     MANPATH="$HOME/man:$MANPATH"
 fi
 
-# Set INFOPATH so it includes users' private info if it exists
+## Set INFOPATH so it includes users' private info if it exists
 if [ -d "$HOME/info" ]; then
     INFOPATH="$HOME/info:$INFOPATH"
 fi
 
-# Having . in the PATH is dangerous
+## Having . in the PATH is dangerous
 #if [ $EUID -gt 99 ]; then
 #    pathappend .
 #fi
 
-# If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)...
+## If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)...
 if [ -z "$XDG_CACHE_HOME" ] && [ -d "$HOME/.cache" ]; then
     XDG_CACHE_HOME="$HOME/.cache"
 fi
@@ -43,7 +43,7 @@ if [ -z "$XDG_STATE_HOME" ] && [ -d "$HOME/.local/state" ]; then
     XDG_STATE_HOME="$HOME/.local/state"
 fi
 
-# If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)...
+## If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)...
 if [ -z "$XDG_CACHE_HOME" ] && [ -d "$HOME/.cache" ]; then
     XDG_CACHE_HOME="$HOME/.cache"
 fi
@@ -60,7 +60,7 @@ if [ -z "$XDG_STATE_HOME" ] && [ -d "$HOME/.local/state" ]; then
     XDG_STATE_HOME="$HOME/.local/state"
 fi
 
-# If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)
+## If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)
 if [ -z "$XDG_DESKTOP_DIR" ] && [ -d "$HOME/Desktop" ]; then
     XDG_DESKTOP_DIR="$HOME/Desktop"
 fi
@@ -93,4 +93,4 @@ if [ -z "$XDG_VIDEOS_DIR" ] && [ -d "$HOME/Videos" ]; then
     XDG_VIDEOS_DIR="$HOME/Videos"
 fi
 
-# End ~/.bash_paths_root.sh
+## End ~/.bash_paths_root.sh

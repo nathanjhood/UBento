@@ -1,28 +1,29 @@
-# /etc/profile.d/bash_exports.sh
 
-# Begin /etc/profile.d/bash_exports.sh
+## /etc/profile.d/bash_exports.sh
+
+## Begin /etc/profile.d/bash_exports.sh
 
 ## WSLg helpers
 
-# Screen number
+## Screen number
 export DISPLAY_NUMBER="0"
 
-# Auth key
+## Auth key
 export DISPLAY_TOKEN="$(echo '{sudo_autopasswd | sudo_resetpasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
 
-# Server address
+## Server address
 export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
 
-# Encrypted X session address
+## Encrypted X session address
 #export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
 
-# Unencrypted X session address (if authentication fails, swap the above for this...)
+## Unencrypted X session address (if authentication fails, swap the above for this...)
 #export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
-#GL rendering
+## GL rendering
 #export LIBGL_ALWAYS_INDIRECT=1
 
-# Desktop defaults (if not set yet)
+## Desktop defaults (if not set yet)
 if [ -z "$DESKTOP_SESSION" ]; then
     export DESKTOP_SESSION="ubuntu"
 fi
@@ -31,7 +32,7 @@ if [ -z "$GNOME_SHELL_SESSION_MODE" ]; then
     export GNOME_SHELL_SESSION_MODE="ubuntu"
 fi
 
-# Ubuntu default desktop (GNOME Shell variant)
+## Ubuntu default desktop (GNOME Shell variant)
 if [ -z "$XDG_CURRENT_DESKTOP" ]; then
     export XDG_CURRENT_DESKTOP="ubuntu:GNOME"
 fi
@@ -52,4 +53,4 @@ if [ -z "$XDG_SESSION_CLASS" ]; then
     export XDG_SESSION_CLASS="user"
 fi
 
-# End /etc/profile.d/bash_exports.sh
+## End /etc/profile.d/bash_exports.sh
