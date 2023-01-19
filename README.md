@@ -218,42 +218,6 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 
 ![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
-## [INTEROPERABILITY]
-
-- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
-
-```
-alias wsl='/mnt/c/Windows/System32/wsl.exe'
-
-$ wsl --list --verbose
-# Will list all of WSL's installed distros and statuses
-
-alias notepad='/mnt/c/Windows/System32/notepad.exe'
-
-$ notepad .
-# Will launch Notepad - careful with those line ending settings!
-```
-
-
-- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
-
-```
-$ cd $HOME
-$ code .
-
-# Will run an installation step for 'vscode-server-remote' on first run....
-# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
-```
-
-- Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
-
-```
-# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
-
-$ docker run hello-world
-$ docker run -it alpine bash
-```
-
 
 ## [DEVTOOLS KEYRING]
 
@@ -336,6 +300,12 @@ $ get_nvm()
 # nvm install --lts
 # nvm install node
 $ nvm use system
+
+# The useful "cd_nvm()" function is already provided in /etc/profile.d/bash_functions.sh - so, when navigating between Node project repo's on the command line, feel free to...
+
+$ cd_nvm <Node Project Repo>
+
+# ...and NVM should do it's thing.
 ```
 
 
@@ -449,6 +419,8 @@ $ sudo -u postgres psql
 > \du
 > CREATE ROLE root CREATEDB CREATEROLE SUPERUSER LOGIN;
 > CREATE ROLE <username> CREATEDB CREATEROLE SUPERUSER LOGIN;
+> ALTER ROLE root WITH PASSWORD 'root';
+> ALTER ROLE <username> WITH PASSWORD '<password>';
 > \du
 > \q
 
@@ -467,32 +439,19 @@ http://localhost/pgadmin4
 
 # Click 'save' - you should now see your local db's etc listed under 'servers'!
 
+# The above combination will also be served at;
+
+postgresql://postgres:postgres@localhost:54322/postgres
+
+# which is equivalent to;
+
+{service}://{user}:{password}@{address}:{port}/{database}
+
+# Note that some WSL users have reported better performance by using address value of '127.0.0.1' - I can't be too sure, but having your distro's hostname be renamed to something *other than* the Windows name tends to be helpful in these situations; I again suggest i.e., Windows host name = "localclient", Linux host name = "localhost". It throws a small warning in the WSL debug terminal on launch, but the operation is still allowed to pass.
+
 # Now your user(s) can also use the full PostgresQL (and PGAdmin) tools on the CL... without invoking 'sudo'.
 # Postgres also has some well-used bash completion scripts such as 'createdb'. Make sure to generate the bash completion scripts!
 # *note that that you can also launch the 'pgAdmin4-desktop' app instead of the web-based interface, if you prefer...
-```
-
-
-- CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
-
-```
-$ export DISTRO="$(lsb_release -cs)"
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ get_cmake()
-{
-    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
-
-    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
-
-    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
-
-    apt update
-}
-
-$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
-$ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual correct command here, check cmake docs to confirm...
 ```
 
 
@@ -532,6 +491,31 @@ $ postman login
 ```
 
 
+- CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
+
+```
+$ export DISTRO="$(lsb_release -cs)"
+$ export ARCH="$(dpkg --print-architecture)"
+$ export APT_SOURCES="/etc/apt/sources.list.d"
+
+$ sudo apt install build-essential gnu-standards pkgconfig
+
+$ get_cmake()
+{
+    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
+
+    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
+
+    apt update
+}
+
+$ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
+$ cmake completion bash > /etc/bash_completion.d/cmake # not sure of the actual correct command here, check cmake docs to confirm...
+```
+
+
 - vcpkg-tool (still working on this, note that you can get vcpkg itself quite easily too)
 
 ```
@@ -547,6 +531,49 @@ $ get_vcpkg_tool()
 
     vcpkg completion bash > /etc/bash_completion.d/vcpkg
 }
+```
+
+Untested; integrating ```pkg-config``` to detect ```.pc``` files stored on either system... check the following (and my CMake repo);
+
+```
+$ pkgconfig --list-all
+```
+
+
+## [INTEROPERABILITY]
+
+- We can set Linux-side aliases to our Windows executables in ```/etc/profile.d/bash_aliases.sh``` like this;
+
+```
+alias wsl='/mnt/c/Windows/System32/wsl.exe'
+
+$ wsl --list --verbose
+# Will list all of WSL's installed distros and statuses
+
+alias notepad='/mnt/c/Windows/System32/notepad.exe'
+
+$ notepad .
+# Will launch Notepad - careful with those line ending settings!
+```
+
+
+- Don't forget to test out VSCode with the Remote Development extension, of course... Just make sure that you DON'T have VSCode installed on the Linux side;
+
+```
+$ cd $HOME
+$ code .
+
+# Will run an installation step for 'vscode-server-remote' on first run....
+# Also check the 'extensions' tab for many WSL-based versions of your favourite extensions :)
+```
+
+- Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
+
+```
+# make sure the 'UBento' option is checked in Windows Docker Desktop settings > resources for this to work
+
+$ docker run hello-world
+$ docker run -it alpine bash
 ```
 
 
@@ -654,7 +681,7 @@ $ apt install systemd dbus at-spi2-core
 $ wsl.exe -d UBento --shutdown
 ```
 
-## It is *CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized;
+It is CRITICAL* during systemd configuration that of the previous steps, the following (as a minimum) are taken in the correct order, as summarized;
 
 - launch distro as root to install apt-utils, dialog, and sudo
 - copy ubuntu-helpers/profile/bashrc/wsl.conf files
@@ -788,74 +815,74 @@ By providing symbolic links to our Windows user folders, we can get some huge be
 
 ## option 1 - linked storage; symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
-```
-# Logged in as user, NOT root(!);
-$ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
-ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
-ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
-ln -s "/mnt/c/Users/${username}/Music"        "/home/${username}/Music"     && \
-ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
-ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
-ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
+    ```
+    # Logged in as user, NOT root(!);
+    $ ln -s "/mnt/c/Users/${username}/Desktop"    "/home/${username}/Desktop"   && \
+    ln -s "/mnt/c/Users/${username}/Documents"    "/home/${username}/Documents" && \
+    ln -s "/mnt/c/Users/${username}/Downloads"    "/home/${username}/Downloads" && \
+    ln -s "/mnt/c/Users/${username}/Music"        "/home/${username}/Music"     && \
+    ln -s "/mnt/c/Users/${username}/Pictures"     "/home/${username}/Pictures"  && \
+    ln -s "/mnt/c/Users/${username}/Templates"    "/home/${username}/Templates" && \
+    ln -s "/mnt/c/Users/${username}/Videos"       "/home/${username}/Videos"
 
-# optional - logged in as root;
-$ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
-...
-$ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
+    # optional - logged in as root;
+    $ ln -s "/mnt/c/Users/Administrator/Desktop" "/root/Desktop"
+    ...
+    $ ln -s "/mnt/c/Users/Administrator/Videos" "/root/Videos"
 
-# optional - 'public' shared folder...
-$ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
-$ ln -s "/mnt/c/Users/Public" "/root/Public"
+    # optional - 'public' shared folder...
+    $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
+    $ ln -s "/mnt/c/Users/Public" "/root/Public"
 
-# Alternatively, make a function;
-$ link_home_dirs()
-{
-    ln -s /mnt/c/Users/${1}/${2} $HOME/${2}
-}
+    # Alternatively, make a function;
+    $ link_home_dirs()
+    {
+        ln -s /mnt/c/Users/${1}/${2} $HOME/${2}
+    }
 
-$ link_home_dirs "<Windows User Name>" "Downloads"
-# ...etc
-```
+    $ link_home_dirs "<Windows User Name>" "Downloads"
+    # ...etc
+    ```
 
 
-Let's expand our $XDG_DOWNLOAD_DIR variable out...
+    Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
-```
-# (this is NOT a terminal command!!!)
-XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
-```
+    ```
+    # (this is NOT a terminal command!!!)
+    XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
+    ```
 
-The exact same directory (and it's contents) on the Windows side...
+    The exact same directory (and it's contents) on the Windows side...
 
-```
-# (this is NOT a terminal command!!!)
-"$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
-```
+    ```
+    # (this is NOT a terminal command!!!)
+    "$HOME\Downloads" = "C:\Users\${username}\Downloads" = "\\wsl.localhost\UBento\home\${username}\Downloads"
+    ```
 
-All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
+    All of the above are one and the same directory...! Storage is on the Windows-side hard drive; the distro simply symlinks the user to the same filesystem address.
 
 
 ## option 2 - local storage; create new UBento user folders with these commands;
 
-```
-# Run this once as the user, then once as root...
+    ```
+    # Run this once as the user, then once as root...
 
-$ mkdir \
-$HOME/Desktop \
-$HOME/Documents \
-$HOME/Downloads \
-$HOME/Music \
-$HOME/Pictures \
-$HOME/Public \
-$HOME/Templates \
-$HOME/Videos
+    $ mkdir \
+    $HOME/Desktop \
+    $HOME/Documents \
+    $HOME/Downloads \
+    $HOME/Music \
+    $HOME/Pictures \
+    $HOME/Public \
+    $HOME/Templates \
+    $HOME/Videos
 
-# Alternatively, use the handy XDG package to do it for us;
-$ sudo apt install xdg-user-dirs
-$ xdg-user-dirs-defaults
-```
+    # Alternatively, use the handy XDG package to do it for us;
+    $ sudo apt install xdg-user-dirs
+    $ xdg-user-dirs-defaults
+    ```
 
-With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd.
+    With this option, no linkage is created to your Windows user folders or hard disk; all storage remains local to your distro's portable vhd, wherever you chose to store it.
 
 
 We're using ```$XDG_CONFIG_HOME``` = ```$HOME/.config``` for our desktop configuration folder (you may have to ```mkdir $HOME/.config``` if it's not already present). There are some useful things we should set up in here.
