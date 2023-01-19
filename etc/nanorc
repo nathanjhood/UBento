@@ -41,7 +41,7 @@ set bookstyle
 # set cutfromcursor
 
 ## Do not use the line below the title bar, leaving it entirely blank.
-# set emptyline
+set emptyline
 
 ## Set the target width for automatic hard-wrapping and for justifying paragraphs. If the specified value is 0 or less, the wrapping point will be the terminal's width minus this number.
 set fill -4
@@ -110,7 +110,7 @@ set noconvert
 # set rawsequences
 
 ## Fix Backspace/Delete confusion problem.
-set rebinddelete
+# set rebinddelete
 
 ## Do regular-expression searches by default. Regular expressions are of the extended type (ERE).
 # set regexp
@@ -144,11 +144,11 @@ set tabstospaces
 # set trimblanks
 
 ## Save files by default in Unix format (also when they were DOS or Mac).
-# set unix
+unset unix
 
 ## The two single-column characters used to display the first characters of tabs and spaces. 187 in ISO 8859-1 (0000BB in Unicode) and 183 in ISO-8859-1 (0000B7 in Unicode) seem to be good values for these.
 ## The default when in a UTF-8 locale:
-set whitespace "»·"
+# set whitespace "»·"
 
 ## The default otherwise:
 # set whitespace ">."
@@ -234,8 +234,7 @@ include "/usr/share/nano/*.nanorc"
 # unbind M-T main
 ## (Those functions are still accessible through ^T^J and ^T^V.)
 
-## For quickly uppercasing or lowercasing the word under the cursor.
-## (These effectively do a Ctrl+Right followed by a Shift+Ctrl+Left, and then pipe the selected text through a sed command.)
+## For quickly uppercasing or lowercasing the word under the cursor. (These effectively do a Ctrl+Right followed by a Shift+Ctrl+Left, and then pipe the selected text through a sed command.)
 #bind Sh-M-U "^[Oc^[[1;6D^T|sed 's/.*/\U&/'^M" main
 #bind Sh-M-L "^[Oc^[[1;6D^T|sed 's/.*/\L&/'^M" main
 
