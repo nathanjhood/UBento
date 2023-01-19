@@ -47,7 +47,7 @@ set_session_bus()
     /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
     /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
     /usr/bin/dbus-update-activation-environment --all --verbose &
-    /usr/libexec/at-spi2-registryd --use-gnome-session &
+    /usr/libexec/at-spi2-registryd --use-gnome-session --dbus-name=org.a11y.atspi.Registry &
 }
 
 cdnvm() {
