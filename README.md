@@ -727,6 +727,47 @@ It is CRITICAL* during systemd configuration that of the previous steps, the fol
 *this sequence ensures that when the distro default user account is finally accessed, it has the UID of 1000 assigned, and calls the ```set_runtime_dir``` and ```set_session_bus``` functions from the X410 cookbook using this UID during initialization. This sequence creates a runtime directory at ```/run/user/1000``` during initialization where the dbus-daemon (and accessibility bus) is started from, and this runtime location is maintained/used when opening further sessions using this same distro. It is also critical that the root user does NOT have access to these functions (they should not be present at all in ```/root/.profile```).
 
 
+## Help! My distro is broken ('read-only' file system errors)
+
+If you are unable to load your distro and recieve errors such as the above...
+
+- DON'T use anything except NFTS as your storage volume type - in particular, FAT32 file systems do NOT allow file sizes above 4gb. Your distro will fail on a FAT32 storage drive once it reaches 4gb - simply move the file to a backup location, re-format the storage to NTFS and try again.
+- Enable the 'debug' option in your C:\Users\{username}\.wslconfig file to launch an additional terminal read-out to gather more info on the issue, it's usually one of two things... 
+- Make sure that the storage location of your distro's ext4.vhd is not full, i.e., if using external/remote storage
+- If it appears that you are very low on disk space, do ```$ ls -la /var/log``` - you may find a few thousand mb's worth of log files, particularly from the X server (tip welcome!), which you can ```$ sudo rm -rvf /var/log/Xorg*``` to remove entirely.
+- If disk space continues to be the issue (i.e, the above command appears to have worked, but your ext4.vhdx didn't actually shrink so you are still out of disk space), then you are probably using .vhdx (i.e., 'dynamic' sized virtual disk) where plain old .vhd (i.e., 'static' sized virtual disk) would have done the trick... you can use WSL as a handy and easy .vhd/x conversion tool with ```wsl --export <distro> 'C:\some\storage\location\ext4.vhd' --vhd``` and ```wsl --import-in-place <distro> 'C:\some\storage\location\ext4.vhd' --vhd``` in a matter of seconds. See [TIPS]:Storage for more.
+- If it does not appear to be a disk space issue but rather some strange permissions error... there are a few reasons why this can happen, which can often easily be fixed using the below (which even works on the 'permission-error' distro itself);
+
+```
+## In PowerShell, we will first unmount the .vhd then re-import it to ensure the correct mount location is given (as it can get corrupted from time to time);
+> wsl -d <distro> --unmount
+> wsl --import-in-place <distro> 'C:\my\install\location\ext4.vhdx' # Or .vhdx, or even .tar...
+> wsl --shutdown # Wait until wsl -l -v shows all distros totally offline
+> wsl -d <distro>
+
+## Now in your distro;
+$ init_permissions()
+{
+    chmod 755 / && \
+    chmod 1777 /tmp &&\
+    find /tmp \
+        -mindepth 1 \
+        -name '.*-unix' -exec chmod 1777 {} + -prune -o \
+        -exec chmod go-rwx {} +
+
+    # https://unix.stackexchange.com/questions/71622/what-are-correct-permissions-for-tmp-i-unintentionally-set-it-all-public-recu
+}
+$ init_permissions
+$ mount | grep ext4
+## Note which entry contains "/" exclusively - should probably be under "sdc", but sometimes will be "sdd" or something else (usuaully when broken)...
+$ sudo e2fsck /dev/sdc -y # Use /sdd or whichever entry as per the previous command!
+```
+
+The final command above may take a while - in fact, it sometimes seems to be need to be run twice - and it's likely wise to ```wsl --shutdown``` between attempts. However, all of the above steps have revived a seemingly-dead distro for me ever since discovering them, whereas I once was faced with simply deleting and starting again on any error which was of course heavily disheartening.
+
+Thus, I firmly recommend examing the above suggestions in the case of a seemingly "broken" distro - it does seem that the fixes are usually just a few terminal commands and nothing more.
+
+
 ## [TIPS]
 
 ## Buidling from source
