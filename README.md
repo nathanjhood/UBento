@@ -1166,92 +1166,73 @@ https://en.wikipedia.org/wiki/X_Window_authorization
 (tbc - this is a rough sketch of the idea...)
 
 ```
-sudo apt install xauth resolveconf scp
-# Just in case...!
+## Just in case...!
+sudo apt install xauth iceauth resolvconf scp
 
-# Set some easy names...
-alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
-alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
-alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//${username}//.Xauthority"
-alias xauth_lin="xauth"
+## Add some Windows-side user environment variables (careful!)
+$ cmd.exe /C setx BASH_ENV /etc/bash.bashrc
+$ cmd.exe /C setx XAUTHORITY $XAUTHORITY
+$ cmd.exe /C setx ICEAUTHORITY $ICEAUTHORITY
+$ cmd.exe /C setx WSLENV BASH_ENV/up:ICEAUTHORITY/up:XAUTHORITY/up
 
-sudo_autopasswd()
-{
-    echo "<your_user_password>" | sudo -Svp ""
-    # Default timeout for caching your sudo password: 15 minutes
+## Set some easy, portable names...
+$ export ICEAUTHORITY="$XDG_RUNTIME_DIR/ICEauthority"
+$ export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
-    # TBC: I'd like to find a way to capture our password using an
-    # ecryption routine here to store our pwd into some kind of cookie file for
-    # local re-use (xauth?)
-}
+$ alias iceauth_lin='iceauth -f $ICEAUTHORITY'
+$ alias xauth_lin='xauth -f $XAUTHORITY'
 
-# Screen number
-export DISPLAY_NUMBER="0"
+$ alias iceauth_win='wsl.exe --shell-type login -d ubento --system --user wslg --exec iceauth -f $ICEAUTHORITY'
+$ alias xauth_win='wsl.exe --shell-type login -d ubento --system --user wslg --exec xauth -f $XAUTHORITY'
 
-# Auth key
-export DISPLAY_TOKEN="$(echo '{sudo_autopasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
+## Screen number
+$ export DISPLAY_NUMBER="0"
 
-# Server address
-export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
+## Auth key
+$ export DISPLAY_TOKEN="$(cat '/etc/resolv.conf' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
 
-# Encrypted X session address
-export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+## Server address
+$ export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
 
-# Unencrypted X session address (if authentication fails, swap the above for this...)
+## Encrypted X session address
+$ export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+
+## Unencrypted X session address (if authentication fails, swap the above for this...)
 # export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
-#GL rendering
-export LIBGL_ALWAYS_INDIRECT=1
+## GL rendering - worth experimenting with these two!
+$ export LIBGL_ALWAYS_INDIRECT=1
+$ export GDK_BACKEND=x11
 
 
-auth_x()
+$ auth_x()
 {
     if [ -z "$DISPLAY" ]; then
         echo "Error: DISPLAY environment variable is not set."
     else
 
-        echo "$DISPLAY"
+        echo "Display set to: $DISPLAY\n"
         # Will print your encrypted X address...
 
-        vcxsrv
-        # Will launch your X-Server Windows executable...
-
-        echo "Linux X Server keys:" && xauth_lin list
-
-        echo "Windows X Server keys:" && xauth_win list
+        echo " Windows X Server keys: \n" && xauth_win list
+        echo " Linux X Server keys: \n" && xauth_lin list
 
         # Authorize key on Linux side and pass to Windows
         xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-
-        cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
-
         xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
-
 
         # Vice-versa...
         xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-
-        cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
-
         xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
 
-
-        # For backup/restoration...
-        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
-
-
-        echo "Linux X Server keys:" && xauth_lin list
-
         echo "Windows X Server keys:" && xauth_win list
+        echo "Linux X Server keys:" && xauth_lin list
 
     fi
 
     # Notes;
+    # WIP!!!
     # Useage of cp should be substituted for scp, possibly via SSH...?
-    # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
-    # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
-    # Hmmm, what's this "XAUTHORITY" variable about...?
-    # Furthermore, would be ideal to store cookie in $XDG_RUNTIME_DIR!
 }
 
 ```
@@ -1321,6 +1302,62 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
 ```
 
 The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.exe -d UBento``` - you can also append ```--user {username}``` if you like.
+
+
+## Accessing the underlying WSL2 Linux Kernel (CL Mariner Linux)
+
+Microsoft's WSL2 is, functionally speaking, a re-branded custom Linux kernel that has been adapted to run as a shell environment natively on Windows drivers. This custom kernel is Microsoft's ArchLinux-based CL-Mariner Linux kernel, which can be found in their Git repos (will link shortly). This custom kernel (which runs natively on Windows) mounts your chosen Linux distro (in it's own ```/mnt``` folder) and provides it's Windows-friendly systemd and GUI libraries to your distro, acting as a kind of bridge between both environments, and thus allowing your chosen Linux distro to "pipe" it's data to and from your Windows OS environment. The actual kernel used to do this can in fact be customized/changed by use of the Windows'side ```C:\Users\{username}\.wslconfig``` file. It is quite useful to note that you can in fact use a Windows command-line argument to login to your WSL2 distro as one of two "system"-level users, which will actually log you in to the Microsoft ArchLinux-based CL-Mariner kernel, which is the very heart of your WSL install - here, I present a series of commands to log in to CL-Mariner as the 'root' user, obtain the ```sudo``` package, and then proceed as the default-user (pre-named 'WSLg') with full sudo/yum package manager access;
+
+```
+# The '--system' flag accesses the underlying kernel as '--user root';
+> wsl --distro ubento --system --user root
+
+# The above should have you logged in as a root user with a red-colored prompt for the below;
+$ yum update -n
+$ yum install sudo
+$ sudo passwd WSLg
+# create and confirm a desired password for user WSLg, can be anything... I've no idea what the default is set to!
+$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video WSLg
+$ login WSLg
+# Enter the password you had just created to log in as user 'WSLg' - you should now have a green-colored prompt;
+$ sudo yum update
+$ sudo yum upgrade -y
+$ sudo yum install nano vim
+# etc... in fact, don't forget to check the '/etc' folder, as well as the two user directories, for some interesting bashscripts :) 
+```
+
+Now, while still logged in with the '--system' flag, take a look here;
+
+```
+$ cd /mnt/WSLg/runtime-dir
+$ ls -la
+```
+
+Take note of the contents, such as the wayland and pulseaudio stuff...
+
+Once you log out of '--system' and back in to your distro as per normal, do this;
+
+```
+$ cd $XDG_RUNTIME_DIR
+$ ls -la
+```
+
+It turns out to be the same folder, right? It seems the runtime directory itself is something of a symlink, or portal, between your running distro, and the underlying CL-Mariner kernel.
+
+Launch a few keyrings and services, then check the contents again...
+
+```
+$ sudo service dbus start
+$ /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
+$ google-chrome 2>/dev/null &
+$ code $HOME
+$ ls -la $XDG_RUNTIME_DIR
+```
+
+Since this particular location (as found at $XDG_RUNTIME_DIR) is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data. 
+
+You should note that this underlying kernel is re-formatted every time it is cold-booted (that is, all previous WSL sessions closed, then launching a new session). Any changes you make here do not persist once WSL goes offline, such as with ```wsl --shutdown```. Without further testing, I believe this has something to do with a persistent system variable that is hard-wired to the WSL2 distro-launcher's command line (something like "WSL_ROOT_INIT=1"...), and that it may be possible to control or influence the bahviour of this variable; as to what end, I'm not particularly sure. You can actually clone the latest build of MS's CL-Mariner kernel from their Git repo, along with instructions on how to build it from source (plus the usage instructions found in the '.wslconfig' documentation). They do also provide some encouragement for user to 'tinker' with the kernel to their own ends. 
+
 
 ## Customisation and tailoring your build to focus only on your needs
 
