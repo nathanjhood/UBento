@@ -794,7 +794,9 @@ $ init_permissions()
 $ export -f init_permissions
 
 $ init_permissions
+$ apt update
 $ apt install apt-utils dialog && apt install sudo && sudo -s
+$ sudo unminimize
 $ apt install nano less lsb-release curl wget git # And whatever other dependencies you might need...
 ```
 
@@ -888,7 +890,7 @@ fi
 
 export XDG_DESKTOP_DIR="$HOME/Desktop"
 export XDG_DOCUMENTS_DIR="$HOME/Documents"
-export XDG_DOWNLOADS_DIR="$HOME/Downloads"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
 export XDG_MUSIC_DIR="$HOME/Music"
 export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_PICTURES_DIR="$HOME/Pictures"
@@ -951,7 +953,7 @@ Let's expand our $XDG_DOWNLOAD_DIR variable out...
 
     ```
     # (this is NOT a terminal command!!!)
-    XDG_DOWNLOADS_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
+    XDG_DOWNLOAD_DIR = "$HOME/Downloads" = "/home/${username}/Downloads = /mnt/c/${username}/Downloads"
     ```
 
 The exact same directory (and it's contents) on the Windows side...
@@ -1061,6 +1063,7 @@ The XDG freedesktop specs suggest creating the following directories in your use
 ```
 $ mkdir $HOME/.local/share/Trash/info
 $ mkdir $HOME/.local/share/Trash/files
+$ mkdir $HOME/.local/share/Trash/expunged
 ```
 
 The above creates a Trash Can that works properly with, for example, Nautilus and Gnome. The same can (and probably should) be done for the root user. Reading up on the XDG desktop specs is well advised, if you're interested in building from source.
@@ -1354,13 +1357,13 @@ Microsoft's WSL2 is, functionally speaking, a re-branded custom Linux kernel tha
 > wsl --distro ubento --system --user root
 
 # The above should have you logged in as a root user with a red-colored prompt for the below;
-$ yum update -n
+$ no | yum update
 $ yum install sudo
 $ sudo passwd WSLg
-# create and confirm a desired password for user WSLg, can be anything... I've no idea what the default is set to!
-$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video WSLg
-$ login WSLg
-# Enter the password you had just created to log in as user 'WSLg' - you should now have a green-colored prompt;
+# create and confirm a desired password for user 'wslg', can be anything... I've no idea what the default is set to!
+$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video wslg
+$ login wslg
+# Enter the password you had just created to log in as user 'wslg' - you should now have a green-colored prompt;
 $ sudo yum update
 $ sudo yum upgrade -y
 $ sudo yum install nano vim
@@ -1370,7 +1373,7 @@ $ sudo yum install nano vim
 Now, while still logged in with the '--system' flag, take a look here;
 
 ```
-$ cd /mnt/WSLg/runtime-dir
+$ cd /mnt/wslg/runtime-dir
 $ ls -la
 ```
 
