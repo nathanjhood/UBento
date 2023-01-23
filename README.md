@@ -1166,92 +1166,73 @@ https://en.wikipedia.org/wiki/X_Window_authorization
 (tbc - this is a rough sketch of the idea...)
 
 ```
+## Just in case...!
 sudo apt install xauth iceauth resolvconf scp
-# Just in case...!
 
-# Set some easy names...
-alias vcxsrv="/mnt/c/'Program Files'/VcXsrv/vcxsrv.exe &"
-alias xlaunch="/mnt/c/'Program Files'/VcXsrv/xlaunch.exe &"
-alias xauth_win="/mnt/c/'Program Files'/VcXsrv/xauth.exe -f C://Users//${username}//.Xauthority"
-alias xauth_lin="xauth"
+## Add some Windows-side user environment variables (careful!)
+$ cmd.exe /C setx BASH_ENV /etc/bash.bashrc
+$ cmd.exe /C setx XAUTHORITY $XAUTHORITY
+$ cmd.exe /C setx ICEAUTHORITY $ICEAUTHORITY
+$ cmd.exe /C setx WSLENV BASH_ENV/up:ICEAUTHORITY/up:XAUTHORITY/up
 
-sudo_autopasswd()
-{
-    echo "<your_user_password>" | sudo -Svp ""
-    # Default timeout for caching your sudo password: 15 minutes
+## Set some easy, portable names...
+$ export ICEAUTHORITY="$XDG_RUNTIME_DIR/ICEauthority"
+$ export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
-    # TBC: I'd like to find a way to capture our password using an
-    # ecryption routine here to store our pwd into some kind of cookie file for
-    # local re-use (xauth?)
-}
+$ alias iceauth_lin='iceauth -f $ICEAUTHORITY'
+$ alias xauth_lin='xauth -f $XAUTHORITY'
 
-# Screen number
-export DISPLAY_NUMBER="0"
+$ alias iceauth_win='wsl.exe --shell-type login -d ubento --system --user wslg --exec iceauth -f $ICEAUTHORITY'
+$ alias xauth_win='wsl.exe --shell-type login -d ubento --system --user wslg --exec xauth -f $XAUTHORITY'
 
-# Auth key
-export DISPLAY_TOKEN="$(echo '{sudo_autopasswd}' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
+## Screen number
+$ export DISPLAY_NUMBER="0"
 
-# Server address
-export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
+## Auth key
+$ export DISPLAY_TOKEN="$(cat '/etc/resolv.conf' | tr -d '\n\r' | md5sum | gawk '{print $1;}' )"
 
-# Encrypted X session address
-export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+## Server address
+$ export DISPLAY_ADDRESS="$(cat '/etc/resolv.conf' | grep nameserver | awk '{print $2; exit;}' )"
 
-# Unencrypted X session address (if authentication fails, swap the above for this...)
+## Encrypted X session address
+$ export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.$DISPLAY_TOKEN"
+
+## Unencrypted X session address (if authentication fails, swap the above for this...)
 # export DISPLAY="$DISPLAY_ADDRESS:$DISPLAY_NUMBER.0"
 
-#GL rendering
-export LIBGL_ALWAYS_INDIRECT=1
+## GL rendering - worth experimenting with these two!
+$ export LIBGL_ALWAYS_INDIRECT=1
+$ export GDK_BACKEND=x11
 
 
-auth_x()
+$ auth_x()
 {
     if [ -z "$DISPLAY" ]; then
         echo "Error: DISPLAY environment variable is not set."
     else
 
-        echo "$DISPLAY"
+        echo "Display set to: $DISPLAY\n"
         # Will print your encrypted X address...
 
-        vcxsrv
-        # Will launch your X-Server Windows executable...
-
-        echo "Linux X Server keys:" && xauth_lin list
-
-        echo "Windows X Server keys:" && xauth_win list
+        echo " Windows X Server keys: \n" && xauth_win list
+        echo " Linux X Server keys: \n" && xauth_lin list
 
         # Authorize key on Linux side and pass to Windows
         xauth_lin add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-
-        cp -f "$HOME/.Xauthority" "/mnt/c/Users/{username}/.Xauthority"
-
         xauth_win generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
-
 
         # Vice-versa...
         xauth_win add $DISPLAY_ADDRESS:$DISPLAY_NUMBER . $DISPLAY_TOKEN
-
-        cp -f "/mnt/c/Users/{username}/.Xauthority" "$HOME/.Xauthority"
-
         xauth_lin generate $DISPLAY_ADDRESS:$DISPLAY_NUMBER . trusted timeout 604800
 
-
-        # For backup/restoration...
-        cp -f "$HOME/.Xauthority" "$HOME/.config/.Xauthority"
-
-
-        echo "Linux X Server keys:" && xauth_lin list
-
         echo "Windows X Server keys:" && xauth_win list
+        echo "Linux X Server keys:" && xauth_lin list
 
     fi
 
     # Notes;
+    # WIP!!!
     # Useage of cp should be substituted for scp, possibly via SSH...?
-    # "/mnt/c/Users/{username}/.Xauthority" = "C:\Users\{username}\.Xauthority"
-    # - Could be a WSLENV translatable path? Or even a symlink to a Windows-side file?
-    # Hmmm, what's this "XAUTHORITY" variable about...?
-    # Furthermore, would be ideal to store cookie in $XDG_RUNTIME_DIR!
 }
 
 ```
