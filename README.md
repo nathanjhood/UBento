@@ -1343,18 +1343,29 @@ $ sudo yum update
 $ sudo yum upgrade -y
 $ sudo yum install nano vim
 # etc... in fact, don't forget to check the '/etc' folder, as well as the two user directories, for some interesting bashscripts :) 
+```
 
-# Now, while logged in with the '--system' flag, take a look here;
+Now, while still logged in with the '--system' flag, take a look here;
+
+```
 $ cd /mnt/WSLg/runtime-dir
 $ ls -la
-# Take note of the contents, such as the wayland and pulseaudio stuff...
+```
 
-# Once you log out of '--system' and back in to your distro as per normal, do this;
+Take note of the contents, such as the wayland and pulseaudio stuff...
+
+Once you log out of '--system' and back in to your distro as per normal, do this;
+
+```
 $ cd $XDG_RUNTIME_DIR
 $ ls -la
-# It turns out to be the same folder, right? It seems the runtime directory itself is something of a symlink, or portal, between your running distro, and the underlying CL-Mariner kernel.
+```
 
-# Launch a few keyrings and services, then check the contents again...
+It turns out to be the same folder, right? It seems the runtime directory itself is something of a symlink, or portal, between your running distro, and the underlying CL-Mariner kernel.
+
+Launch a few keyrings and services, then check the contents again...
+
+```
 $ sudo service dbus start
 $ /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
 $ google-chrome 2>/dev/null &
@@ -1362,7 +1373,7 @@ $ code $HOME
 $ ls -la $XDG_RUNTIME_DIR
 ```
 
-Since this particular location is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data. 
+Since this particular location (as found at $XDG_RUNTIME_DIR) is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data. 
 
 You should note that this underlying kernel is re-formatted every time it is cold-booted (that is, all previous WSL sessions closed, then launching a new session). Any changes you make here do not persist once WSL goes offline, such as with ```wsl --shutdown```. Without further testing, I believe this has something to do with a persistent system variable that is hard-wired to the WSL2 distro-launcher's command line (something like "WSL_ROOT_INIT=1"...), and that it may be possible to control or influence the bahviour of this variable; as to what end, I'm not particularly sure. You can actually clone the latest build of MS's CL-Mariner kernel from their Git repo, along with instructions on how to build it from source (plus the usage instructions found in the '.wslconfig' documentation). They do also provide some encouragement for user to 'tinker' with the kernel to their own ends. 
 
