@@ -1166,7 +1166,7 @@ https://en.wikipedia.org/wiki/X_Window_authorization
 (tbc - this is a rough sketch of the idea...)
 
 ```
-sudo apt install xauth resolveconf scp
+sudo apt install xauth iceauth resolvconf scp
 # Just in case...!
 
 # Set some easy names...
@@ -1321,6 +1321,51 @@ Going deeper, we could make a simple desktop-icon launcher that simply invokes o
 ```
 
 The profile's 'command line' option should be set to ```C:\WINDOWS\system32\wsl.exe -d UBento``` - you can also append ```--user {username}``` if you like.
+
+
+## Accessing the underlying WSL2 Linux Kernel (CL Mariner Linux)
+
+Microsoft's WSL2 is, functionally speaking, a re-branded custom Linux kernel that has been adapted to run as a shell environment natively on Windows drivers. This custom kernel is Microsoft's ArchLinux-based CL-Mariner Linux kernel, which can be found in their Git repos (will link shortly). This custom kernel (which runs natively on Windows) mounts your chosen Linux distro (in it's own ```/mnt``` folder) and provides it's Windows-friendly systemd and GUI libraries to your distro, acting as a kind of bridge between both environments, and thus allowing your chosen Linux distro to "pipe" it's data to and from your Windows OS environment. The actual kernel used to do this can in fact be customized/changed by use of the Windows'side ```C:\Users\{username}\.wslconfig``` file. It is quite useful to note that you can in fact use a Windows command-line argument to login to your WSL2 distro as one of two "system"-level users, which will actually log you in to the Microsoft ArchLinux-based CL-Mariner kernel, which is the very heart of your WSL install - here, I present a series of commands to log in to CL-Mariner as the 'root' user, obtain the ```sudo``` package, and then proceed as the default-user (pre-named 'WSLg') with full sudo/yum package manager access;
+
+```
+# The '--system' flag accesses the underlying kernel as '--user root';
+> wsl --distro ubento --system --user root
+
+# The above should have you logged in as a root user with a red-colored prompt for the below;
+$ yum update -n
+$ yum install sudo
+$ sudo passwd WSLg
+# create and confirm a desired password for user WSLg, can be anything... I've no idea what the default is set to!
+$ usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video WSLg
+$ login WSLg
+# Enter the password you had just created to log in as user 'WSLg' - you should now have a green-colored prompt;
+$ sudo yum update
+$ sudo yum upgrade -y
+$ sudo yum install nano vim
+# etc... in fact, don't forget to check the '/etc' folder, as well as the two user directories, for some interesting bashscripts :) 
+
+# Now, while logged in with the '--system' flag, take a look here;
+$ cd /mnt/WSLg/runtime-dir
+$ ls -la
+# Take note of the contents, such as the wayland and pulseaudio stuff...
+
+# Once you log out of '--system' and back in to your distro as per normal, do this;
+$ cd $XDG_RUNTIME_DIR
+$ ls -la
+# It turns out to be the same folder, right? It seems the runtime directory itself is something of a symlink, or portal, between your running distro, and the underlying CL-Mariner kernel.
+
+# Launch a few keyrings and services, then check the contents again...
+$ sudo service dbus start
+$ /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
+$ google-chrome 2>/dev/null &
+$ code $HOME
+$ ls -la $XDG_RUNTIME_DIR
+```
+
+Since this particular location is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data. 
+
+You should note that this underlying kernel is re-formatted every time it is cold-booted (that is, all previous WSL sessions closed, then launching a new session). Any changes you make here do not persist once WSL goes offline, such as with ```wsl --shutdown```. Without further testing, I believe this has something to do with a persistent system variable that is hard-wired to the WSL2 distro-launcher's command line (something like "WSL_ROOT_INIT=1"...), and that it may be possible to control or influence the bahviour of this variable; as to what end, I'm not particularly sure. You can actually clone the latest build of MS's CL-Mariner kernel from their Git repo, along with instructions on how to build it from source (plus the usage instructions found in the '.wslconfig' documentation). They do also provide some encouragement for user to 'tinker' with the kernel to their own ends. 
+
 
 ## Customisation and tailoring your build to focus only on your needs
 
