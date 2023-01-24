@@ -18,6 +18,15 @@ if [ "$BASH" ]; then
     fi
 fi
 
+if [ -d "/etc/profile.d" ]; then
+    for script in /etc/profile.d/*.sh ; do
+        if [ -r $script ]; then
+            source $script
+        fi
+    done
+    unset script
+fi
+
 echo "$0; # ...$USER loaded $HOME/.bash_profile"
 ## End ~/.bash_profile
 
