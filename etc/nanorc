@@ -1,8 +1,10 @@
 ## Sample initialization file for GNU nano.
 
-## For the options that take parameters, the default value is shown. Other options are unset by default.  To make sure that an option is disabled, you can use "unset <option>".
+## For the options that take parameters, the default value is shown. Other options are unset by default. 
+## To make sure that an option is disabled, you can use "unset <option>".
 
-## Characters that are special in a shell should not be escaped here. Inside string parameters, quotes should not be escaped -- the last double quote on the line will be seen as the closing quote.
+## Characters that are special in a shell should not be escaped here. 
+## Inside string parameters, quotes should not be escaped -- the last double quote on the line will be seen as the closing quote.
 
 ## Make 'nextword' (Ctrl+Right) and 'chopwordright' (Ctrl+Delete) stop at word ends instead of at beginnings.
 set afterends
@@ -61,7 +63,7 @@ set indicator
 ## Display line numbers to the left (and any anchors in the margin).
 # set linenumbers
 
-## Enable vim-style lock-files. This is just to let a vim user know you are editing a file [s]he is trying to edit and vice versa. There are no plans to implement vim-style undo state in these files.
+## Enable vim-style lock-files. This is just to let a vim user know you are editing a file that they are trying to edit and vice versa. There are no plans to implement vim-style undo state in these files.
 set locking
 
 ## Fall back to slow libmagic to try and determine an applicable syntax.
@@ -88,7 +90,8 @@ set noconvert
 ## Don't automatically add a newline when a file does not end with one.
 # set nonewlines
 
-## Set operating directory.  nano will not read or write files outside this directory and its subdirectories.  Also, the current directory is changed to here, so any files are inserted from this dir. A blank string means the operating-directory feature is turned off.
+## Set operating directory.  nano will not read or write files outside this directory and its subdirectories.
+## Also, the current directory is changed to here, so any files are inserted from this dir. A blank string means the operating-directory feature is turned off.
 # set operatingdir ""
 
 ## Remember the cursor position in each file for the next editing session.
@@ -97,7 +100,8 @@ set noconvert
 ## Preserve the XON and XOFF keys (^Q and ^S).
 # set preserve
 
-## The characters treated as closing punctuation when justifying paragraphs. This may not contain blank characters. Only these closing punctuations, optionally followed by closing brackets, can end sentences.
+## The characters treated as closing punctuation when justifying paragraphs. This may not contain blank characters.
+## Only these closing punctuations, optionally followed by closing brackets, can end sentences.
 # set punct "!.?"
 
 ## Make status-bar messages disappear after 1 keystroke instead of after 20.
