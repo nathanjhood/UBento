@@ -8,4 +8,6 @@
 
 PATH="/sbin:/bin"
 
+LANG="en_GB.utf8"
+
 ## End /etc/environment
