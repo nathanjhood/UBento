@@ -37,17 +37,15 @@ set_session_bus()
         {
         echo "Session D-Bus not found..."
         sudo service dbus start
-        sudo service cron start
-        sudo service x11-common start
+        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
+        /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
+        /usr/bin/dbus-update-activation-environment --all --verbose &
+        /usr/libexec/at-spi2-registryd --use-gnome-session --dbus-name=org.a11y.atspi.Registry &
         echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
         }
     else
         echo "Using active D-Bus session at $DBUS_SESSION_BUS_ADDRESS"
     fi
-    /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
-    /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
-    /usr/bin/dbus-update-activation-environment --all --verbose &
-    /usr/libexec/at-spi2-registryd --use-gnome-session --dbus-name=org.a11y.atspi.Registry &
 }
 
 cdnvm() {
