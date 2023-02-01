@@ -28,7 +28,7 @@ set_runtime_dir()
 set_session_bus()
 {
     export DBUS_PATH="dbus-1"
-    export DBUS_SOCK="bus"
+    export DBUS_SOCK="session_bus_socket"
     local bus_file_path="$XDG_RUNTIME_DIR/$DBUS_PATH/$DBUS_SOCK"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
