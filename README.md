@@ -1,6 +1,10 @@
 # UBento
 Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
+
+![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+
+
 Quick start (see 'requirements');
 
 ```
@@ -23,9 +27,6 @@ Alternative - Build from source (see 'requirements' and [TIPS]:Building from sou
 $ make_user "${username}" "${full name}"
 # Supply and confirm a password... and welcome to UBento :)
 ```
-
-
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
 
 
 ## About
@@ -72,7 +73,7 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 - Try it with other Linux flavours and goals.
 
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+![Creepy-Penguin](https://c4.wallpaperflare.com/wallpaper/884/285/193/windows-10-tux-linux-gnu-hd-wallpaper-preview.jpg)
 
 
 To get started, run the below in either your Windows Powershell (```>```) or your Linux Bash (```$```) terminal;
