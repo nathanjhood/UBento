@@ -18,6 +18,15 @@ if [ "$BASH" ]; then
     fi
 fi
 
+if [ -d "$HOME/.config/bash/profile.d" ]; then
+    for script in $HOME/.config/bash/profile.d/*.sh ; do
+        if [ -r $script ]; then
+            source $script
+        fi
+    done
+    unset script
+fi
+
 if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
     export PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
 fi
@@ -26,6 +35,7 @@ echo "$0; # ...$USER loaded $HOME/.bash_profile"
 ## End ~/.bash_profile
 
 ## Startup commands can go here...
+set_systemd
 set_runtime_dir
 #set_session_bus
 #neofetch

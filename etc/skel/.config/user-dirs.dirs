@@ -11,8 +11,8 @@ if [ -z "$XDG_DOCUMENTS_DIR" ] && [ -d "$HOME/Documents" ]; then
     export XDG_DOCUMENTS_DIR="$HOME/Documents"
 fi
 
-if [ -z "$XDG_DOWNLOADS_DIR" ] && [ -d "$HOME/Downloads" ]; then
-    export XDG_DOWNLOADS_DIR="$HOME/Downloads"
+if [ -z "$XDG_DOWNLOAD_DIR" ] && [ -d "$HOME/Downloads" ]; then
+    export XDG_DOWNLOAD_DIR="$HOME/Downloads"
 fi
 
 if [ -z "$XDG_MUSIC_DIR" ] && [ -d "$HOME/Music" ]; then

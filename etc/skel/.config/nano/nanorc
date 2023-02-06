@@ -17,7 +17,7 @@ set autoindent
 set backup
 
 ## The directory to put unique backup files in.
-set backupdir "~/.cache/nano"
+set backupdir "/tmp"
 
 ## Use bold text instead of reverse video text.
 # set boldtext

@@ -1,4 +1,3 @@
-
 ## Shell Options
 
 ## See man bash for more options...

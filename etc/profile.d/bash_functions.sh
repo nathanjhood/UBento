@@ -27,23 +27,70 @@ set_runtime_dir()
 ## https://x410.dev/cookbook/wsl/running-ubuntu-desktop-in-wsl2/
 set_session_bus()
 {
-    export DBUS_PATH="bus"
-    local bus_file_path="$XDG_RUNTIME_DIR/$DBUS_PATH"
+    export DBUS_PATH="dbus-1"
+    export DBUS_SOCK="session_bus_socket"
+    local bus_file_path="$XDG_RUNTIME_DIR/$DBUS_PATH/$DBUS_SOCK"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus_file_path"
 
     echo "Checking session D_Bus..."
     if [ ! -e "$bus_file_path" ]; then
         {
         echo "Session D-Bus not found..."
-        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only && \
-        /usr/libexec/at-spi-bus-launcher --launch-immediately && \
-        /usr/bin/dbus-update-activation-environment --all --verbose --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
+        sudo service dbus start
+        /usr/bin/dbus-daemon --session --address="$DBUS_SESSION_BUS_ADDRESS" --nofork --nopidfile --syslog-only &
+        /usr/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 &
+        /usr/bin/dbus-update-activation-environment --all --verbose &
+        /usr/libexec/at-spi2-registryd --use-gnome-session --dbus-name=org.a11y.atspi.Registry &
         echo "Created session D-Bus at $DBUS_SESSION_BUS_ADDRESS"
         }
     else
         echo "Using active D-Bus session at $DBUS_SESSION_BUS_ADDRESS"
     fi
 }
+
+
+set_systemd()
+{
+    SYSTEMD_PID=$(ps -ef | grep '/lib/systemd/systemd --system-unit=basic.target$' | grep -v unshare | awk '{print $2}')
+    if [ -z "$SYSTEMD_PID" ] || [ "$SYSTEMD_PID" != "1" ]; then
+        export PRE_NAMESPACE_PATH="$PATH"
+        (set -o posix; set) | \
+            grep -v "^BASH" | \
+            grep -v "^DIRSTACK=" | \
+            grep -v "^EUID=" | \
+            grep -v "^GROUPS=" | \
+            grep -v "^HOME=" | \
+            grep -v "^HOSTNAME=" | \
+            grep -v "^HOSTTYPE=" | \
+            grep -v "^IFS='.*"$'\n'"'" | \
+            grep -v "^LANG=" | \
+            grep -v "^LOGNAME=" | \
+            grep -v "^MACHTYPE=" | \
+            grep -v "^NAME=" | \
+            grep -v "^OPTERR=" | \
+            grep -v "^OPTIND=" | \
+            grep -v "^OSTYPE=" | \
+            grep -v "^PIPESTATUS=" | \
+            grep -v "^POSIXLY_CORRECT=" | \
+            grep -v "^PPID=" | \
+            grep -v "^PS1=" | \
+            grep -v "^PS4=" | \
+            grep -v "^SHELL=" | \
+            grep -v "^SHELLOPTS=" | \
+            grep -v "^SHLVL=" | \
+            grep -v "^SYSTEMD_PID=" | \
+            grep -v "^UID=" | \
+            grep -v "^USER=" | \
+            grep -v "^_=" | \
+            cat - > "$XDG_RUNTIME_DIR/.systemd_env"
+        echo "PATH='$PATH'" >> "$XDG_RUNTIME_DIR/.systemd_env"
+        #exec sudo /usr/sbin/enter-systemd-namespace "$BASH_EXECUTION_STRING"
+    fi
+    if [ -n "$PRE_NAMESPACE_PATH" ]; then
+        export PATH="$PRE_NAMESPACE_PATH"
+    fi
+}
+export -f set_systemd
 
 cdnvm() {
     command cd "$@" || return $?

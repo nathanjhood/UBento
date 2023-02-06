@@ -36,23 +36,6 @@ if [ -z "$XDG_STATE_HOME" ] && [ -d "$HOME/.local/state" ]; then
     XDG_STATE_HOME="$HOME/.local/state"
 fi
 
-# If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)...
-if [ -z "$XDG_CACHE_HOME" ] && [ -d "$HOME/.cache" ]; then
-    XDG_CACHE_HOME="$HOME/.cache"
-fi
-
-if [ -z "$XDG_CONFIG_HOME" ] && [ -d "$HOME/.config" ]; then
-    XDG_CONFIG_HOME="$HOME/.config"
-fi
-
-if [ -z "$XDG_DATA_HOME" ] && [ -d "$HOME/.local/share" ]; then
-    XDG_DATA_HOME="$HOME/.local/share"
-fi
-
-if [ -z "$XDG_STATE_HOME" ] && [ -d "$HOME/.local/state" ]; then
-    XDG_STATE_HOME="$HOME/.local/state"
-fi
-
 # If not already defined, set XDG_CACHE_HOME to $HOME/.cache (if it exists)
 if [ -z "$XDG_DESKTOP_DIR" ] && [ -d "$HOME/Desktop" ]; then
     XDG_DESKTOP_DIR="$HOME/Desktop"
@@ -62,8 +45,8 @@ if [ -z "$XDG_DOCUMENTS_DIR" ] && [ -d "$HOME/Documents" ]; then
     XDG_DOCUMENTS_DIR="$HOME/Documents"
 fi
 
-if [ -z "$XDG_DOWNLOADS_DIR" ] && [ -d "$HOME/Downloads" ]; then
-    XDG_DOWNLOADS_DIR="$HOME/Downloads"
+if [ -z "$XDG_DOWNLOAD_DIR" ] && [ -d "$HOME/Downloads" ]; then
+    XDG_DOWNLOAD_DIR="$HOME/Downloads"
 fi
 
 if [ -z "$XDG_MUSIC_DIR" ] && [ -d "$HOME/Music" ]; then
