@@ -61,27 +61,27 @@ fi
 if [ -n "${LANG}" ] && [ "${TERM}" = 'linux' ] && /usr/bin/tty | /usr/bin/grep --quiet -e '/dev/tty'; then
     if /usr/bin/grep --quiet -E -i -e '^.+\.utf-?8$' <<< "${LANG}"; then
         case ${LANG} in
-            ja*)    LANG=en_US.UTF-8 ;;
-            ko*)    LANG=en_US.UTF-8 ;;
-            si*)    LANG=en_US.UTF-8 ;;
-            zh*)    LANG=en_US.UTF-8 ;;
-            ar*)    LANG=en_US.UTF-8 ;;
-            fa*)    LANG=en_US.UTF-8 ;;
-            he*)    LANG=en_US.UTF-8 ;;
+            ja*)    LANG=en_GB.UTF-8 ;;
+            ko*)    LANG=en_GB.UTF-8 ;;
+            si*)    LANG=en_GB.UTF-8 ;;
+            zh*)    LANG=en_GB.UTF-8 ;;
+            ar*)    LANG=en_GB.UTF-8 ;;
+            fa*)    LANG=en_GB.UTF-8 ;;
+            he*)    LANG=en_GB.UTF-8 ;;
             en_IN*) true             ;;
-            *_IN*)  LANG=en_US.UTF-8 ;;
+            *_IN*)  LANG=en_GB.UTF-8 ;;
         esac
     else
         case ${LANG} in
-            ja*)    LANG=en_US ;;
-            ko*)    LANG=en_US ;;
-            si*)    LANG=en_US ;;
-            zh*)    LANG=en_US ;;
-            ar*)    LANG=en_US ;;
-            fa*)    LANG=en_US ;;
-            he*)    LANG=en_US ;;
+            ja*)    LANG=en_GB ;;
+            ko*)    LANG=en_GB ;;
+            si*)    LANG=en_GB ;;
+            zh*)    LANG=en_GB ;;
+            ar*)    LANG=en_GB ;;
+            fa*)    LANG=en_GB ;;
+            he*)    LANG=en_GB ;;
             en_IN*) true       ;;
-            *_IN*)  LANG=en_US ;;
+            *_IN*)  LANG=en_GB ;;
         esac
     fi
 
