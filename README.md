@@ -229,7 +229,8 @@ These are reproduced here in altered form for convenience and testing. The follo
 Requires some of the basic packages from earlier, such as wget/curl/git/gpg/lsb-release/openssh-client.
 
 ```
-$ sudo apt install wget curl git gpg lsb-release openssh-client
+$ sudo -s
+$ apt install wget curl git gpg lsb-release openssh-client
 
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
