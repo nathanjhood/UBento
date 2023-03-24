@@ -3,7 +3,7 @@
 
 ## Begin ~/.bash_history.sh
 
-export HISTFILE="$HOME/.config/bash/history"
+export HISTFILE="~/.config/bash/history"
 
 ## Setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000

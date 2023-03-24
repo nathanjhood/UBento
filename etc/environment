@@ -6,8 +6,6 @@
 
 ## Begin /etc/environment
 
-PATH="/sbin:/bin"
-
-LANG="en_GB.utf8"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 ## End /etc/environment

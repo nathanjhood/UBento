@@ -2,23 +2,6 @@
 
 # Begin /etc/profile.d/bash_paths.sh
 
-## Global bin paths
-if [ -d "/usr/bin" ] ; then
-    PATH="/usr/bin:$PATH"
-fi
-
-if [ -d "/usr/sbin" ] ; then
-    PATH="/usr/sbin:$PATH"
-fi
-
-if [ -d "/usr/local/bin" ] ; then
-    PATH="/usr/local/bin:$PATH"
-fi
-
-if [ -d "/usr/local/sbin" ] ; then
-    PATH="/usr/local/sbin:$PATH"
-fi
-
 # Global bin paths - extras
 if [ -d "/usr/games" ] ; then
     PATH="/usr/games:$PATH"
@@ -28,6 +11,11 @@ if [ -d "/usr/local/games" ] ; then
     PATH="/usr/local/games:$PATH"
 fi
 #export PATH
+
+# nodejs stuff
+if [ -d "/usr/bin/node" ] ; then
+    NODE_PATH="/usr/bin/node"
+fi
 
 # Global info paths
 if [ -d "/usr/info" ] ; then
@@ -44,7 +32,7 @@ fi
 #export INFOPATH
 
 
-## Global man paths (defaults; "/usr/local/man:/usr/share/man:/usr/man:/share/man" )
+## Global man paths
 if [ -d "/share/man" ] ; then
     MANPATH="/share/man:$MANPATH"
 fi
@@ -97,6 +85,6 @@ fi
 # export XDG_RUNTIME_DIR="/run/user/$(id -u)" # for systemd
 # export XDG_RUNTIME_DIR="/mnt/wslg/runtime-dir" # no systemd
 
-export PATH INFOPATH MANPATH PKG_CONFIG_PATH LD_LIBRARY_PATH XDG_DATA_DIRS XDG_CONFIG_DIRS
+export PATH NODE_PATH INFOPATH MANPATH PKG_CONFIG_PATH LD_LIBRARY_PATH XDG_DATA_DIRS XDG_CONFIG_DIRS
 
 # End /etc/profile.d/bash_paths.sh
