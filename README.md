@@ -222,6 +222,10 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 
 ## [DEVTOOLS KEYRING]
 
+The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```.
+
+These are reproduced here in altered form for convenience and testing. The following function convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula ('get key, add to lst, update cache'...).
+
 Requires some of the basic packages from earlier, such as wget/curl/git/gpg/lsb-release/openssh-client.
 
 ```
@@ -232,10 +236,6 @@ $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
 $ export KEY_PATH="/usr/share/keyrings"
 ```
-
-The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```.
-
-These are reproduced here in altered form for convenience and testing. The following function convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula ('get key, add to lst, update cache'...).
 
 - Node (latest)
 
