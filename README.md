@@ -230,25 +230,21 @@ $ sudo apt install wget curl git gpg lsb-release openssh-client
 $ export DISTRO="$(lsb_release -cs)"
 $ export ARCH="$(dpkg --print-architecture)"
 $ export APT_SOURCES="/etc/apt/sources.list.d"
-$ alias apt_cln='rm -rf /var/lib/apt/lists/*'
+$ export KEY_PATH="/usr/share/keyrings"
 ```
 
-The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```. 
+The following bash functions are already pre-defined in the root user's ```~/.bashrc.d/bash_keyring.sh```, which is accessed by called ```sudo -s``` (to enter a shell as the root user with sudo privileges), then just entering the name of the function, such as ```get_node```. Back in your user-space you then just ```sudo apt install nodejs``` to install the latest release, per the function definition. If any of them don't work, just make sure that ```sudo``` has the above export locations when doing ```get_<key>```.
 
 These are reproduced here in altered form for convenience and testing. The following function convention is just an "average", based on the APT-key instructions provided by each vendor, which all vary slightly but more or less follow the below formula ('get key, add to lst, update cache'...).
 
 - Node (latest)
 
 ```
-$ export DISTRO="$(lsb_release -cs)"
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ export SYS_NODE_V="node_19.x"
-
 $ get_node()
 {
-    export NODEJS_KEY="/usr/share/keyrings/nodesource.gpg"
+    local NODEJS_KEY="$KEY_PATH/nodesource.gpg"
+
+    local SYS_NODE_V="node_19.x"
 
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee $NODEJS_KEY >/dev/null
 
@@ -268,12 +264,9 @@ $ npm --global install npm@latest
 - Yarn (latest)
 
 ```
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
 $ get_yarn()
 {
-    export YARN_KEY="/usr/share/keyrings/yarnkey.gpg"
+    local YARN_KEY="$KEY_PATH/yarnkey.gpg"
 
     curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee $YARN_KEY >/dev/null
 
@@ -313,29 +306,36 @@ $ cd_nvm <Node Project Repo>
 - Fully ssh-authenticated Git and Chrome integration
 
 ```
-$ export DISTRO="$(lsb_release -cs)"
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
 
-# Requirements...
-$ apt install curl wget git gpg
-
-$ get_chrome()
+get_chrome()
 {
-    curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "$XDG_DOWNLOADS_DIR/chrome.deb"
+  local CHROME_KEY="/usr/share/keyrings/google-chrome.gpg"
 
-    apt install "$XDG_DOWNLOADS_DIR/chrome.deb"
+  curl "https://dl.google.com/linux/direct/google-chrome-stable_current_$ARCH.deb" -o "/tmp/google-chrome.deb"
+
+  echo "deb [arch=$ARCH signed-by=$CHROME_KEY] https://dl.google.com/linux/chrome/deb stable main"
+
+  apt install "/tmp/google-chrome.deb"
+
+  local CHROME_TMP_KEY="/etc/apt/trusted.gpg.d/google-chrome.gpg"
+
+  cp -rvf $CHROME_TMP_KEY $CHROME_KEY
+
+  rm -rvf $CHROME_TMP_KEY
+
+  apt update
 }
 
-$ get_gith()
+get_gith()
 {
-    export GH_KEY="/usr/share/keyrings/githubcli-archive-keyring.gpg"
+  local GH_KEY="$KEY_PATH/githubcli-archive-keyring.gpg"
 
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor | tee $GH_KEY >/dev/null
 
-    echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
+  echo "deb [arch=$ARCH signed-by=$GH_KEY] https://cli.github.com/packages stable main" | tee $APT_SOURCES/github-cli.list
 
-    apt update
+  apt update
+
 }
 
 # Optionally install Chrome...*
@@ -379,23 +379,33 @@ $ gh repo clone git@github.com:StoneyDSP/ubento.git "$DEV_DIR/UBento"
 Here are some other common tools for development - again, do ```sudo -s``` first (if you are running these commands directly from this README.md file);
 
 
-- PGAdmin (for PostgreSQL)
+- PostgreSQL & PGAdmin (for PostgreSQL)
 
 ```
-export DISTRO="$(lsb_release -cs)"
-export APT_SOURCES="/etc/apt/sources.list.d"
+
+get_postgres()
+{
+  local PSQL_KEY="$KEY_PATH/apt.postgresql.org.gpg"
+
+  wget -O - "https://www.postgresql.org/media/keys/ACCC4CF8.asc" 2>/dev/null | gpg --dearmor - | tee $PSQL_KEY >/dev/null
+
+  echo "deb [arch=$ARCH signed-by=$PSQL_KEY] http://apt.postgresql.org/pub/repos/apt $DISTRO-pgdg main" | tee $APT_SOURCES/pgdg.list
+
+  apt update
+
+  # apt install postgresql postgresql-contrib postgresql-client
+}
 
 get_pgadmin()
 {
-    export PGADMIN_KEY="/usr/share/keyrings/packages-pgadmin-org.gpg"
+  local PGADMIN_KEY="$KEY_PATH/packages-pgadmin-org.gpg"
 
-    curl -fsSL https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o $PGADMIN_KEY
+  curl -fsSL "https://www.pgadmin.org/static/packages_pgadmin_org.pub" | gpg --dearmor -o $PGADMIN_KEY
 
-    echo "deb [signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
+  echo "deb [arch=$ARCH signed-by=$PGADMIN_KEY] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$DISTRO pgadmin4 main" > $APT_SOURCES/pgadmin4.list
 
-    apt update
+  apt update
 }
-
 
 # install packages - the postgresql package will create a new user named 'postgres', as needed...
 $ sudo apt install apache2 apache2-bin apache2-data apache2-utils apache2-doc postgresql postgresql-contrib postgresql-15-doc
@@ -459,7 +469,6 @@ postgresql://postgres:postgres@localhost:54322/postgres
 - Supabase (check repo for latest release version number, these outdate quickly...)
 
 ```
-$ export ARCH="$(dpkg --print-architecture)"
 
 $ export SYS_SUPABASE_V="1.27.0"
 
@@ -495,21 +504,17 @@ $ postman login
 - CMake (you should have Make and/or other build tools, and check out Visual Studio with WSL - you can now use MSBuild tools on Linux-side code!)
 
 ```
-$ export DISTRO="$(lsb_release -cs)"
-$ export ARCH="$(dpkg --print-architecture)"
-$ export APT_SOURCES="/etc/apt/sources.list.d"
-
-$ sudo apt install build-essential gnu-standards pkgconfig
-
-$ get_cmake()
+get_cmake()
 {
-    export KITWARE_KEY="/usr/share/keyrings/kitware-archive-keyring.gpg"
+  local KITWARE_KEY="$KEY_PATH/kitware-archive-keyring.gpg"
 
-    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
+  wget -O - "https://apt.kitware.com/keys/kitware-archive-latest.asc" 2>/dev/null | gpg --dearmor - | tee $KITWARE_KEY >/dev/null
 
-    echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
+  echo "deb [arch=$ARCH signed-by=$KITWARE_KEY] https://apt.kitware.com/ubuntu $DISTRO main" | tee $APT_SOURCES/kitware.list
 
-    apt update
+  apt update
+
+  # sudo apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
 }
 
 $ apt install kitware-archive-keyring cmake cmake-data cmake-doc ninja-build
@@ -593,7 +598,11 @@ $ code .
 
 # Will run an installation step for 'vscode-server-remote' on first run....
 # Also check the 'extensions' tab for many WSL-based versions of your favourite extensions
-# Make sure that you *don't* already have VSCode installed on the Linux side before doing this, as that's *not* how the Remote Dev extension works! ;) 
+
+
+# You can also use your Windows-side VSCode, via the remote WSL extension, as one of your preferred default editors in ubento;
+
+
 ```
 
 - Test Docker Desktop interoperability, if you have it; (IMPORTANT - do not run this step until AFTER creating your user with UID 1000, otherwise Docker tries to steal this UID!);
@@ -657,11 +666,11 @@ Restart your Windows machine once the above is complete.
 ## Storage considerations
 
 
-Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations. 
+Think very carefully about how/where you choose to store your runtime distro on disk, and linkages between environments - particularly the user desktop, downloads, documents folders, and other regularly accessed locations.
 
-It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from an external/removable storage drive, like USB or SD card. 
+It is generally safe to have access to your Windows-side file system via the Linux-side ```/mnt``` directory *and* to use symbolic links from Linux-side (user's "download" folders, etc) to the Windows environment. However, based on some experience, I would recommend *against* combining this with running your distro from an external/removable storage drive, like USB or SD card.
 
-While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption. 
+While the mounting/linkage practices are both quite safe enough to be default behaviour in WSL, *and* it mounts and runs just fine from external storage which I happily depend upon daily, you could be running some risk when attempting to write to your Windows file system from the Linux-side and experiencing a hardware failure, such as a cat chewing on your USB stick and causing some file-corruption.
 
 Desktop linkage is really cool, as is external storage - but I'd have to recommend *not* to mix the two, in the case of WSL.
 
@@ -733,7 +742,7 @@ It is CRITICAL* during systemd configuration that of the previous steps, the fol
 If you are unable to load your distro and recieve errors such as the above...
 
 - DON'T use anything except NFTS as your storage volume type - in particular, FAT32 file systems do NOT allow file sizes above 4gb. Your distro will fail on a FAT32 storage drive once it reaches 4gb - simply move the file to a backup location, re-format the storage to NTFS and try again.
-- Enable the 'debug' option in your C:\Users\{username}\.wslconfig file to launch an additional terminal read-out to gather more info on the issue, it's usually one of two things... 
+- Enable the 'debug' option in your C:\Users\{username}\.wslconfig file to launch an additional terminal read-out to gather more info on the issue, it's usually one of two things...
 - Make sure that the storage location of your distro's ext4.vhd is not full, i.e., if using external/remote storage
 - If it appears that you are very low on disk space, do ```$ ls -la /var/log``` - you may find a few thousand mb's worth of log files, particularly from the X server (tip welcome!), which you can ```$ sudo rm -rvf /var/log/Xorg*``` to remove entirely.
 - If disk space continues to be the issue (i.e, the above command appears to have worked, but your ext4.vhdx didn't actually shrink so you are still out of disk space), then you are probably using .vhdx (i.e., 'dynamic' sized virtual disk) where plain old .vhd (i.e., 'static' sized virtual disk) would have done the trick... you can use WSL as a handy and easy .vhd/x conversion tool with ```wsl --export <distro> 'C:\some\storage\location\ext4.vhd' --vhd``` and ```wsl --import-in-place <distro> 'C:\some\storage\location\ext4.vhd' --vhd``` in a matter of seconds. See [TIPS]:Storage for more.
@@ -838,7 +847,7 @@ $ make_user()
     adduser --home=/home/"${1}" --shell=/bin/bash --gecos="${2}" --uid=1000 "${1}"
 
     usermod --group=adm,dialout,cdrom,floppy,tape,sudo,audio,dip,video,plugdev "${1}"
-    
+
     echo -e "[user]\n default=${1}\n" >> /etc/wsl.conf
 
     login ${1}
@@ -906,7 +915,7 @@ The directories indicated in all of the above *should* exist in some form, for a
 By providing symbolic links to our Windows user folders, we can get some huge benefits such as a shared "Downloads" folder and a fully "Public"-ly shared folder. Thus, you can download a file in your Windows internet browser, and instantly access it from your WSL user's downloads folder (which is the exact same file address), for example. However, there is some risk in mixing certain file types between Windows and WSL - there are several articles on the web on the subject (to be linked) which you should probably read before proceeding with either, or a mix, of the following;
 
 
-## option 1 - linked storage; 
+## option 1 - linked storage;
 
 Symlink your Windows and UBento user folders with these commands (change the respective usernames if yours don't match);
 
@@ -931,14 +940,14 @@ Symlink your Windows and UBento user folders with these commands (change the res
     ```
 
 - optional - 'public' shared folder...
-    
+
     ```
     $ ln -s "/mnt/c/Users/Public" "/home/${username}/Public"
     $ ln -s "/mnt/c/Users/Public" "/root/Public"
     ```
 
 - Alternatively, make a function;
-    
+
     ```
     $ link_home_dirs()
     {
@@ -970,7 +979,7 @@ All of the above are one and the same directory...! Storage is on the Windows-si
 ## option 2 - local storage; create new UBento user folders with these commands;
 
 - Run this once as the user, then once as root...
-    
+
     ```
     $ mkdir \
     $HOME/Desktop \
@@ -984,7 +993,7 @@ All of the above are one and the same directory...! Storage is on the Windows-si
     ```
 
 - Alternatively, use the handy XDG package to do it for us;
-    
+
     ```
     $ sudo apt install xdg-user-dirs
     $ xdg-user-dirs-defaults
@@ -1127,14 +1136,14 @@ export PATH
 
 ## Bash Completion
 
-Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring. 
+Many, perhaps most, modern CLI applications also ship with completion scripts. Though these scripts aren't as prone to frequent updates as the applications themeselves are, there can still be large delays between a vendor's latest stable release version, and the corresponding version bound to APT's default keyring. On top of this, the WSL Ubuntu build in the MS Store also ships with quite a variety of bash completion scripts, split between several different directories (```/etc/bash_completion.d``` and ```/usr/share/bash_completion```), which correspond to the application versions... which are bound to APT's default keyring.
 
 Thus, if you're binding the latest APT keys as suggested in the [DEVTOOLS KEYRING] section to install latest sotware versions, then you can usually find a 'completion' command (eg ```supabase completion bash```) which you can use to populate whichever bash_completion directories you please, and version-update the content accordingly. Who knows, maybe this could be incorporated into some of the ```get_app()``` function definitions, one day.?
 
 
 ## Storage
 
-As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives. 
+As seen in the [PRE-INSTALL] step earlier, WSL handily provides lots of ways to manage the storage of our virtual distros, including packing them as .tar files and importing them as dynamically-sized, mountable drives.
 
 We can fully leverage this in the spirit of a lightweight, portable development environment that can be easily backed up to external storage, re-initialized from a clean slate, duplicated, and converted and transferred between various storages and virtual hard drive formats.
 
@@ -1197,7 +1206,7 @@ $ wsl --import Ubuntu "D:\Ubuntu" "C:\Users\<username>\ubuntu_minimal.tar"
 
 ## Interoperability with Fonts and Wallpapers
 
-Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts. 
+Notice in the post-install steps the suggestion to use ```/etc/fonts/local.conf``` to import your Windows fonts (the entire function is provided in the steps). If you're interested in taking this further, take a look at the MS Store WSL Ubuntu's install folder - it ships with mutliple assets, such as several windows-friendly formats of the famous Ubuntu font, a Yaru-themed wallpaper, and several re-usable icons. The WSL Launcher distro's repo provides artwork templates in various shapes and sizes for shipment to the MS Store. Finally, you can actually get the entire Ubuntu font family - which includes a Windows Terminal-friendly 'monospace' version - from the Ubuntu website*, as well as from common sources such as Google Fonts.
 
 While these are probably superfluous touches, they do really highlight the interesting experience of different working environments *sharing* the resources on one machine in realtime. Personally, I am interested to see how far this can be further leveraged for the purposes of both reducing the linux-side storage footprint, while simultaneously extending the Windows desktop environment into new reaches.
 
@@ -1368,7 +1377,7 @@ $ login wslg
 $ sudo yum update
 $ sudo yum upgrade -y
 $ sudo yum install nano vim
-# etc... in fact, don't forget to check the '/etc' folder, as well as the two user directories, for some interesting bashscripts :) 
+# etc... in fact, don't forget to check the '/etc' folder, as well as the two user directories, for some interesting bashscripts :)
 ```
 
 Now, while still logged in with the '--system' flag, take a look here;
@@ -1399,9 +1408,9 @@ $ code $HOME
 $ ls -la $XDG_RUNTIME_DIR
 ```
 
-Since this particular location (as found at $XDG_RUNTIME_DIR) is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data. 
+Since this particular location (as found at $XDG_RUNTIME_DIR) is accessible on both the Windows *and* Linux sides, it seems to be a perfect candidate for storing shared cookies, socket connections, and other temp runtime data.
 
-You should note that this underlying kernel is re-formatted every time it is cold-booted (that is, all previous WSL sessions closed, then launching a new session). Any changes you make here do not persist once WSL goes offline, such as with ```wsl --shutdown```. Without further testing, I believe this has something to do with a persistent system variable that is hard-wired to the WSL2 distro-launcher's command line (something like "WSL_ROOT_INIT=1"...), and that it may be possible to control or influence the bahviour of this variable; as to what end, I'm not particularly sure. You can actually clone the latest build of MS's CL-Mariner kernel from their Git repo, along with instructions on how to build it from source (plus the usage instructions found in the '.wslconfig' documentation). They do also provide some encouragement for user to 'tinker' with the kernel to their own ends. 
+You should note that this underlying kernel is re-formatted every time it is cold-booted (that is, all previous WSL sessions closed, then launching a new session). Any changes you make here do not persist once WSL goes offline, such as with ```wsl --shutdown```. Without further testing, I believe this has something to do with a persistent system variable that is hard-wired to the WSL2 distro-launcher's command line (something like "WSL_ROOT_INIT=1"...), and that it may be possible to control or influence the bahviour of this variable; as to what end, I'm not particularly sure. You can actually clone the latest build of MS's CL-Mariner kernel from their Git repo, along with instructions on how to build it from source (plus the usage instructions found in the '.wslconfig' documentation). They do also provide some encouragement for user to 'tinker' with the kernel to their own ends.
 
 
 ## Customisation and tailoring your build to focus only on your needs
