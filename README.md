@@ -2,7 +2,7 @@
 Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/ubento/main/ubento.png)
 
 
 Quick start (see 'requirements');
@@ -217,7 +217,7 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 ...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
 
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/ubento/main/ubento.png)
 
 
 ## [DEVTOOLS KEYRING]
@@ -616,7 +616,7 @@ $ docker run -it alpine bash
 ```
 
 
-![UBento-icon](https://github.com/StoneyDSP/ubento/blob/4da549bafe71e969ec072987a8b561eb3eb2a5ec/ubento.png)
+![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/ubento/main/ubento.png)
 
 
 ## [TROUBLESHOOTING]
