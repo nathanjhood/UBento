@@ -22,7 +22,7 @@
     // "editor.wordWrap": "bounded",
     // "editor.wordWrapColumn": 80,
 
-    "editor.renderFinalNewline": true,
+    "editor.renderFinalNewline": "on",
     "editor.trimAutoWhitespace": true,
     "editor.tabSize": 4,
 
