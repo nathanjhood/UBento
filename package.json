@@ -1,17 +1,48 @@
 {
-  "name": "ubento-docs",
-  "version": "1.0.0",
-  "main": "index.html",
-  "repository": "https://github.com/StoneyDSP/UBento.git",
-  "author": "Nathan J. Hood ",
-  "license": "MIT",
-  "private": false,
-  "dependencies": {
-    "@vercel/analytics": "^1.0.2",
-    "vercel": "^32.2.0"
-  },
-  "scripts": {
-    "dev": "npx serve",
-    "build": "node --version"
-  }
+    "name": "@stoneydsp/ubento-docs",
+    "version": "1.0.0",
+    "description": "StoneyDSP Official Website",
+    "main": "./index.html",
+    "icon": "./public/favicon.ico",
+    "author": "StoneyDSP <nathanjhood@googlemail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/StoneyDSP/UBento#readme",
+    "readme": "README.md",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/StoneyDSP/UBento.git"
+    },
+    "bugs": {
+        "url": "https://github.com/StoneyDSP/UBento/issues"
+    },
+    "private": true,
+    "preferGlobal": true,
+    "packageManager": "yarn@1.22.19",
+    "scripts": {
+        "lint": "eslint *.html public/*.js",
+        "dev": "npx serve",
+        "build": "node --version",
+        "rebuild": "yarn clean && yarn build",
+        "clean": "rm -rvf src/main/main.js",
+        "wipe": "yarn clean && rm -rvf node_modules"
+    },
+    "dependencies": {
+        "@vercel/analytics": "^1.0.2"
+    },
+    "devDependencies": {
+        "@html-eslint/eslint-plugin": "^0.19.1",
+        "@html-eslint/parser": "^0.19.1",
+        "@vercel/node": "^3.0.5",
+        "eslint": "^8.49.0",
+        "typescript": "*"
+    },
+    "files": [
+        "./public"
+    ],
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ]
 }
