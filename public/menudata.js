@@ -22,13 +22,15 @@
 
  @licend  The above is the entire license notice for the JavaScript code in this file
 */
-var menudata={children:
-  [
+
+var menudata={
+  children: [
     {
       text: "Home",
-      url: "https://stoneydsp.com/index.html"
+      url:"https://stoneydsp.com/index.html"
     },
     {
+
       text: "UBento",
       url: "index.html"
     }
