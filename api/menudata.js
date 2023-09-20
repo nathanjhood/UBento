@@ -1,4 +1,4 @@
-/*
+/**
  @licstart  The following is the entire license notice for the JavaScript code in this file.
 
  The MIT License (MIT)
@@ -23,16 +23,37 @@
  @licend  The above is the entire license notice for the JavaScript code in this file
 */
 
-var menudata={
+var menudata = {
   children: [
     {
       text: "Home",
-      url:"https://stoneydsp.com/index.html"
+      url: "index.html"
     },
     {
-
-      text: "UBento",
-      url: "index.html"
+      text: "Projects",
+      url: "projects.html",
+      children: [
+        {
+          text: "Biquads",
+          url: "https://biquads.stoneydsp.com"
+        },
+        {
+          text: "CxxWin",
+          url: "https://cxxwin.stoneydsp.com"
+        },
+        {
+          text: "UBento",
+          url: "https://ubento.stoneydsp.com"
+        }
+        // {
+        //   text: "redirect",
+        //   url: "/redirect/"
+        // }
+      ]
+    },
+    {
+      text: "Contact",
+      url: "contact.html"
     }
   ]
-}
+};
