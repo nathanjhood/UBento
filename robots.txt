@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /src/
 
-Sitemap: https://www.stoneydsp.com/sitemap.xml
+Sitemap: https://www.ubento.stoneydsp.com/sitemap.xml

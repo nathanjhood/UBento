@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "StoneyDSP Official Website",
     "main": "./index.html",
-    "icon": "./public/favicon.ico",
+    "icon": "./favicon.ico",
     "author": "StoneyDSP <nathanjhood@googlemail.com>",
     "license": "MIT",
     "homepage": "https://github.com/StoneyDSP/UBento#readme",
@@ -27,7 +27,8 @@
         "wipe": "yarn clean && rm -rvf node_modules"
     },
     "dependencies": {
-        "@vercel/analytics": "^1.0.2"
+        "@vercel/analytics": "^1.0.2",
+        "@vercel/postgres": "^0.4.2"
     },
     "devDependencies": {
         "@html-eslint/eslint-plugin": "^0.19.1",
@@ -37,6 +38,7 @@
         "typescript": "*"
     },
     "files": [
+				"./api",
         "./public"
     ],
     "browserslist": [

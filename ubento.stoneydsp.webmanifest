@@ -1,0 +1,22 @@
+{
+	"name": "ubento",
+	"short_name": "ubento",
+	"start_url": "/index.html",
+    "id": "/index.html",
+	"display": "browser",
+	"background_color": "#fff",
+	"description": "Minimal, bento-box style Ubuntu-based WSL distro front-end",
+	"icons": [
+		{
+			"src": "/favicon.ico",
+		    "sizes": "64x64",
+			"type": "image/x-icon"
+		}
+	],
+	"related_applications": [
+		"stoneydsp.github.io"
+	],
+	"categories": [
+		"education", "utilities"
+	]
+}
