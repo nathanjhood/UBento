@@ -1,8 +1,32 @@
-!public
-!*.ico
-!*.png
-!*.svg
+.bak
+.cache
+.nitro
+.nuxt
+.out
+.output
+.turbo
+*.tsbuildinfo
+.vercel
+.vscode
+
+.env
+.env.*
+!.env.example
+
+*.log*
+
+.DS_Store
+
+dist
+node_modules
+
+*bak*
+*log*
 
 node_modules
 
-.vercel
+!*.ico
+!*.png
+!*.svg
+!*.npmrc
+!/public
