@@ -154,6 +154,10 @@
     {
 			"source": "/wp/",
 			"destination": "https://www.ubento.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/wp-login.php",
+			"destination": "https://www.ubento.stoneydsp.com/index.html"
 		}
 	]
 }
