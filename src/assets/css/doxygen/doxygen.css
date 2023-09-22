@@ -157,7 +157,7 @@ html {
 	--tooltip-shadow: 1px 1px 7px gray;
 
 	/** font-family */
-	--font-family-normal: Cascadia,sans-serif;
+	--font-family-normal: 'Cascadia Code',sans-serif;
 	--font-family-monospace: 'Cascadia Mono',Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace,fixed;
 	--font-family-nav: 'Lucida Grande',Geneva,Helvetica,Arial,sans-serif;
 	--font-family-title: Tahoma,Arial,sans-serif;
@@ -322,7 +322,7 @@ html {
 		--tooltip-shadow: none;
 
 		/** font-family */
-		--font-family-normal: Cascadia,sans-serif;
+		--font-family-normal: 'Cascadia Code',sans-serif;
 		--font-family-monospace: 'Cascadia Mono',Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace,fixed;
 		--font-family-nav: 'Lucida Grande',Geneva,Helvetica,Arial,sans-serif;
 		--font-family-title: Tahoma,Arial,sans-serif;
