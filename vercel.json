@@ -122,42 +122,69 @@
     }
   ],
 	"redirects": [
-
+		{
+			"source": "/.well-known/",
+			"destination": "/index.html"
+		},
+		{
+			"source": "/*.php",
+			"destination": "/index.html"
+		},
+		{
+			"source": "/*/*.hp",
+			"destination": "/index.html"
+		},
 		{
 			"source": "/redirect/",
 			"destination": "/index.html"
 		},
 		{
 			"source": "/backup/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
+		},
+		{
+			"source": "/blog/",
+			"destination": "/index.html"
 		},
 		{
 			"source": "/new/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		},
 		{
 			"source": "/old/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		},
 		{
 			"source": "/temp/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		},
 		{
 			"source": "/test/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		},
 		{
 			"source": "/wordpress/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		},
     {
 			"source": "/wp/",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
+		},
+		{
+			"source": "/wp-admin/",
+			"destination": "/index.html"
+		},
+		{
+			"source": "/wp-content/",
+			"destination": "/index.html"
+		},
+		{
+			"source": "/wp-includes/",
+			"destination": "/index.html"
 		},
 		{
 			"source": "/wp-login.php",
-			"destination": "https://www.ubento.stoneydsp.com/index.html"
+			"destination": "/index.html"
 		}
 	]
 }
