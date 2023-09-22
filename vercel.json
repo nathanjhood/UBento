@@ -6,7 +6,6 @@
     "outputDirectory": ".",
     "public": false,
     "framework": null,
-    },
 	"redirects": [
 		{
 			"source": "/redirect/",
