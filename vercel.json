@@ -1,30 +1,131 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "devCommand": "yarn dev",
-    "installCommand": "yarn install",
-    "buildCommand": "yarn build",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
     "outputDirectory": ".",
     "public": false,
     "framework": null,
-		"functions": {
+	  "functions": {
 
-			"api/*.js": {
-				"memory": 1024,
-				"maxDuration": 10
-			},
+	    "api/*.js": {
+            "memory": 1024,
+            "maxDuration": 10
+        },
 
-			"api/**/*.js": {
-				"memory": 1024,
-				"maxDuration": 10
-			},
+        "api/**/*.js": {
+            "memory": 1024,
+            "maxDuration": 10
+        },
 
-			"api/**/*.ts": {
-				"memory": 1024,
-				"maxDuration": 10
-			}
+        "api/**/*.ts": {
+            "memory": 1024,
+            "maxDuration": 10
+        }
+    },
+	"redirects": [
+		{
+			"source": "/redirect/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
 		},
-		"git": {
+		{
+			"source": "/backup/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/new/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/old/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/temp/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/tmp/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/test/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/v2/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/wordpress/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+    {
+			"source": "/wp/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+    {
+			"source": "/wp-includes/",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/wp-login.php",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/login.action",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/_all_dbs",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/_catalog",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/config.json",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/.DS_Store",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/.env",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/server-status",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/telescope/requests",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/.vscode/sftp.json",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/about",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/debug/default/view",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/.git/config",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		}
+	],
+	"git": {
 		"deploymentEnabled": true
 	},
 	"github": {
@@ -32,6 +133,15 @@
 		"silent": false
 	},
 	"headers": [
+		{
+			"source": "/service-worker.js",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=0, must-revalidate"
+				}
+			]
+		},
 		{
 			"source": "/(.html)",
 			"headers": [
@@ -48,13 +158,13 @@
 					"value": "max-age=60"
 				},
 				{
-          "key": "Cache-Control",
-          "value": "public, max-age=10, s-maxage=86400, immutable"
-        },
+					"key": "Cache-Control",
+					"value": "public, max-age=10, s-maxage=86400, immutable"
+				},
 				{
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
+					"key": "X-XSS-Protection",
+					"value": "1; mode=block"
+				}
 			]
 		},
 		{
@@ -69,9 +179,9 @@
 					"value": "max-age=60"
 				},
 				{
-          "key": "Cache-Control",
-          "value": "public, max-age=10, s-maxage=86400, immutable"
-        }
+					"key": "Cache-Control",
+					"value": "public, max-age=10, s-maxage=86400, immutable"
+				}
 			]
 		},
 		{
@@ -86,93 +196,38 @@
 					"value": "max-age=60"
 				},
 				{
-          "key": "Cache-Control",
-          "value": "public, max-age=10, s-maxage=86400, immutable"
-        }
+					"key": "Cache-Control",
+					"value": "public, max-age=10, s-maxage=86400, immutable"
+				}
 			]
 		},
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        }
-
-      ]
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "query",
-          "key": "authorized"
-        }
-      ],
-      "headers": [
-        {
-          "key": "x-authorized",
-          "value": "true"
-        }
-      ]
-    }
-  ],
-	"redirects": [
 		{
-			"source": "/.well-known/",
-			"destination": "/index.html"
+			"source": "/(.*)",
+			"headers": [
+				{
+					"key": "X-Content-Type-Options",
+					"value": "nosniff"
+				},
+				{
+					"key": "X-Frame-Options",
+					"value": "DENY"
+				}
+			]
 		},
 		{
-			"source": "/backup/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/blog/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/new/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/old/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/temp/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/test/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/wordpress/",
-			"destination": "/index.html"
-		},
-    {
-			"source": "/wp/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/wp-admin/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/wp-content/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/wp-includes/",
-			"destination": "/index.html"
-		},
-		{
-			"source": "/wp-login.php",
-			"destination": "/index.html"
+			"source": "/:path*",
+			"has": [
+				{
+					"type": "query",
+					"key": "authorized"
+				}
+			],
+		"headers": [
+				{
+					"key": "x-authorized",
+					"value": "true"
+				}
+			]
 		}
 	]
 }
