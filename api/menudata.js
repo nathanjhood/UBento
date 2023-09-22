@@ -27,11 +27,11 @@ var menudata = {
   children: [
     {
       text: "Home",
-      url: "index.html"
+      url: "https://www.stoneydsp.com/index.html"
     },
     {
       text: "Projects",
-      url: "projects.html",
+      url: "https://projects.stoneydsp.com",
       children: [
         {
           text: "Biquads",
@@ -45,15 +45,11 @@ var menudata = {
           text: "UBento",
           url: "https://ubento.stoneydsp.com"
         }
-        // {
-        //   text: "redirect",
-        //   url: "/redirect/"
-        // }
       ]
     },
     {
       text: "Contact",
-      url: "contact.html"
+      url: "https://contact.stoneydsp.com"
     }
   ]
 };
