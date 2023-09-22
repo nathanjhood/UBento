@@ -127,10 +127,6 @@
 			"destination": "/index.html"
 		},
 		{
-			"source": "/redirect/",
-			"destination": "/index.html"
-		},
-		{
 			"source": "/backup/",
 			"destination": "/index.html"
 		},
