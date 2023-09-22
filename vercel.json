@@ -58,7 +58,7 @@
 			]
 		},
 		{
-			"source": "github-readme-stats.stoneydsp.com/(.*)",
+			"source": "https://github-readme-stats.stoneydsp.com/(.*)",
 			"headers": [
 				{
 					"key": "Vercel-CDN-Cache-Control",
@@ -75,7 +75,7 @@
 			]
 		},
 		{
-			"source": "skillicons.dev/",
+			"source": "https://skillicons.dev/",
 			"headers": [
 				{
 					"key": "Vercel-CDN-Cache-Control",
