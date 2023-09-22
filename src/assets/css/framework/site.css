@@ -2,7 +2,7 @@
 /* Calculate fractional font size using responsive 'vw' prop...*/
 /* Set all cascaded font sizes to be relative */
 :root {
-    font-family: 'Cascadia';
+    font-family: 'Cascadia Code';
     font-size: calc((15.00px + 0.390625vw) * (15.00 / 18.00));
     /* background-color: var(--brand-color__black);
     display: block;
