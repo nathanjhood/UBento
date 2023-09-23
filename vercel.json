@@ -6,6 +6,20 @@
   "outputDirectory": ".",
   "public": false,
   "framework": null,
+	"functions": {
+	  "api/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
 	"redirects": [
 		{
 			"source": "/redirect/",
