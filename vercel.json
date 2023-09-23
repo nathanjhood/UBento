@@ -1,28 +1,11 @@
 {
-    "version": 2,
-    "devCommand": null,
-    "installCommand": null,
-    "buildCommand": null,
-    "outputDirectory": ".",
-    "public": false,
-    "framework": null,
-	  "functions": {
-
-	    "api/*.js": {
-            "memory": 1024,
-            "maxDuration": 10
-        },
-
-        "api/**/*.js": {
-            "memory": 1024,
-            "maxDuration": 10
-        },
-
-        "api/**/*.ts": {
-            "memory": 1024,
-            "maxDuration": 10
-        }
-    },
+  "version": 2,
+  "devCommand": "yarn dev",
+  "installCommand": "yarn install",
+  "buildCommand": "yarn build",
+  "outputDirectory": ".",
+  "public": false,
+  "framework": null,
 	"redirects": [
 		{
 			"source": "/redirect/",
@@ -122,6 +105,14 @@
 		},
 		{
 			"source": "/.git/config",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/Public/home/js/check.js",
+			"destination": "https://www.404.stoneydsp.com/index.html"
+		},
+		{
+			"source": "/static/admin/javascript/hetong.js",
 			"destination": "https://www.404.stoneydsp.com/index.html"
 		}
 	],
