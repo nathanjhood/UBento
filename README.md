@@ -2,7 +2,7 @@
 Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
 
-![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/ubento/main/ubento.png)
+![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/stoneydsp.com/production/public/icon__512x512.png)
 
 
 Quick start (see 'requirements');
