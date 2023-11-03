@@ -1,10 +1,6 @@
 # UBento
 Minimal, bento-box style Ubuntu-based WSL distro front-end, ideal for targeting Linux-style NodeJs and CMake development environments from Windows platforms.
 
-
-<!-- ![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/stoneydsp.com/production/public/icon__512x512.png) -->
-
-
 Quick start (see 'requirements');
 
 ```
@@ -71,9 +67,6 @@ This will hopefully all get compiled into some sort of an interactive bash scrip
 - Check the [TIPS] and [TROUBLESHOOTING] sections for helpful insights.
 
 - Try it with other Linux flavours and goals.
-
-
-<!-- ![Creepy-Penguin](https://c4.wallpaperflare.com/wallpaper/884/285/193/windows-10-tux-linux-gnu-hd-wallpaper-preview.jpg) -->
 
 
 To get started, run the below in either your Windows Powershell (```>```) or your Linux Bash (```$```) terminal;
@@ -215,9 +208,6 @@ Back in Powershell (```>```), we can now login as our new user (the ```--user```
 
 
 ...but, the idea with UBento is take some minimal steps to greatly enhance the experience where possible. We can choose to tailor our UBento towards either/both a fully-configured desktop environment, and/or a fully-configured development environment; the scripts below are presented as suggestions, largely based on exposed defaults that can be found on actual Linux desktop machines made portable - and, with small tweaks to further explore some of the more useful, powerful, and interesting desktop interoperability opportunities that an otherwise feather-weight WSL/Ubuntu-Minimal distro can provide.
-
-
-<!-- ![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/stoneydsp.com/production/public/icon__512x512.png) -->
 
 
 ## [DEVTOOLS KEYRING]
@@ -614,10 +604,6 @@ $ code .
 $ docker run hello-world
 $ docker run -it alpine bash
 ```
-
-
-<!-- ![UBento-icon](https://raw.githubusercontent.com/StoneyDSP/stoneydsp.com/production/public/icon__512x512.png) -->
-
 
 ## [TROUBLESHOOTING]
 
